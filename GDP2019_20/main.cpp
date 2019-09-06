@@ -136,9 +136,9 @@ int main(void)
 
 	glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	double startTime = glfwGetTime();
-	double lastTime = glfwGetTime();
-	double dt;
+	float startTime = glfwGetTime();
+	float lastTime = glfwGetTime();
+	float dt;
 
 
 	float cameraMovement = -10;
@@ -154,17 +154,15 @@ int main(void)
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Wireframe
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		// Default
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		// Also see GL_POINT
 		m = glm::mat4(1.0f);
 
-		glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-		m = m * rotateZ;
+		m *= translate * scale * rotateZ;
 
+		// FOV, aspect ratio, near clip, far clip
 		p = glm::perspective(0.6f, ratio, 0.1f, 1000.0f);
 
 		v = glm::mat4(1.0f);
@@ -188,11 +186,17 @@ int main(void)
 		std::cout << cameraEye.z << std::endl;
 		v = glm::lookAt(cameraEye, cameraTarget, upVector);
 
-		mvp = p * v * m;
+		mvp = m * v * p;
 
 		glUseProgram(program);
 
 		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		// Wireframe
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Default
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		// Also see GL_POINT
 
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 		glfwSwapBuffers(window);
