@@ -2,12 +2,13 @@
 // Entrypoint for program
 // 2019-09-04
 
-#include <glad/glad.h>
+#include <glad/glad.h> // Include before GLFW
 #include <GLFW/glfw3.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <sstream>
 #include <iostream>
 #include <vector>
 
@@ -19,23 +20,19 @@
 // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
-static const struct Vertex
-{
-	float x, y;
-	float r, g, b;
-};
-std::vector<Vertex> vertices;
+// contains bunny vertices
+#include "model.hpp"
 
-static const char* vertex_shader_text =
-"uniform mat4 MVP;\n"
-"attribute vec3 vCol;\n"
-"attribute vec2 vPos;\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n"
-"    color = vCol;\n"
-"}\n";
+static const char* vertex_shader_text = "\
+uniform mat4 MVP;\n\
+attribute vec3 vCol;\n\
+attribute vec3 vPos;\n\
+varying vec3 color;\n\
+void main()\n\
+{\n\
+    gl_Position = MVP * vec4(vPos, 1.0);\n\
+	color = vCol;\n\
+}\n";
 
 static const char* fragment_shader_text =
 "varying vec3 color;\n"
@@ -49,10 +46,44 @@ static void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+glm::vec3 cameraEye = glm::vec3(0.0f, 0.0f, -4.0f);
+glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float cameraSpeed = 5;
+
+// Camera movement
+bool mF = false, mB = false, mL = false, mR = false;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+	if (key == GLFW_KEY_W)
+		if (action == GLFW_PRESS)
+			mF = true;
+		else if (action == GLFW_RELEASE)
+			mF = false;
+
+	if (key == GLFW_KEY_S)
+		if (action == GLFW_PRESS)
+			mB = true;
+		else if (action == GLFW_RELEASE)
+			mB = false;
+
+	if (key == GLFW_KEY_A)
+		if (action == GLFW_PRESS)
+			mL = true;
+		else if (action == GLFW_RELEASE)
+			mL = false;
+
+	if (key == GLFW_KEY_D)
+		if (action == GLFW_PRESS)
+			mR = true;
+		else if (action == GLFW_RELEASE)
+			mR = false;
+
 }
 
 int main(void)
@@ -63,14 +94,13 @@ int main(void)
 
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
-	{
 		exit(EXIT_FAILURE);
-	}
 	
+	// Set minimum versions of OpenGL
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+	window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -80,33 +110,12 @@ int main(void)
 	glfwSetKeyCallback(window, key_callback);
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	glfwSwapInterval(1);
-
-	float x1 = 60.0f;
-	float x2 = -60.0f;
-	float x3 = 0;
-	float y1 = -30.0f;
-	float y2 = 60.f;
-
-	vertices.push_back(Vertex{ x1, y1, 1.0f, 0.0f, 0.0f });
-	vertices.push_back(Vertex{ x2, y1, 0.0f, 1.0f, 0.0f });
-	vertices.push_back(Vertex{ x3, y2, 0.0f, 0.0f, 1.0f });
-	for (int i = 0; i < 11; i++)
-	{
-		x1 = x1 / -2;
-		x2 = x2 / -2;
-		x3 = x3 / -2;
-		y1 = y1 / -2;
-		y2 = y2 / -2;
-		vertices.push_back(Vertex{ x1, y1, 1.0f, 0.0f, 0.0f });
-		vertices.push_back(Vertex{ x2, y1, 0.0f, 1.0f, 0.0f });
-		vertices.push_back(Vertex{ x3, y2, 0.0f, 0.0f, 1.0f });
-	}
+	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
 	
 	// NOTE: OpenGL error checks have been omitted for brevity
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sVertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
 	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
@@ -120,87 +129,75 @@ int main(void)
 	glAttachShader(program, vertex_shader);
 	glAttachShader(program, fragment_shader);
 	glLinkProgram(program);
+	glUseProgram(program);
 
 	mvp_location = glGetUniformLocation(program, "MVP");
 	vpos_location = glGetAttribLocation(program, "vPos");
 	vcol_location = glGetAttribLocation(program, "vCol");
 
 	glEnableVertexAttribArray(vpos_location);
-	glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*)0);
+	glVertexAttribPointer(vpos_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*)0);
 	glEnableVertexAttribArray(vcol_location);
-	glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*)(sizeof(float) * 2));
+	glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*)(sizeof(float) * 3));
 
+	// Wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// Default
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	// Also see GL_POINT
 
-	glm::vec3 cameraEye = glm::vec3(0.0, 15.0, -150.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 15.0f, 0.0f);
+	float ratio;
+	int width, height;
+	glm::mat4 m, v, p, mvp;
+	glfwGetFramebufferSize(window, &width, &height);
+	ratio = width / (float)height;
+	glViewport(0, 0, width, height);
 
-	glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-
-	float startTime = glfwGetTime();
-	float lastTime = glfwGetTime();
+	// timing
+	float totalTime;
+	float lastTime = 0;
 	float dt;
 
-
-	float cameraMovement = -10;
 	while (!glfwWindowShouldClose(window))
 	{
-		dt = lastTime - glfwGetTime();
+		totalTime = glfwGetTime();
+		dt = glfwGetTime() - lastTime;
 		lastTime = glfwGetTime();
-		float ratio;
-		int width, height;
-		glm::mat4 m, p, v, mvp;
-		glfwGetFramebufferSize(window, &width, &height);
-		ratio = width / (float)height;
-		glViewport(0, 0, width, height);
+		
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Camera Movement
+		cameraEye.z += (mF - mB) * cameraSpeed * dt;
+		cameraEye.x += (mL - mR) * cameraSpeed * dt;
+		cameraTarget.z += (mF - mB) * cameraSpeed * dt;
+		cameraTarget.x += (mL - mR) * cameraSpeed * dt;
+
+		std::ostringstream windowTitle;
+		windowTitle << "CameraEye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
+					<< "CameraTarget: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
+		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
 		m = glm::mat4(1.0f);
 
-		glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(4.0f, 4.0f, 4.0f));
+		glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f));
 
-		m *= translate * scale * rotateZ;
+		m = m * translation * scale * rotation;
 
 		// FOV, aspect ratio, near clip, far clip
 		p = glm::perspective(0.6f, ratio, 0.1f, 1000.0f);
 
 		v = glm::mat4(1.0f);
-
-		// Move camera
-		if (cameraEye.z < 0)
-		{
-			cameraEye.y += dt * -cameraMovement / 10;
-			cameraTarget.y += dt * -cameraMovement / 10;
-		}
-		else
-		{
-			cameraEye.y -= dt * -cameraMovement / 10;
-			cameraTarget.y -= dt * -cameraMovement / 10;
-		}
-		if (cameraEye.z > 150)
-			cameraMovement = 10;
-		else if (cameraEye.z < -150)
-			cameraMovement = -10;
-		cameraEye.z += dt * cameraMovement;
-		std::cout << cameraEye.z << std::endl;
 		v = glm::lookAt(cameraEye, cameraTarget, upVector);
 
-		mvp = m * v * p;
-
-		glUseProgram(program);
+		mvp = p * v * m; // Dont change this order.
 
 		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		// Wireframe
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		// Default
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		// Also see GL_POINT
-
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		glfwSwapBuffers(window); // Draws to screen
+		glfwPollEvents(); // Keyboard/Mouse input, etc.
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();
