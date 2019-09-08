@@ -46,11 +46,17 @@ static void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-glm::vec3 cameraEye = glm::vec3(0.0f, 0.0f, -4.0f);
-glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraEye = glm::vec3(0.0f, 0.0f, 5.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+//glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraDirection = glm::normalize(cameraEye - cameraFront);
+glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 
 float cameraSpeed = 5;
+
+float cameraSensitivity = 0.1;
 
 // Camera movement
 bool mF = false, mB = false, mL = false, mR = false;
@@ -108,6 +114,7 @@ int main(void)
 	}
 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
@@ -158,6 +165,15 @@ int main(void)
 	float lastTime = 0;
 	float dt;
 
+	double cursorX = 0, cursorY = 0, lastcursorX = 0, lastcursorY = 0;
+
+	glfwGetCursorPos(window, &cursorX, &cursorY);
+	lastcursorX = cursorX;
+	lastcursorY = cursorY;
+
+	float pitch = 0.0f; // X axis rotation ( up, down)
+	float yaw = -90.0f; // Y axis rotation (left, right)
+
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = glfwGetTime();
@@ -167,14 +183,31 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Camera Movement
-		cameraEye.z += (mF - mB) * cameraSpeed * dt;
-		cameraEye.x += (mL - mR) * cameraSpeed * dt;
-		cameraTarget.z += (mF - mB) * cameraSpeed * dt;
-		cameraTarget.x += (mL - mR) * cameraSpeed * dt;
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+
+		yaw += (cursorX - lastcursorX) * cameraSensitivity;
+		pitch += (lastcursorY - cursorY) * cameraSensitivity;
+		lastcursorX = cursorX;
+		lastcursorY = cursorY;
+
+		if (pitch > 89.9f)
+			pitch = 89.9f;
+		else if (pitch < -89.9f)
+			pitch = -89.9f;
+
+		glm::vec3 front;
+		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front.y = sin(glm::radians(pitch));
+		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		cameraFront = glm::normalize(front);
+
+		cameraEye += (mF - mB) * cameraSpeed * dt * cameraFront;
+		cameraEye += (mR - mL) * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+
 
 		std::ostringstream windowTitle;
-		windowTitle << "CameraEye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
-					<< "CameraTarget: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
+		windowTitle << "Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
+					<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "}";
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
 		m = glm::mat4(1.0f);
@@ -186,10 +219,10 @@ int main(void)
 		m = m * translation * scale * rotation;
 
 		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(0.6f, ratio, 0.1f, 1000.0f);
+		p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
 
 		v = glm::mat4(1.0f);
-		v = glm::lookAt(cameraEye, cameraTarget, upVector);
+		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
 		mvp = p * v * m; // Dont change this order.
 
