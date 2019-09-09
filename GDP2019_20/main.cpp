@@ -10,6 +10,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -21,7 +22,8 @@
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 // contains bunny vertices
-#include "model.hpp"
+#include "cMesh.hpp"
+#include "cModelLoader.hpp";
 
 static const char* vertex_shader_text = "\
 uniform mat4 MVP;\n\
@@ -41,6 +43,14 @@ static const char* fragment_shader_text =
 "    gl_FragColor = vec4(color, 1.0);\n"
 "}\n";
 
+struct sVertex
+{
+	float x, y, z;
+	float r, g, b;
+};
+
+sVertex* vertices = NULL;
+
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
@@ -59,7 +69,7 @@ float cameraSpeed = 5;
 float cameraSensitivity = 0.1;
 
 // Camera movement
-bool mF = false, mB = false, mL = false, mR = false;
+bool fast = false, mF = false, mB = false, mL = false, mR = false;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -97,7 +107,7 @@ int main(void)
 	GLFWwindow* window;
 	GLuint vertex_buffer, vertex_shader, fragment_shader, program;
 	GLint mvp_location, vpos_location, vcol_location;
-
+	
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
@@ -106,7 +116,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	window = glfwCreateWindow(640, 480, "OpenGL", NULL, NULL);
+	window = glfwCreateWindow(1920, 1080, "OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -118,11 +128,31 @@ int main(void)
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
-	
-	// NOTE: OpenGL error checks have been omitted for brevity
+
+	cModelLoader* pModelLoader = new cModelLoader();
+	cMesh* mesh = new cMesh();
+
+	if (!pModelLoader->loadModel("assets/models/dragon_vrip_xyz.ply", mesh))
+	{
+		std::cout << "Failed to load Model" << std::endl;
+	}
+
+	unsigned numVerts = mesh->vecTriangles.size() * 3;
+	vertices = new sVertex[numVerts];
+
+	for (unsigned i = 0, vertIndex = 0; i < mesh->vecTriangles.size(); ++i, vertIndex += 3)
+	{
+		sPlyVertex t = mesh->vecVertices[mesh->vecTriangles[i].vert_index_1];
+		vertices[vertIndex] = sVertex{ t.x, t.y, t.z, 1.0f, 1.0f, 1.0f };
+		t = mesh->vecVertices[mesh->vecTriangles[i].vert_index_2];
+		vertices[vertIndex + 1] = sVertex{ t.x, t.y, t.z, 1.0f, 1.0f, 1.0f };
+		t = mesh->vecVertices[mesh->vecTriangles[i].vert_index_3];
+		vertices[vertIndex + 2] = sVertex{ t.x, t.y, t.z, 1.0f, 1.0f, 1.0f };
+	}
+
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(sVertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numVerts * sizeof(sVertex), vertices, GL_STATIC_DRAW);
 
 	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
@@ -143,20 +173,20 @@ int main(void)
 	vcol_location = glGetAttribLocation(program, "vCol");
 
 	glEnableVertexAttribArray(vpos_location);
-	glVertexAttribPointer(vpos_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*)0);
+	glVertexAttribPointer(vpos_location, 3, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)0);
 	glEnableVertexAttribArray(vcol_location);
-	glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*)(sizeof(float) * 3));
+	glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(sizeof(float) * 3));
 
+	// Default
+	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	// Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	// Default
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// Also see GL_POINT
 
 	float ratio;
 	int width, height;
 	glm::mat4 m, v, p, mvp;
-	glfwGetFramebufferSize(window, &width, &height);
+ 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
 	glViewport(0, 0, width, height);
 
@@ -179,7 +209,7 @@ int main(void)
 		totalTime = glfwGetTime();
 		dt = glfwGetTime() - lastTime;
 		lastTime = glfwGetTime();
-		
+
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Camera Movement
@@ -206,8 +236,9 @@ int main(void)
 
 
 		std::ostringstream windowTitle;
-		windowTitle << "Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
-					<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "}";
+		windowTitle << std::fixed << std::setprecision(2) << "Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
+					<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
+					<< std::setprecision(0) << "FPS: " << 1 / dt;
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
 		m = glm::mat4(1.0f);
@@ -228,11 +259,16 @@ int main(void)
 
 		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		glDrawArrays(GL_TRIANGLES, 0, numVerts);
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	// Delete everything
+	delete pModelLoader;
+	delete mesh;
+	delete[] vertices;
 	exit(EXIT_SUCCESS);
 }
