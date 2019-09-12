@@ -109,10 +109,17 @@ int main()
 	
 	cModelLoader* pModelLoader = new cModelLoader();
 	cMesh* mesh = new cMesh();
+	cMesh* piratemesh = new cMesh();
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
 
 	if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", mesh))
+	{
+		std::cerr << "Failed to load Model" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if (!pModelLoader->loadModel("assets/models/Sky_Pirate_Combined_xyz.ply", piratemesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
 		exit(EXIT_FAILURE);
@@ -149,15 +156,38 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
+	sModelDrawInfo drawInfo2;
+	if (!pVAOManager->LoadModelIntoVAO("pirate", piratemesh, drawInfo2, program))
+	{
+		std::cerr << "Failed to load model to GPU" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	cGameObject pirate1;
+	pirate1.meshName = "pirate";
+	pirate1.position = glm::vec3(-2.0f, 0.0f, 0.0f);
+	pirate1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	pirate1.scale = 0.5f;
+	pirate1.color = glm::vec4(1.0f, 1.0f, 0.5f, 1.0f);
+
 	cGameObject bunny1;
 	bunny1.meshName = "bunny";
 	bunny1.position = glm::vec3(0.0f, -0.5f, 0.0f);
 	bunny1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	bunny1.scale = 4.0f;
-	bunny1.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	bunny1.color = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+
+	cGameObject bunny2;
+	bunny2.meshName = "bunny";
+	bunny2.position = glm::vec3(2.0f, -0.5f, 0.0f);
+	bunny2.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	bunny2.scale = 2.0f;
+	bunny2.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
 	std::vector<cGameObject> vecGameObjects;
 	vecGameObjects.push_back(bunny1);
+	vecGameObjects.push_back(bunny2);
+	vecGameObjects.push_back(pirate1);
 
 	float ratio;
 	int width, height;
@@ -212,6 +242,12 @@ int main()
 		cameraEye += (mF - mB) * cameraSpeed * dt * cameraFront;
 		cameraEye += (mR - mL) * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
 
+		// FOV, aspect ratio, near clip, far clip
+		p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
+
+		v = glm::mat4(1.0f);
+		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
+
 		std::ostringstream windowTitle;
 		windowTitle << std::fixed << std::setprecision(2) << "Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
 					<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
@@ -230,18 +266,15 @@ int main()
 
 			m *= rotationX * rotationY * rotationZ * translation * scale;
 
-			// FOV, aspect ratio, near clip, far clip
-			p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
-
-			v = glm::mat4(1.0f);
-			v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
+			GLint color_location = glGetUniformLocation(program, "color");
+			glUniform3f(color_location, vecGameObjects[i].color.r, vecGameObjects[i].color.g, vecGameObjects[i].color.b);
 
 			mvp = p * v * m; // Dont change this order.
 
 			glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 
 			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName("bunny", drawInfo))
+			if (pVAOManager->FindDrawInfoByModelName(vecGameObjects[i].meshName, drawInfo))
 			{
 				glBindVertexArray(drawInfo.VAO_ID);
 				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
@@ -256,6 +289,8 @@ int main()
 
 	// Delete everything
 	delete mesh;
+	delete piratemesh;
+	delete pShaderManager;
 	delete pModelLoader;
 	delete pVAOManager;
 	exit(EXIT_SUCCESS);

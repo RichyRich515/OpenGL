@@ -1,4 +1,7 @@
+#version 110
+
 uniform mat4 MVP;
+
 attribute vec3 vCol;
 attribute vec3 vPos;
 varying vec3 color;

@@ -1,4 +1,6 @@
-varying vec3 color;
+#version 110
+
+uniform vec3 color;
 
 void main()
 {
