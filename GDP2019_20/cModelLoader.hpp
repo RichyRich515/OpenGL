@@ -14,7 +14,7 @@ public:
 	cModelLoader();
 	~cModelLoader();
 
-	/* 
+	/*
 		Input:
 			std::string filename - File to load
 		Output:

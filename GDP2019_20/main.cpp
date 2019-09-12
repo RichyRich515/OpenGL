@@ -22,24 +22,7 @@
 #include "cMesh.hpp"
 #include "cModelLoader.hpp";
 #include "cVAOManager.hpp";
-
-static const char* vertex_shader_text = "\
-uniform mat4 MVP;\n\
-attribute vec3 vCol;\n\
-attribute vec3 vPos;\n\
-varying vec3 color;\n\
-void main()\n\
-{\n\
-    gl_Position = MVP * vec4(vPos, 1.0);\n\
-	color = vCol;\n\
-}\n";
-
-static const char* fragment_shader_text =
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_FragColor = vec4(color, 1.0);\n"
-"}\n";
+#include "cShaderManager.hpp"
 
 static void error_callback(int error, const char* description)
 {
@@ -100,8 +83,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main()
 {
 	GLFWwindow* window;
-	GLuint vertex_buffer, vertex_shader, fragment_shader, program;
-	GLint mvp_location, vpos_location, vcol_location;
+	GLint mvp_location;
 	
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
@@ -123,49 +105,33 @@ int main()
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
-
+	
 	cModelLoader* pModelLoader = new cModelLoader();
 	cMesh* mesh = new cMesh();
 	cVAOManager* pVAOManager = new cVAOManager();
+	cShaderManager* pShaderManager = new cShaderManager();
 
 	if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", mesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	
+	std::string str;
+	cShaderManager::cShader vertexShader01;
+	vertexShader01.fileName = "vertexShader01.glsl";
+	vertexShader01.bSourceIsMultiLine = true;
 
-	/*
-	unsigned numVerts = mesh->vecTriangles.size() * 3;
-	vertices = new sVertex[numVerts];
+	cShaderManager::cShader fragmentShader01;
+	fragmentShader01.fileName = "fragmentShader01.glsl";
+	fragmentShader01.bSourceIsMultiLine = true;
 
-	for (unsigned i = 0, vertIndex = 0; i < mesh->vecTriangles.size(); ++i, vertIndex += 3)
+	if (!pShaderManager->createProgramFromFile("shader01", vertexShader01, fragmentShader01))
 	{
-		sPlyVertex t = mesh->vecVertices[mesh->vecTriangles[i].vert_index_1];
-		vertices[vertIndex] = sVertex{ t.x, t.y, t.z, 1.0f, 1.0f, 1.0f };
-		t = mesh->vecVertices[mesh->vecTriangles[i].vert_index_2];
-		vertices[vertIndex + 1] = sVertex{ t.x, t.y, t.z, 1.0f, 1.0f, 1.0f };
-		t = mesh->vecVertices[mesh->vecTriangles[i].vert_index_3];
-		vertices[vertIndex + 2] = sVertex{ t.x, t.y, t.z, 1.0f, 1.0f, 1.0f };
+		std::cerr << "Failed to create shader program: " << pShaderManager->getLastError() << std::endl;
 	}
 
-	glGenBuffers(1, &vertex_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-	glBufferData(GL_ARRAY_BUFFER, numVerts * sizeof(sVertex), vertices, GL_STATIC_DRAW);
-	*/
-
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
-	glCompileShader(vertex_shader);
-
-	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
-	glCompileShader(fragment_shader);
-	program = glCreateProgram();
-
-	glAttachShader(program, vertex_shader);
-	glAttachShader(program, fragment_shader);
-	glLinkProgram(program);
-	glUseProgram(program);
+	cShaderP program = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 
 	mvp_location = glGetUniformLocation(program, "MVP");
 

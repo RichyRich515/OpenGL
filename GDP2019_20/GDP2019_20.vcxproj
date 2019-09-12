@@ -153,9 +153,13 @@
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cMesh.hpp" />
     <ClInclude Include="cModelLoader.hpp" />
-    <ClInclude Include="cShaderManager.h" />
+    <ClInclude Include="cShaderManager.hpp" />
     <ClInclude Include="cVAOManager.hpp" />
     <ClInclude Include="GLCommon.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\fragmentShader01.glsl" />
+    <None Include="assets\shaders\vertexShader01.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,4 +1,4 @@
-#include "cShaderManager.h"
+#include "cShaderManager.hpp"
 #include "GLCommon.h"		// glfw.h, etc. (openGL.h)
 
 cShaderManager::cShader::cShader()
@@ -8,14 +8,14 @@ cShaderManager::cShader::cShader()
 	return;
 }
 
-cShaderManager::cShader::~cShader() 
+cShaderManager::cShader::~cShader()
 {
 	return;
 }
 
 std::string cShaderManager::cShader::getShaderTypeString(void)
 {
-	switch ( this->shaderType )
+	switch (this->shaderType)
 	{
 	case cShader::VERTEX_SHADER:
 		return "VERTEX_SHADER";
@@ -41,28 +41,26 @@ std::string cShaderManager::cShader::getShaderTypeString(void)
 // Look up the uniform inside the shader, then save it, if it finds it
 bool cShaderManager::cShaderProgram::LoadUniformLocation(std::string variableName)
 {
-	// 
-	GLint uniLocation = glGetUniformLocation(this->ID, 
-											 variableName.c_str() );
+	GLint uniLocation = glGetUniformLocation(this->ID, variableName.c_str());
 	// Did it find it (not -1)
-	if ( uniLocation == -1 )
+	if (uniLocation == -1)
 	{	// Nope.
 		return false;
 	}
 	// Save it
 	this->mapUniformName_to_UniformLocation[variableName.c_str()] = uniLocation;
 
-	return true;	
+	return true;
 }
 
 // Look up the uniform location and save it.
 int cShaderManager::cShaderProgram::getUniformID_From_Name(std::string name)
 {
 	std::map< std::string /*name of uniform variable*/,
-			  int /* uniform location ID */ >::iterator 
+		int /* uniform location ID */ >::iterator
 		itUniform = this->mapUniformName_to_UniformLocation.find(name);
 
-	if ( itUniform == this->mapUniformName_to_UniformLocation.end() )
+	if (itUniform == this->mapUniformName_to_UniformLocation.end())
 	{
 		return -1;		// OpenGL uniform not found value
 	}

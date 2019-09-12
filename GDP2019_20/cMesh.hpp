@@ -25,7 +25,7 @@ class cMesh
 public:
 	cMesh() {}
 	~cMesh() {}
-	
+
 	std::vector<sPlyVertex> vecVertices;
 	std::vector<sPlyTriangle> vecTriangles;
 };
