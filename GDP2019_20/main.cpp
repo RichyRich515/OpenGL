@@ -23,6 +23,7 @@
 #include "cModelLoader.hpp";
 #include "cVAOManager.hpp";
 #include "cShaderManager.hpp"
+#include "cGameObject.hpp";
 
 static void error_callback(int error, const char* description)
 {
@@ -119,11 +120,11 @@ int main()
 	
 	std::string str;
 	cShaderManager::cShader vertexShader01;
-	vertexShader01.fileName = "vertexShader01.glsl";
+	vertexShader01.fileName = "assets/shaders/vertexShader01.glsl";
 	vertexShader01.bSourceIsMultiLine = true;
 
 	cShaderManager::cShader fragmentShader01;
-	fragmentShader01.fileName = "fragmentShader01.glsl";
+	fragmentShader01.fileName = "assets/shaders/fragmentShader01.glsl";
 	fragmentShader01.bSourceIsMultiLine = true;
 
 	if (!pShaderManager->createProgramFromFile("shader01", vertexShader01, fragmentShader01))
@@ -131,8 +132,8 @@ int main()
 		std::cerr << "Failed to create shader program: " << pShaderManager->getLastError() << std::endl;
 	}
 
-	cShaderP program = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
-
+	GLuint program = pShaderManager->getIDFromFriendlyName("shader01");
+	glUseProgram(program);
 	mvp_location = glGetUniformLocation(program, "MVP");
 
 	// Default
@@ -142,11 +143,21 @@ int main()
 	// Also see GL_POINT
 
 	sModelDrawInfo drawInfo;
-	if (!pVAOManager->LoadModelIntoVAO("Bunny", mesh, drawInfo, program))
+	if (!pVAOManager->LoadModelIntoVAO("bunny", mesh, drawInfo, program))
 	{
 		std::cerr << "Failed to load model to GPU" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+
+	cGameObject bunny1;
+	bunny1.meshName = "bunny";
+	bunny1.position = glm::vec3(0.0f, -0.5f, 0.0f);
+	bunny1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	bunny1.scale = 4.0f;
+	bunny1.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	std::vector<cGameObject> vecGameObjects;
+	vecGameObjects.push_back(bunny1);
 
 	float ratio;
 	int width, height;
@@ -207,30 +218,36 @@ int main()
 					<< std::setprecision(0) << "FPS: " << 1 / dt;
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
-		m = glm::mat4(1.0f);
+		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
+		{
+			m = glm::mat4(1.0f);
 
-		glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(4.0f, 4.0f, 4.0f));
-		glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f));
+			glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), vecGameObjects[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+			glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), vecGameObjects[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), vecGameObjects[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(vecGameObjects[i].scale, vecGameObjects[i].scale, vecGameObjects[i].scale));
+			glm::mat4 translation = glm::translate(glm::mat4(1.0f), vecGameObjects[i].position);
 
-		m *= rotationX * rotationY * rotationZ * translation * scale; 
+			m *= rotationX * rotationY * rotationZ * translation * scale;
 
-		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
+			// FOV, aspect ratio, near clip, far clip
+			p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
 
-		v = glm::mat4(1.0f);
-		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
+			v = glm::mat4(1.0f);
+			v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
-		mvp = p * v * m; // Dont change this order.
+			mvp = p * v * m; // Dont change this order.
 
-		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
+			glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		glBindVertexArray(drawInfo.VAO_ID);
-		glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		
+			sModelDrawInfo drawInfo;
+			if (pVAOManager->FindDrawInfoByModelName("bunny", drawInfo))
+			{
+				glBindVertexArray(drawInfo.VAO_ID);
+				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+		}
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.
 	}
