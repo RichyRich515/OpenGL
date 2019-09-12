@@ -1,4 +1,4 @@
-// codelLoader.hpp
+// cModelLoader.hpp
 // Basic model loader class
 // Richard Woods
 // 2019-09-09

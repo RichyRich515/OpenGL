@@ -143,12 +143,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cModelLoader.cpp" />
+    <ClCompile Include="cShader.cpp" />
+    <ClCompile Include="cShaderManager.cpp" />
+    <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cMesh.hpp" />
     <ClInclude Include="cModelLoader.hpp" />
+    <ClInclude Include="cShaderManager.h" />
+    <ClInclude Include="cVAOManager.hpp" />
+    <ClInclude Include="GLCommon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
