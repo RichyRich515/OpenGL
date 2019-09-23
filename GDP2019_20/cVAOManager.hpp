@@ -45,7 +45,7 @@ class cVAOManager
 public:
 
 	// Takes cMesg object and loads into GPU (as a VAO)
-	bool LoadModelIntoVAO(std::string name, cMesh* mesh, sModelDrawInfo& drawInfo, unsigned int shaderProgramID);
+	bool LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int shaderProgramID);
 
 	// We don't want to return an int, likely
 	bool FindDrawInfoByModelName(std::string filename, sModelDrawInfo& drawInfo);

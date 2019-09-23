@@ -37,8 +37,9 @@ sModelDrawInfo::sModelDrawInfo()
 }
 
 
-bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, sModelDrawInfo& drawInfo, unsigned int shaderProgramID)
+bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int shaderProgramID)
 {
+	sModelDrawInfo drawInfo;
 	drawInfo.meshName = name;
 	drawInfo.numberOfVertices = mesh->vecVertices.size();
 	drawInfo.pVertices = new sVertex[drawInfo.numberOfVertices];

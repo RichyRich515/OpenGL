@@ -148,6 +148,7 @@
     <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="physics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cGameObject.hpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="cShaderManager.hpp" />
     <ClInclude Include="cVAOManager.hpp" />
     <ClInclude Include="GLCommon.h" />
+    <ClInclude Include="Physics.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl" />

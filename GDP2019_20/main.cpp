@@ -20,18 +20,22 @@
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 #include "cMesh.hpp"
-#include "cModelLoader.hpp";
-#include "cVAOManager.hpp";
+#include "cModelLoader.hpp"
+#include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
-#include "cGameObject.hpp";
+#include "cGameObject.hpp"
+#include "Physics.hpp"
+
 
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager);
+
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraEye = glm::vec3(0.0f, 0.0f, 5.0f);
+glm::vec3 cameraEye = glm::vec3(0.0f, 2.0f, 7.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -43,7 +47,10 @@ float CAMERA_SPEED = 3.0f;
 float cameraSensitivity = 0.1f;
 
 // Camera movement
-bool fast = false, mF = false, mB = false, mL = false, mR = false;
+bool shift_pressed = false, mF = false, mB = false, mL = false, mR = false, mU = false, mD = false, rPress = false, fPress = false;
+
+std::vector<cGameObject*> vecGameObjects;
+int selectedObject = 0;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -74,22 +81,63 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		else if (action == GLFW_RELEASE)
 			mR = false;
 
+	if (key == GLFW_KEY_SPACE)
+		if (action == GLFW_PRESS)
+			mU = true;
+		else if (action == GLFW_RELEASE)
+			mU = false;
+
+	if (key == GLFW_KEY_C)
+		if (action == GLFW_PRESS)
+			mD = true;
+		else if (action == GLFW_RELEASE)
+			mD = false;
+
+	if (key == GLFW_KEY_R)
+		if (action == GLFW_PRESS)
+			rPress = true;
+		else if (action == GLFW_RELEASE)
+			rPress = false;
+
+	if (key == GLFW_KEY_F)
+		if (action == GLFW_PRESS)
+			fPress = true;
+		else if (action == GLFW_RELEASE)
+			fPress = false;
+
+	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
+	{
+		++selectedObject;
+		if (selectedObject >= vecGameObjects.size())
+			selectedObject = 0;
+	}
+	else if (key == GLFW_KEY_COMMA && action == GLFW_PRESS)
+	{
+		--selectedObject;
+		if (selectedObject < 0)
+			selectedObject = vecGameObjects.size() - 1;
+	}
+
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
+	}
+
 	if (key == GLFW_KEY_LEFT_SHIFT)
 		if (action == GLFW_PRESS)
-			fast = true;
+			shift_pressed = true;
 		else if (action == GLFW_RELEASE)
-			fast = false;
+			shift_pressed = false;
 }
 
 int main()
 {
 	GLFWwindow* window;
-	GLint mvp_location;
-	
+
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
-	
+
 	// Set minimum versions of OpenGL
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -106,26 +154,49 @@ int main()
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
-	
+
 	cModelLoader* pModelLoader = new cModelLoader();
-	cMesh* mesh = new cMesh();
-	cMesh* piratemesh = new cMesh();
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
 
-	if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", mesh))
+	cMesh* bunnymesh = new cMesh();
+	//cMesh* piratemesh = new cMesh();
+	cMesh* spheremesh = new cMesh();
+	cMesh* cubemesh = new cMesh();
+	//cMesh* terrainmesh = new cMesh();
+
+	//if (!pModelLoader->loadModel("assets/models/Sky_Pirate_Combined_xyz.ply", piratemesh))
+	//{
+	//	std::cerr << "Failed to load Model" << std::endl;
+	//	exit(EXIT_FAILURE);
+	//}
+	//
+	//if (!pModelLoader->loadModel("assets/models/terrain_xyz.ply", terrainmesh))
+	//{
+	//	std::cerr << "Failed to load Model" << std::endl;
+	//	exit(EXIT_FAILURE);
+	//}
+
+	if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", bunnymesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	if (!pModelLoader->loadModel("assets/models/Sky_Pirate_Combined_xyz.ply", piratemesh))
+	if (!pModelLoader->loadModel("assets/models/sphere_xyz.ply", spheremesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	
-	std::string str;
+
+	if (!pModelLoader->loadModel("assets/models/cube_xyz.ply", cubemesh))
+	{
+		std::cerr << "Failed to load Model" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+
+	// make shader
 	cShaderManager::cShader vertexShader01;
 	vertexShader01.fileName = "assets/shaders/vertexShader01.glsl";
 	vertexShader01.bSourceIsMultiLine = true;
@@ -141,60 +212,127 @@ int main()
 
 	GLuint program = pShaderManager->getIDFromFriendlyName("shader01");
 	glUseProgram(program);
-	mvp_location = glGetUniformLocation(program, "MVP");
+	GLuint mvp_location = glGetUniformLocation(program, "MVP");
+	GLuint lightpos_loc = glGetUniformLocation(program, "lightPosition");
+	GLuint view_loc = glGetUniformLocation(program, "matView");
+	GLuint projection_loc = glGetUniformLocation(program, "matProjection");
+	GLuint atten_loc = glGetUniformLocation(program, "linearAtten");
+	
+	auto pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
+	
+	//if (!pVAOManager->LoadModelIntoVAO("pirate", piratemesh, program))
+	//{
+	//	std::cerr << "Failed to load model to GPU" << std::endl;
+	//	exit(EXIT_FAILURE);
+	//}
+	//
+	//if (!pVAOManager->LoadModelIntoVAO("terrain", terrainmesh, program))
+	//{
+	//	std::cerr << "Failed to load model to GPU" << std::endl;
+	//	exit(EXIT_FAILURE);
+	//}
 
-	// Default
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	// Wireframe
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	// Also see GL_POINT
-
-	sModelDrawInfo drawInfo;
-	if (!pVAOManager->LoadModelIntoVAO("bunny", mesh, drawInfo, program))
+	if (!pVAOManager->LoadModelIntoVAO("bunny", bunnymesh, program))
 	{
 		std::cerr << "Failed to load model to GPU" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	sModelDrawInfo drawInfo2;
-	if (!pVAOManager->LoadModelIntoVAO("pirate", piratemesh, drawInfo2, program))
+	if (!pVAOManager->LoadModelIntoVAO("sphere", spheremesh, program))
 	{
 		std::cerr << "Failed to load model to GPU" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	cGameObject pirate1;
-	pirate1.meshName = "pirate";
-	pirate1.position = glm::vec3(-2.0f, 0.0f, 0.0f);
-	pirate1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	pirate1.scale = 0.5f;
-	pirate1.color = glm::vec4(1.0f, 1.0f, 0.5f, 1.0f);
+	if (!pVAOManager->LoadModelIntoVAO("cube", cubemesh, program))
+	{
+		std::cerr << "Failed to load model to GPU" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
-	cGameObject bunny1;
-	bunny1.meshName = "bunny";
-	bunny1.position = glm::vec3(0.0f, -0.5f, 0.0f);
-	bunny1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	bunny1.scale = 4.0f;
-	bunny1.color = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+	//cGameObject terrain("terrain");
+	//terrain.meshName = "terrain";
+	//terrain.position = glm::vec3(0.0f, -10.0f, 0.0f);
+	//terrain.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	//terrain.scale = 0.5f;
+	//terrain.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	//
+	//cGameObject pirate1("pirate1");
+	//pirate1.meshName = "pirate";
+	//pirate1.position = glm::vec3(-2.0f, 0.0f, 0.0f);
+	//pirate1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	//pirate1.scale = 0.5f;
+	//pirate1.color = glm::vec4(1.0f, 1.0f, 0.5f, 1.0f);
+	//
+	//cGameObject bunny1("bunny1");
+	//bunny1.meshName = "bunny";
+	//bunny1.position = glm::vec3(5.0f, -0.5f, 0.0f);
+	//bunny1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	//bunny1.scale = 4.0f;
+	//bunny1.color = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+	//
+	//cGameObject bunny2("bunny2");
+	//bunny2.meshName = "bunny";
+	//bunny2.position = glm::vec3(0.0f, -0.5f, -4.0f);
+	//bunny2.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	//bunny2.scale = 4.0f;
+	//bunny2.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	//bunny2.wireFrame = true;
 
-	cGameObject bunny2;
-	bunny2.meshName = "bunny";
-	bunny2.position = glm::vec3(2.0f, -0.5f, 0.0f);
-	bunny2.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	bunny2.scale = 2.0f;
-	bunny2.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	cGameObject* debugSphere = new cGameObject("debugsphere");
+	debugSphere->meshName = "sphere";
+	debugSphere->position = glm::vec3(0.0f, 6.0f, 0.0f);
+	debugSphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	debugSphere->scale = 1.0f;
+	debugSphere->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	debugSphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
+	debugSphere->inverseMass = 0.0f;
+	debugSphere->wireFrame = true;
+	// Dont push to vecGameObjects
 
-	std::vector<cGameObject> vecGameObjects;
-	vecGameObjects.push_back(bunny1);
-	vecGameObjects.push_back(bunny2);
-	vecGameObjects.push_back(pirate1);
 
+	cGameObject* cube = new cGameObject("cube");
+	cube->meshName = "cube";
+	cube->mesh = cubemesh;
+	cube->position = glm::vec3(0.0f, 0.0f, 0.0f);
+	cube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	cube->scale = 1.0f;
+	cube->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	cube->inverseMass = 0.0f;
+	vecGameObjects.push_back(cube);
+
+	cGameObject* sphere = new cGameObject("sphere");
+	sphere->meshName = "sphere";
+	sphere->mesh = spheremesh;
+	sphere->position = glm::vec3(0.0f, 6.0f, 0.0f);
+	sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	sphere->scale = 1.0f;
+	sphere->color = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
+	sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
+	sphere->inverseMass = 1.0f;
+	vecGameObjects.push_back(sphere);
+
+	//vecGameObjects.push_back(terrain);
+	//vecGameObjects.push_back(bunny1);
+	//vecGameObjects.push_back(bunny2);
+	//vecGameObjects.push_back(pirate1);
+
+	glm::vec3 lightPosition = glm::vec4(0.0f, 2.0f, 0.0f, 0.0f);
+	glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
+	float lightAtten = 1.0f;
 	float ratio;
 	int width, height;
-	glm::mat4 m, v, p, mvp;
- 	glfwGetFramebufferSize(window, &width, &height);
+	glm::mat4 m, v, p;
+	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
+	// FOV, aspect ratio, near clip, far clip
+	p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
+
 	glViewport(0, 0, width, height);
+	
+	glEnable(GL_DEPTH);			// Enable depth
+	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
+	glUniform1f(atten_loc, lightAtten);	// default light value
 
 	// timing
 	float totalTime;
@@ -216,7 +354,7 @@ int main()
 		dt = glfwGetTime() - lastTime;
 		lastTime = glfwGetTime();
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Camera Movement
 		glfwGetCursorPos(window, &cursorX, &cursorY);
@@ -237,61 +375,117 @@ int main()
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		cameraFront = glm::normalize(front);
 
-		float cameraSpeed = CAMERA_SPEED * (fast ? 2 : 1);
 
-		cameraEye += (mF - mB) * cameraSpeed * dt * cameraFront;
-		cameraEye += (mR - mL) * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+		if (!shift_pressed)
+		{
+			float cameraSpeed = CAMERA_SPEED;
 
-		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
+			cameraEye += (mF - mB) * cameraSpeed * dt * cameraFront;
+			cameraEye += (mR - mL) * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+			cameraEye += (mU - mD) * cameraSpeed * dt * cameraUp;
+
+			vecGameObjects[selectedObject]->scale += (rPress - fPress) * 1.0f * dt;
+		}
 
 		v = glm::mat4(1.0f);
 		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
+		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
+
+		if (shift_pressed)
+		{
+			m = glm::mat4(1.0f);
+			// Move light if shift pressed
+			lightPosition.x += (mR - mL) * 3 * dt;
+			lightPosition.y += (mU - mD) * 3 * dt;
+			lightPosition.z += (mF - mB) * 3 * dt;
+			lightAtten += (fPress - rPress) * 1.0f * dt;
+			glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
+			glUniform1f(atten_loc, lightAtten);
+
+			debugSphere->position = lightPosition;
+			debugSphere->scale = 2.0f / lightAtten;
+			// Draw light sphere if shift pressed
+			drawObject(debugSphere, program, pVAOManager);
+		}
+
+		
+
+		physicsUpdate(vecGameObjects, dt);
+
+
 		std::ostringstream windowTitle;
-		windowTitle << std::fixed << std::setprecision(2) << "Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
-					<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
-					<< std::setprecision(0) << "FPS: " << 1 / dt;
+		windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
+			<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
+			<< "Light: {" << lightPosition.x << ", " << lightPosition.y << ", " << lightPosition.z << "} "
+			<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\"";
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
 		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
 		{
-			m = glm::mat4(1.0f);
+			if (!vecGameObjects[i]->visible)
+				continue;
 
-			glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), vecGameObjects[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-			glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), vecGameObjects[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), vecGameObjects[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(vecGameObjects[i].scale, vecGameObjects[i].scale, vecGameObjects[i].scale));
-			glm::mat4 translation = glm::translate(glm::mat4(1.0f), vecGameObjects[i].position);
-
-			m *= rotationX * rotationY * rotationZ * translation * scale;
-
-			GLint color_location = glGetUniformLocation(program, "color");
-			glUniform3f(color_location, vecGameObjects[i].color.r, vecGameObjects[i].color.g, vecGameObjects[i].color.b);
-
-			mvp = p * v * m; // Dont change this order.
-
-			glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
-
-			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName(vecGameObjects[i].meshName, drawInfo))
-			{
-				glBindVertexArray(drawInfo.VAO_ID);
-				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
-			}
+			drawObject(vecGameObjects[i], program, pVAOManager);
 		}
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();
+	
 
 	// Delete everything
-	delete mesh;
-	delete piratemesh;
+
+	for (auto g : vecGameObjects)
+		delete g;
+
+	delete bunnymesh;
+	//delete piratemesh;
+	delete cubemesh;
+	//delete terrainmesh;
 	delete pShaderManager;
 	delete pModelLoader;
 	delete pVAOManager;
+
 	exit(EXIT_SUCCESS);
+}
+
+
+void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
+{
+	glm::mat4 m = glm::mat4(1.0f);
+
+	glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), go->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), go->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), go->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(go->scale, go->scale, go->scale));
+	glm::mat4 translation = glm::translate(glm::mat4(1.0f), go->position);
+
+	m *= rotationX * rotationY * rotationZ * translation * scale;
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
+	glUniform1f(glGetUniformLocation(shader, "cRed"), go->color.r);
+	glUniform1f(glGetUniformLocation(shader, "cGreen"), go->color.g);
+	glUniform1f(glGetUniformLocation(shader, "cBlue"), go->color.b);
+
+	if (go->wireFrame)
+	{
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glEnable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	sModelDrawInfo drawInfo;
+	if (pVAOManager->FindDrawInfoByModelName(go->meshName, drawInfo))
+	{
+		glBindVertexArray(drawInfo.VAO_ID);
+		glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
 }

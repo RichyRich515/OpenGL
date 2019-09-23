@@ -1,13 +1,25 @@
-#version 110
+#version 420
 
-uniform mat4 MVP;
+uniform mat4 matModel;		// Model or World
+uniform mat4 matView;		// View or Camera
+uniform mat4 matProjection; // Projection
 
-attribute vec3 vCol;
-attribute vec3 vPos;
-varying vec3 color;
+in vec3 vCol;
+in vec3 vPos;
+
+out vec3 color;
+out vec4 vertWorld;			// Location of the vertex in the world
 
 void main()
 {
-    gl_Position = MVP * vec4(vPos, 1.0);
+	vec3 vertPosition = vPos;
+
+	mat4 matMVP = matProjection * matView * matModel;
+	
+    gl_Position = matMVP * vec4(vertPosition, 1.0);
+
+	// Calculate vertex in world space
+	vertWorld = matModel * vec4(vertPosition, 1.0);
+
 	color = vCol;
 }

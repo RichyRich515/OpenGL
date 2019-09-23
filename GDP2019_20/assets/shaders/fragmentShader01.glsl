@@ -1,8 +1,21 @@
-#version 110
+#version 420
 
-uniform vec3 color;
+in vec3 color;
+in vec4 vertWorld;
+
+uniform float cRed;
+uniform float cGreen;
+uniform float cBlue;
+
+uniform vec3 lightPosition;
+uniform float linearAtten;
 
 void main()
 {
-    gl_FragColor = vec4(color, 1.0);
+	float dist = distance(lightPosition, vertWorld.xyz);
+
+	float atten = 1.0 / (linearAtten * dist);
+
+    gl_FragColor = vec4(cRed, cGreen, cBlue, 1.0);
+	gl_FragColor *= atten;
 }
