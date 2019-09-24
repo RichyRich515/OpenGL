@@ -9,7 +9,6 @@ uniform vec4 diffuseColour;
 uniform vec4 specularColour;
 
 // Used to draw debug (or unlit) objects
-uniform vec4 debugColour;
 uniform bool bDoNotLight;		
 
 uniform vec4 eyeLocation;
@@ -36,21 +35,28 @@ const int SPOT_LIGHT_TYPE = 1;
 const int DIRECTIONAL_LIGHT_TYPE = 2;
 
 const int NUMBEROFLIGHTS = 10;
-uniform sLight theLights[NUMBEROFLIGHTS]; // 80 uniforms
+uniform sLight lights[NUMBEROFLIGHTS]; // 80 uniforms
 
 
 vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 vertexWorldPos, vec4 vertexSpecular);
 	 
 void main()  
 {
-	vec4 materialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	vec4 specColour = materialColour;
+	vec4 materialColour = diffuseColour;
+	// TODO: Specular
+	vec4 specColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	if (bDoNotLight)
+	{
+		pixelColour = materialColour;
+		return;
+	}
 
 	vec4 outColour = calculateLightContrib(materialColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specColour);
 	pixelColour = outColour;
 	
-	pixelColour.rgb += vec3(0.5f, 0.5f, 0.5f);
-	pixelColour.rgb += fNormal.xyz;
+	//pixelColour.rgb += vec3(0.5f, 0.5f, 0.5f);
+	//pixelColour.rgb += fNormal.xyz;
 }
 
 
@@ -62,58 +68,50 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 	
 	for (int index = 0; index < NUMBEROFLIGHTS; index++)
 	{	
-		// ********************************************************
-		// is light "on"
-		if (theLights[index].param2.x == 0.0f)
+		if (lights[index].param2.x == 0.0f)
 			continue;
 		
 		// Cast to an int (note with c'tor)
-		int intLightType = int(theLights[index].param1.x);
+		int intLightType = int(lights[index].param1.x);
 		
 		// We will do the directional light here... 
-		// (BEFORE the attenuation, since sunlight has no attenuation, really)
 		if (intLightType == DIRECTIONAL_LIGHT_TYPE)		// = 2
 		{
 			// This is supposed to simulate sunlight. 
-			// SO: 
+			// SO:
 			// -- There's ONLY direction, no position
 			// -- Almost always, there's only 1 of these in a scene
 			// Cheapest light to calculate. 
 
-			vec3 lightContrib = theLights[index].diffuse.rgb;
+			vec3 lightContrib = lights[index].diffuse.rgb;
 			
 			// Get the dot product of the light and normalize
-			float dotProduct = dot(-theLights[index].direction.xyz, normalize(norm.xyz)); // -1 to 1
+			float dotProduct = dot(-lights[index].direction.xyz, normalize(norm.xyz)); // -1 to 1
 
 			dotProduct = max(0.0f, dotProduct); // 0 to 1
 		
-			lightContrib *= dotProduct;		
+			lightContrib *= dotProduct;
 			
-			finalObjectColour.rgb += (vertexMaterialColour.rgb * theLights[index].diffuse.rgb * lightContrib); 
+			finalObjectColour.rgb += (vertexMaterialColour.rgb * lights[index].diffuse.rgb * lightContrib); 
 									 //+ (materialSpecular.rgb * lightSpecularContrib.rgb);
-			// NOTE: There isn't any attenuation, like with sunlight.
-			// (This is part of the reason directional lights are fast to calculate)
-
-
-			return finalObjectColour;		
+			continue;
 		}
 		// Assume it's a point light 
 		// intLightType = 0
 		
 		// Contribution for this light
-		vec3 vLightToVertex = theLights[index].position.xyz - vertexWorldPos.xyz;
+		vec3 vLightToVertex = lights[index].position.xyz - vertexWorldPos.xyz;
 		float distanceToLight = length(vLightToVertex);	
 		vec3 lightVector = normalize(vLightToVertex);
 		float dotProduct = dot(lightVector, vertexNormal.xyz);	 
 		
 		dotProduct = max(0.0f, dotProduct);	
 		
-		vec3 lightDiffuseContrib = dotProduct * theLights[index].diffuse.rgb;
-			
-
+		vec3 lightDiffuseContrib = dotProduct * lights[index].diffuse.rgb;
+		
 		// Specular 
 		vec3 lightSpecularContrib = vec3(0.0f);
-			
+		
 		vec3 reflectVector = reflect(-lightVector, normalize(norm.xyz));
 
 		// Get eye or view vector
@@ -123,39 +121,38 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 		// To simplify, we are NOT using the light specular value, just the object’s.
 		float objectSpecularPower = vertexSpecular.w; 
 		
-		// lightSpecularContrib = pow(max(0.0f, dot(eyeVector, reflectVector)), objectSpecularPower) * vertexSpecular.rgb;	//* theLights[lightIndex].Specular.rgb
-		lightSpecularContrib = pow(max(0.0f, dot(eyeVector, reflectVector)), objectSpecularPower) * theLights[index].specular.rgb;
-							   
+		// lightSpecularContrib = pow(max(0.0f, dot(eyeVector, reflectVector)), objectSpecularPower) * vertexSpecular.rgb;	//* lights[lightIndex].Specular.rgb
+		lightSpecularContrib = pow(max(0.0f, dot(eyeVector, reflectVector)), objectSpecularPower) * lights[index].specular.rgb;
+		
 		// Attenuation
 		float attenuation = 1.0f / 
-				(theLights[index].atten.x + 										
-				 theLights[index].atten.y * distanceToLight +						
-				 theLights[index].atten.z * distanceToLight * distanceToLight);  	
-				  
+				(lights[index].atten.x + 										
+				 lights[index].atten.y * distanceToLight +						
+				 lights[index].atten.z * distanceToLight * distanceToLight);  	
+		
 		// total light contribution is Diffuse + Specular
 		lightDiffuseContrib *= attenuation;
 		lightSpecularContrib *= attenuation;
-		
-		
+
 		// But is it a spot light
 		if (intLightType == SPOT_LIGHT_TYPE)		// = 1
 		{
 			// Yes, it's a spotlight
 			// Calcualate light vector (light to vertex, in world)
-			vec3 vertexToLight = vertexWorldPos.xyz - theLights[index].position.xyz;
+			vec3 vertexToLight = vertexWorldPos.xyz - lights[index].position.xyz;
 
 			vertexToLight = normalize(vertexToLight);
 
-			float currentLightRayAngle = dot(vertexToLight.xyz, theLights[index].direction.xyz);
-					
+			float currentLightRayAngle = dot(vertexToLight.xyz, lights[index].direction.xyz);
+				
 			currentLightRayAngle = max(0.0f, currentLightRayAngle);
 
 			//vec4 param1;	
 			// x = lightType, y = inner angle, z = outer angle, w = TBD
 
 			// Is this inside the cone? 
-			float outerConeAngleCos = cos(radians(theLights[index].param1.z));
-			float innerConeAngleCos = cos(radians(theLights[index].param1.y));
+			float outerConeAngleCos = cos(radians(lights[index].param1.z));
+			float innerConeAngleCos = cos(radians(lights[index].param1.y));
 							
 			// Is it completely outside of the spot?
 			if ( currentLightRayAngle < outerConeAngleCos )

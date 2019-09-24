@@ -36,7 +36,7 @@ static void error_callback(int error, const char* description)
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager);
 
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraEye = glm::vec3(0.0f, 2.0f, 7.0f);
+glm::vec3 cameraEye = glm::vec3(0.0f, 8.0f, 10.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -54,7 +54,7 @@ std::vector<cGameObject*> vecGameObjects;
 int selectedObject = 0;
 
 std::vector<cLight*> vecLights;
-int selectedLight = 0;
+int selectedLight = 1;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -167,7 +167,7 @@ int main()
 	//cMesh* piratemesh = new cMesh();
 	cMesh* spheremesh = new cMesh();
 	cMesh* cubemesh = new cMesh();
-	//cMesh* terrainmesh = new cMesh();
+	cMesh* terrainmesh = new cMesh();
 
 	//if (!pModelLoader->loadModel("assets/models/Sky_Pirate_Combined_xyz.ply", piratemesh))
 	//{
@@ -175,11 +175,11 @@ int main()
 	//	exit(EXIT_FAILURE);
 	//}
 	//
-	//if (!pModelLoader->loadModel("assets/models/terrain_xyz.ply", terrainmesh))
-	//{
-	//	std::cerr << "Failed to load Model" << std::endl;
-	//	exit(EXIT_FAILURE);
-	//}
+	if (!pModelLoader->loadModel("assets/models/terrain_xyzn.ply", terrainmesh))
+	{
+		std::cerr << "Failed to load Model" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 	//
 	//if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", bunnymesh))
 	//{
@@ -217,22 +217,63 @@ int main()
 	glUseProgram(program);
 	GLuint view_loc = glGetUniformLocation(program, "matView");
 	GLuint projection_loc = glGetUniformLocation(program, "matProjection");
-	GLuint theLights_loc = glGetUniformLocation(program, "theLights");
-	
-	cLight* light1 = new cLight();
+	GLuint eyeLocation_loc = glGetUniformLocation(program, "eyeLocation");
 
-	light1->position_loc = theLights_loc + 0;
-	light1->diffuse_loc = theLights_loc + 1;
-	light1->specular_loc = theLights_loc + 2;
-	light1->atten_loc = theLights_loc + 3;
-	light1->direction_loc = theLights_loc + 4;
-	light1->param1_loc = theLights_loc + 5;
-	light1->param2_loc = theLights_loc + 6;
+#define getUniformLocationInArray(arr, i, d) glGetUniformLocation(program, arr "[" #i "]." d);
+
+	// directional light (sun)
+	cLight* light0 = new cLight();
+	light0->position_loc =	getUniformLocationInArray("lights", 0, "position");
+	light0->diffuse_loc =	getUniformLocationInArray("lights", 0, "diffuse");
+	light0->specular_loc =	getUniformLocationInArray("lights", 0, "specular");
+	light0->atten_loc =		getUniformLocationInArray("lights", 0, "atten");
+	light0->direction_loc = getUniformLocationInArray("lights", 0, "direction");
+	light0->param1_loc =	getUniformLocationInArray("lights", 0, "param1");
+	light0->param2_loc =	getUniformLocationInArray("lights", 0, "param2");
 	
+	light0->position = glm::vec4(0, 0, 0, 1);
+	light0->param2.x = 1.0f; // Set on
+	
+	light0->direction = glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);
+
+	light0->diffuse = glm::vec4(1.0f, 1.0f, 0.9f, 1.0f);
+	light0->param1.x = 2; // Directional light
+	vecLights.push_back(light0);
+
+	// SpotLight
+	cLight* light1 = new cLight();
+	light1->position_loc =	getUniformLocationInArray("lights", 1, "position");
+	light1->diffuse_loc =	getUniformLocationInArray("lights", 1, "diffuse");
+	light1->specular_loc =	getUniformLocationInArray("lights", 1, "specular");
+	light1->atten_loc =		getUniformLocationInArray("lights", 1, "atten");
+	light1->direction_loc = getUniformLocationInArray("lights", 1, "direction");
+	light1->param1_loc =	getUniformLocationInArray("lights", 1, "param1");
+	light1->param2_loc =	getUniformLocationInArray("lights", 1, "param2");
+
+	light1->position = glm::vec4(0, 10, 0, 1);
+	light1->param2.x = 1.0f; // Set on
+
+	light1->param1.x = 0;
+	light1->atten.y = 0.02f; // Linear attn
+	light1->atten.z = 0.00f; // quadratic attn
+	light1->atten.w = 1000000.0f; // Distance cutoff
+
+	light1->diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
 	vecLights.push_back(light1);
 
+	// Assign variables in shader
+	for (unsigned i = 0; i < vecLights.size(); ++i)
+	{
+		glUniform4f(vecLights[i]->position_loc, vecLights[i]->position.x, vecLights[i]->position.y, vecLights[i]->position.z, 1.0f);
+		glUniform4f(vecLights[i]->diffuse_loc, vecLights[i]->diffuse.r, vecLights[i]->diffuse.g, vecLights[i]->diffuse.b, 1.0f);
+		glUniform4f(vecLights[i]->specular_loc, vecLights[i]->specular.r, vecLights[i]->specular.g, vecLights[i]->specular.b, 1.0f);
+		glUniform4f(vecLights[i]->atten_loc, vecLights[i]->atten.x, vecLights[i]->atten.y, vecLights[i]->atten.z, vecLights[i]->atten.w);
+		glUniform4f(vecLights[i]->direction_loc, vecLights[i]->direction.x, vecLights[i]->direction.y, vecLights[i]->direction.z, 1.0f);
+		glUniform4f(vecLights[i]->param1_loc, vecLights[i]->param1.x, vecLights[i]->param1.y, vecLights[i]->param1.z, vecLights[i]->param1.w);
+		glUniform4f(vecLights[i]->param2_loc, vecLights[i]->param2.x, vecLights[i]->param2.y, vecLights[i]->param2.z, vecLights[i]->param2.w);
+	}
 
-	auto pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
+	cShaderManager::cShaderProgram* pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 	
 	//if (!pVAOManager->LoadModelIntoVAO("pirate", piratemesh, program))
 	//{
@@ -240,11 +281,11 @@ int main()
 	//	exit(EXIT_FAILURE);
 	//}
 	//
-	//if (!pVAOManager->LoadModelIntoVAO("terrain", terrainmesh, program))
-	//{
-	//	std::cerr << "Failed to load model to GPU" << std::endl;
-	//	exit(EXIT_FAILURE);
-	//}
+	if (!pVAOManager->LoadModelIntoVAO("terrain", terrainmesh, program))
+	{
+		std::cerr << "Failed to load model to GPU" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
 	if (!pVAOManager->LoadModelIntoVAO("bunny", bunnymesh, program))
 	{
@@ -263,35 +304,6 @@ int main()
 		std::cerr << "Failed to load model to GPU" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
-	//cGameObject terrain("terrain");
-	//terrain.meshName = "terrain";
-	//terrain.position = glm::vec3(0.0f, -10.0f, 0.0f);
-	//terrain.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	//terrain.scale = 0.5f;
-	//terrain.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	//
-	//cGameObject pirate1("pirate1");
-	//pirate1.meshName = "pirate";
-	//pirate1.position = glm::vec3(-2.0f, 0.0f, 0.0f);
-	//pirate1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	//pirate1.scale = 0.5f;
-	//pirate1.color = glm::vec4(1.0f, 1.0f, 0.5f, 1.0f);
-	//
-	//cGameObject bunny1("bunny1");
-	//bunny1.meshName = "bunny";
-	//bunny1.position = glm::vec3(5.0f, -0.5f, 0.0f);
-	//bunny1.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	//bunny1.scale = 4.0f;
-	//bunny1.color = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
-	//
-	//cGameObject bunny2("bunny2");
-	//bunny2.meshName = "bunny";
-	//bunny2.position = glm::vec3(0.0f, -0.5f, -4.0f);
-	//bunny2.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	//bunny2.scale = 4.0f;
-	//bunny2.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//bunny2.wireFrame = true;
 
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
@@ -324,6 +336,16 @@ int main()
 	sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 	sphere->inverseMass = 1.0f;
 	vecGameObjects.push_back(sphere);
+
+	cGameObject* terrain = new cGameObject("terrain");
+	terrain->meshName = "terrain";
+	terrain->mesh = terrainmesh;
+	terrain->position = glm::vec3(0.0f, -50.0f, 0.0f);
+	terrain->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	terrain->scale = 1.0f;
+	terrain->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	terrain->inverseMass = 0.0f;
+	vecGameObjects.push_back(terrain);
 
 	glm::vec3 lightPosition = glm::vec4(0.0f, 2.0f, 0.0f, 0.0f);
 	//glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
@@ -401,20 +423,28 @@ int main()
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-
+		//glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
+		
 		if (shift_pressed)
 		{
 			m = glm::mat4(1.0f);
 			// Move light if shift pressed
-			lightPosition.x += (mR - mL) * 3 * dt;
-			lightPosition.y += (mU - mD) * 3 * dt;
-			lightPosition.z += (mF - mB) * 3 * dt;
-			lightAtten += (fPress - rPress) * 1.0f * dt;
-			//glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
-			//glUniform1f(atten_loc, lightAtten);
+			vecLights[selectedLight]->position.x += (mR - mL) * 3 * dt;
+			vecLights[selectedLight]->position.y += (mU - mD) * 3 * dt;
+			vecLights[selectedLight]->position.z += (mF - mB) * 3 * dt;
+			vecLights[selectedLight]->atten.y *= ((fPress || rPress) ? ((fPress - rPress) * 0.01 + 1.00): 1.0); // Linear
 
-			debugSphere->position = lightPosition;
-			debugSphere->scale = 2.0f / lightAtten;
+			glUniform4f(vecLights[selectedLight]->position_loc, vecLights[selectedLight]->position.x, vecLights[selectedLight]->position.y, vecLights[selectedLight]->position.z, 1.0f);
+			glUniform4f(vecLights[selectedLight]->diffuse_loc, vecLights[selectedLight]->diffuse.x, vecLights[selectedLight]->diffuse.y, vecLights[selectedLight]->diffuse.z, 1.0f);
+			glUniform4f(vecLights[selectedLight]->specular_loc, 1.0f, 1.0f, 1.0f, 1.0f);	// White
+			glUniform4f(vecLights[selectedLight]->atten_loc, 0.0f, vecLights[selectedLight]->atten.y, vecLights[selectedLight]->atten.z, vecLights[selectedLight]->atten.w);
+			glUniform4f(vecLights[selectedLight]->direction_loc, 0.0f, 0.0f, 0.0f, 1.0f);
+			glUniform4f(vecLights[selectedLight]->param1_loc, 0.0f /*POINT light*/, 0.0f, 0.0f, 1.0f);
+			glUniform4f(vecLights[selectedLight]->param2_loc, 1.0f /*Light is on*/, 0.0f, 0.0f, 1.0f);
+
+			debugSphere->position = vecLights[selectedLight]->position;
+			debugSphere->scale = 0.1f / vecLights[selectedLight]->atten.y;
+			debugSphere->color = vecLights[selectedLight]->diffuse;
 			// Draw light sphere if shift pressed
 			drawObject(debugSphere, program, pVAOManager);
 		}
@@ -426,7 +456,6 @@ int main()
 		std::ostringstream windowTitle;
 		windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
 			<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
-			<< "Light: {" << lightPosition.x << ", " << lightPosition.y << ", " << lightPosition.z << "} "
 			<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\"";
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
@@ -448,11 +477,13 @@ int main()
 
 	for (auto g : vecGameObjects)
 		delete g;
+	for (auto l : vecLights)
+		delete l;
 
 	delete bunnymesh;
 	//delete piratemesh;
 	delete cubemesh;
-	//delete terrainmesh;
+	delete terrainmesh;
 	delete pShaderManager;
 	delete pModelLoader;
 	delete pVAOManager;
@@ -460,7 +491,7 @@ int main()
 	exit(EXIT_SUCCESS);
 }
 
-
+// Draw an object
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 {
 	glm::mat4 m = glm::mat4(1.0f);
@@ -474,15 +505,17 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 	m *= rotationX * rotationY * rotationZ * translation * scale;
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
-	//glUniform4f(glGetUniformLocation(shader, "fColour"), go->color.r, go->color.g, go->color.b, 1.0f);
+	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 
 	if (go->wireFrame)
 	{
+		glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)GL_TRUE);
 		glDisable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else
 	{
+		glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)GL_FALSE);
 		glEnable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
