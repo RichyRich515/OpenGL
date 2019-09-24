@@ -175,17 +175,17 @@ int main()
 	//	exit(EXIT_FAILURE);
 	//}
 	//
-	if (!pModelLoader->loadModel("assets/models/terrain_xyzn.ply", terrainmesh))
-	{
-		std::cerr << "Failed to load Model" << std::endl;
-		exit(EXIT_FAILURE);
-	}
 	//
 	//if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", bunnymesh))
 	//{
 	//	std::cerr << "Failed to load Model" << std::endl;
 	//	exit(EXIT_FAILURE);
 	//}
+	if (!pModelLoader->loadModel("assets/models/terrain_xyzn.ply", terrainmesh))
+	{
+		std::cerr << "Failed to load Model" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
 	if (!pModelLoader->loadModel("assets/models/sphere_xyzn.ply", spheremesh))
 	{
@@ -219,18 +219,22 @@ int main()
 	GLuint projection_loc = glGetUniformLocation(program, "matProjection");
 	GLuint eyeLocation_loc = glGetUniformLocation(program, "eyeLocation");
 
-#define getUniformLocationInArray(arr, i, d) glGetUniformLocation(program, arr "[" #i "]." d);
+	// TODO: this monstrosity gotta go
+#define getUniformLocationInArray(_program, _arrName, _i, _d) glGetUniformLocation(_program, _arrName "[" #_i "]." _d)
+
+#define getLightLocations(_light, _program, _arrName, _i)\
+	_light->position_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "position");\
+	_light->diffuse_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "diffuse");\
+	_light->specular_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "specular");\
+	_light->atten_loc =		getUniformLocationInArray(_program, _arrName, ##_i, "atten");\
+	_light->direction_loc = getUniformLocationInArray(_program, _arrName, ##_i, "direction");\
+	_light->param1_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "param1");\
+	_light->param2_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "param2")
 
 	// directional light (sun)
 	cLight* light0 = new cLight();
-	light0->position_loc =	getUniformLocationInArray("lights", 0, "position");
-	light0->diffuse_loc =	getUniformLocationInArray("lights", 0, "diffuse");
-	light0->specular_loc =	getUniformLocationInArray("lights", 0, "specular");
-	light0->atten_loc =		getUniformLocationInArray("lights", 0, "atten");
-	light0->direction_loc = getUniformLocationInArray("lights", 0, "direction");
-	light0->param1_loc =	getUniformLocationInArray("lights", 0, "param1");
-	light0->param2_loc =	getUniformLocationInArray("lights", 0, "param2");
-	
+	getLightLocations(light0, program, "lights", 0);
+
 	light0->position = glm::vec4(0, 0, 0, 1);
 	light0->param2.x = 1.0f; // Set on
 	
@@ -242,13 +246,7 @@ int main()
 
 	// SpotLight
 	cLight* light1 = new cLight();
-	light1->position_loc =	getUniformLocationInArray("lights", 1, "position");
-	light1->diffuse_loc =	getUniformLocationInArray("lights", 1, "diffuse");
-	light1->specular_loc =	getUniformLocationInArray("lights", 1, "specular");
-	light1->atten_loc =		getUniformLocationInArray("lights", 1, "atten");
-	light1->direction_loc = getUniformLocationInArray("lights", 1, "direction");
-	light1->param1_loc =	getUniformLocationInArray("lights", 1, "param1");
-	light1->param2_loc =	getUniformLocationInArray("lights", 1, "param2");
+	getLightLocations(light1, program, "lights", 1);
 
 	light1->position = glm::vec4(0, 10, 0, 1);
 	light1->param2.x = 1.0f; // Set on
@@ -340,7 +338,7 @@ int main()
 	cGameObject* terrain = new cGameObject("terrain");
 	terrain->meshName = "terrain";
 	terrain->mesh = terrainmesh;
-	terrain->position = glm::vec3(0.0f, -50.0f, 0.0f);
+	terrain->position = glm::vec3(0.0f, -25.0f, 0.0f);
 	terrain->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	terrain->scale = 1.0f;
 	terrain->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -434,13 +432,14 @@ int main()
 			vecLights[selectedLight]->position.z += (mF - mB) * 3 * dt;
 			vecLights[selectedLight]->atten.y *= ((fPress || rPress) ? ((fPress - rPress) * 0.01 + 1.00): 1.0); // Linear
 
+
 			glUniform4f(vecLights[selectedLight]->position_loc, vecLights[selectedLight]->position.x, vecLights[selectedLight]->position.y, vecLights[selectedLight]->position.z, 1.0f);
-			glUniform4f(vecLights[selectedLight]->diffuse_loc, vecLights[selectedLight]->diffuse.x, vecLights[selectedLight]->diffuse.y, vecLights[selectedLight]->diffuse.z, 1.0f);
-			glUniform4f(vecLights[selectedLight]->specular_loc, 1.0f, 1.0f, 1.0f, 1.0f);	// White
-			glUniform4f(vecLights[selectedLight]->atten_loc, 0.0f, vecLights[selectedLight]->atten.y, vecLights[selectedLight]->atten.z, vecLights[selectedLight]->atten.w);
-			glUniform4f(vecLights[selectedLight]->direction_loc, 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(vecLights[selectedLight]->param1_loc, 0.0f /*POINT light*/, 0.0f, 0.0f, 1.0f);
-			glUniform4f(vecLights[selectedLight]->param2_loc, 1.0f /*Light is on*/, 0.0f, 0.0f, 1.0f);
+			glUniform4f(vecLights[selectedLight]->diffuse_loc, vecLights[selectedLight]->diffuse.r, vecLights[selectedLight]->diffuse.g, vecLights[selectedLight]->diffuse.b, 1.0f);
+			glUniform4f(vecLights[selectedLight]->specular_loc, vecLights[selectedLight]->specular.r, vecLights[selectedLight]->specular.g, vecLights[selectedLight]->specular.b, 1.0f);
+			glUniform4f(vecLights[selectedLight]->atten_loc, vecLights[selectedLight]->atten.x, vecLights[selectedLight]->atten.y, vecLights[selectedLight]->atten.z, vecLights[selectedLight]->atten.w);
+			glUniform4f(vecLights[selectedLight]->direction_loc, vecLights[selectedLight]->direction.x, vecLights[selectedLight]->direction.y, vecLights[selectedLight]->direction.z, 1.0f);
+			glUniform4f(vecLights[selectedLight]->param1_loc, vecLights[selectedLight]->param1.x, vecLights[selectedLight]->param1.y, vecLights[selectedLight]->param1.z, vecLights[selectedLight]->param1.w);
+			glUniform4f(vecLights[selectedLight]->param2_loc, vecLights[selectedLight]->param2.x, vecLights[selectedLight]->param2.y, vecLights[selectedLight]->param2.z, vecLights[selectedLight]->param2.w);
 
 			debugSphere->position = vecLights[selectedLight]->position;
 			debugSphere->scale = 0.1f / vecLights[selectedLight]->atten.y;
@@ -506,16 +505,15 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
+	glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)go->wireFrame);
 
 	if (go->wireFrame)
 	{
-		glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)GL_TRUE);
 		glDisable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else
 	{
-		glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)GL_FALSE);
 		glEnable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
