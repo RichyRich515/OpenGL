@@ -32,7 +32,8 @@ bool cModelLoader::loadModel(std::string filename, cMesh* mesh)
 
 	for (unsigned i = 0; i < verts; ++i)
 	{
-		infile >> mesh->vecVertices[i].x >> mesh->vecVertices[i].y >> mesh->vecVertices[i].z;
+		infile >> mesh->vecVertices[i].x >> mesh->vecVertices[i].y >> mesh->vecVertices[i].z
+				>> mesh->vecVertices[i].nx >> mesh->vecVertices[i].ny >> mesh->vecVertices[i].nz;
 	}
 
 	unsigned v; // Ignore the first number

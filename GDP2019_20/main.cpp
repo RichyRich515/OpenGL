@@ -24,6 +24,7 @@
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 #include "cGameObject.hpp"
+#include "cLight.hpp"
 #include "Physics.hpp"
 
 
@@ -51,6 +52,9 @@ bool shift_pressed = false, mF = false, mB = false, mL = false, mR = false, mU =
 
 std::vector<cGameObject*> vecGameObjects;
 int selectedObject = 0;
+
+std::vector<cLight*> vecLights;
+int selectedLight = 0;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -176,25 +180,24 @@ int main()
 	//	std::cerr << "Failed to load Model" << std::endl;
 	//	exit(EXIT_FAILURE);
 	//}
+	//
+	//if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", bunnymesh))
+	//{
+	//	std::cerr << "Failed to load Model" << std::endl;
+	//	exit(EXIT_FAILURE);
+	//}
 
-	if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", bunnymesh))
+	if (!pModelLoader->loadModel("assets/models/sphere_xyzn.ply", spheremesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	if (!pModelLoader->loadModel("assets/models/sphere_xyz.ply", spheremesh))
+	if (!pModelLoader->loadModel("assets/models/cube_xyzn.ply", cubemesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
-	if (!pModelLoader->loadModel("assets/models/cube_xyz.ply", cubemesh))
-	{
-		std::cerr << "Failed to load Model" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
 
 	// make shader
 	cShaderManager::cShader vertexShader01;
@@ -212,12 +215,23 @@ int main()
 
 	GLuint program = pShaderManager->getIDFromFriendlyName("shader01");
 	glUseProgram(program);
-	GLuint mvp_location = glGetUniformLocation(program, "MVP");
-	GLuint lightpos_loc = glGetUniformLocation(program, "lightPosition");
 	GLuint view_loc = glGetUniformLocation(program, "matView");
 	GLuint projection_loc = glGetUniformLocation(program, "matProjection");
-	GLuint atten_loc = glGetUniformLocation(program, "linearAtten");
+	GLuint theLights_loc = glGetUniformLocation(program, "theLights");
 	
+	cLight* light1 = new cLight();
+
+	light1->position_loc = theLights_loc + 0;
+	light1->diffuse_loc = theLights_loc + 1;
+	light1->specular_loc = theLights_loc + 2;
+	light1->atten_loc = theLights_loc + 3;
+	light1->direction_loc = theLights_loc + 4;
+	light1->param1_loc = theLights_loc + 5;
+	light1->param2_loc = theLights_loc + 6;
+	
+	vecLights.push_back(light1);
+
+
 	auto pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 	
 	//if (!pVAOManager->LoadModelIntoVAO("pirate", piratemesh, program))
@@ -290,7 +304,6 @@ int main()
 	debugSphere->wireFrame = true;
 	// Dont push to vecGameObjects
 
-
 	cGameObject* cube = new cGameObject("cube");
 	cube->meshName = "cube";
 	cube->mesh = cubemesh;
@@ -312,13 +325,8 @@ int main()
 	sphere->inverseMass = 1.0f;
 	vecGameObjects.push_back(sphere);
 
-	//vecGameObjects.push_back(terrain);
-	//vecGameObjects.push_back(bunny1);
-	//vecGameObjects.push_back(bunny2);
-	//vecGameObjects.push_back(pirate1);
-
 	glm::vec3 lightPosition = glm::vec4(0.0f, 2.0f, 0.0f, 0.0f);
-	glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
+	//glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
 	float lightAtten = 1.0f;
 	float ratio;
 	int width, height;
@@ -332,7 +340,7 @@ int main()
 	
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
-	glUniform1f(atten_loc, lightAtten);	// default light value
+	//glUniform1f(atten_loc, lightAtten);	// default light value
 
 	// timing
 	float totalTime;
@@ -364,6 +372,7 @@ int main()
 		lastcursorX = cursorX;
 		lastcursorY = cursorY;
 
+		// Lock pitch
 		if (pitch > 89.9f)
 			pitch = 89.9f;
 		else if (pitch < -89.9f)
@@ -401,8 +410,8 @@ int main()
 			lightPosition.y += (mU - mD) * 3 * dt;
 			lightPosition.z += (mF - mB) * 3 * dt;
 			lightAtten += (fPress - rPress) * 1.0f * dt;
-			glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
-			glUniform1f(atten_loc, lightAtten);
+			//glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
+			//glUniform1f(atten_loc, lightAtten);
 
 			debugSphere->position = lightPosition;
 			debugSphere->scale = 2.0f / lightAtten;
@@ -410,7 +419,6 @@ int main()
 			drawObject(debugSphere, program, pVAOManager);
 		}
 
-		
 
 		physicsUpdate(vecGameObjects, dt);
 
@@ -466,9 +474,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 	m *= rotationX * rotationY * rotationZ * translation * scale;
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
-	glUniform1f(glGetUniformLocation(shader, "cRed"), go->color.r);
-	glUniform1f(glGetUniformLocation(shader, "cGreen"), go->color.g);
-	glUniform1f(glGetUniformLocation(shader, "cBlue"), go->color.b);
+	//glUniform4f(glGetUniformLocation(shader, "fColour"), go->color.r, go->color.g, go->color.b, 1.0f);
 
 	if (go->wireFrame)
 	{

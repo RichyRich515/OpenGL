@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cGameObject.hpp" />
+    <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
     <ClInclude Include="cModelLoader.hpp" />
     <ClInclude Include="cShaderManager.hpp" />

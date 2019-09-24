@@ -156,7 +156,7 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 			}
 		}
 
-		std::cout << closestDistanceSoFar << std::endl;
+		//std::cout << closestDistanceSoFar << std::endl;
 		// Bounce based on closest point if collision (need to do normals and cross product stuff here probably)
 		if ((closestDistanceSoFar - 0.7f) < 0.01 )
 		{

@@ -4,22 +4,28 @@ uniform mat4 matModel;		// Model or World
 uniform mat4 matView;		// View or Camera
 uniform mat4 matProjection; // Projection
 
-in vec3 vCol;
-in vec3 vPos;
+in vec4 vColour;
+in vec4 vPosition;
+in vec4 vNormal;
+in vec4 vUVx2;
 
-out vec3 color;
-out vec4 vertWorld;			// Location of the vertex in the world
+out vec4 fColour;
+out vec4 fVertWorldLocation;
+out vec4 fNormal;
+out vec4 fUVx2;
 
 void main()
 {
-	vec3 vertPosition = vPos;
+	vec4 vertPosition = vPosition;
 
 	mat4 matMVP = matProjection * matView * matModel;
 	
-    gl_Position = matMVP * vec4(vertPosition, 1.0);
+    gl_Position = matMVP * vec4(vertPosition.xyz, 1.0f);
 
 	// Calculate vertex in world space
-	vertWorld = matModel * vec4(vertPosition, 1.0);
+	fVertWorldLocation = matModel * vec4(vertPosition.xyz, 1.0f);
 
-	color = vCol;
+	fColour = vColour;
+	fNormal = vNormal;
+	fUVx2 = vUVx2;
 }

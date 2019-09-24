@@ -44,7 +44,11 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	drawInfo.numberOfVertices = mesh->vecVertices.size();
 	drawInfo.pVertices = new sVertex[drawInfo.numberOfVertices];
 	for (unsigned i = 0; i != drawInfo.numberOfVertices; ++i)
-		drawInfo.pVertices[i] = sVertex{ mesh->vecVertices[i].x, mesh->vecVertices[i].y, mesh->vecVertices[i].z, 1.0f, 1.0f, 1.0f };
+		drawInfo.pVertices[i] = sVertex{
+			mesh->vecVertices[i].x, mesh->vecVertices[i].y, mesh->vecVertices[i].z, 1.0f,
+			1.0f, 1.0f, 1.0f, 1.0f,
+			mesh->vecVertices[i].nx, mesh->vecVertices[i].ny, mesh->vecVertices[i].nz, 1.0f,
+			1.0f, 1.0f, 1.0f, 1.0f };
 
 	drawInfo.numberOfTriangles = mesh->vecTriangles.size();
 	drawInfo.numberOfIndices = mesh->vecTriangles.size() * 3;
@@ -82,15 +86,23 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * drawInfo.numberOfIndices, (GLvoid*)drawInfo.pIndices, GL_STATIC_DRAW);
 
 	// Set the vertex attributes.
-	GLint vpos_location = glGetAttribLocation(shaderProgramID, "vPos");	// program
-	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vCol");	// program;
+	GLint vpos_location = glGetAttribLocation(shaderProgramID, "vPosition");
+	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vColour");
+	GLint vnorm_location = glGetAttribLocation(shaderProgramID, "vNormal");
+	GLint vUV_location = glGetAttribLocation(shaderProgramID, "vUVx2");
 
 	// Set the vertex attributes for this shader
 	glEnableVertexAttribArray(vpos_location);
-	glVertexAttribPointer(vpos_location, 3,	GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
+	glVertexAttribPointer(vpos_location, 4,	GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, x)));
 
 	glEnableVertexAttribArray(vcol_location);
-	glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(sizeof(float) * 3));
+	glVertexAttribPointer(vcol_location, 4, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, r)));
+
+	glEnableVertexAttribArray(vnorm_location);
+	glVertexAttribPointer(vnorm_location, 4, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, nx)));
+
+	glEnableVertexAttribArray(vUV_location);
+	glVertexAttribPointer(vUV_location, 4, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, u0)));
 
 	// Now that all the parts are set up, set the VAO to zero
 	glBindVertexArray(0);
@@ -100,10 +112,10 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 
 	glDisableVertexAttribArray(vpos_location);
 	glDisableVertexAttribArray(vcol_location);
+	//glDisableVertexAttribArray(vnorm_location);
+	//glDisableVertexAttribArray(vUV_location);
 
-	// Store the draw information into the map
 	this->m_map_ModelName_to_VAOID[drawInfo.meshName] = drawInfo;
-
 
 	return true;
 }

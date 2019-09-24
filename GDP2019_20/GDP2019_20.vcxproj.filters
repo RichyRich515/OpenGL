@@ -59,6 +59,9 @@
     <ClInclude Include="Physics.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\vertexShader01.glsl">
