@@ -4,7 +4,8 @@ in vec4 fColour;
 in vec4 fVertWorldLocation;
 in vec4 fNormal;
 in vec4 fUVx2;
-	
+
+uniform vec4 ambientColour;
 uniform vec4 diffuseColour;
 uniform vec4 specularColour;
 
@@ -54,7 +55,7 @@ void main()
 
 	vec4 outColour = calculateLightContrib(materialColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specColour);
 	pixelColour = outColour;
-	
+	pixelColour.rgb += materialColour.rgb * ambientColour.rgb;
 	//pixelColour.rgb += vec3(0.5f, 0.5f, 0.5f);
 	//pixelColour.rgb += fNormal.xyz;
 }
@@ -155,9 +156,9 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 			float innerConeAngleCos = cos(radians(lights[index].param1.y));
 							
 			// Is it completely outside of the spot?
-			if ( currentLightRayAngle < outerConeAngleCos )
+			if (currentLightRayAngle < outerConeAngleCos)
 			{
-				// Nope. so it's in the dark
+				// So it's in the dark
 				lightDiffuseContrib = vec3(0.0f, 0.0f, 0.0f);
 				lightSpecularContrib = vec3(0.0f, 0.0f, 0.0f);
 			}
@@ -168,8 +169,7 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 				// 
 				// This blends the brightness from full brightness, near the inner cone
 				//	to black, near the outter cone
-				float penumbraRatio = (currentLightRayAngle - outerConeAngleCos) / 
-									  (innerConeAngleCos - outerConeAngleCos);
+				float penumbraRatio = (currentLightRayAngle - outerConeAngleCos) / (innerConeAngleCos - outerConeAngleCos);
 									  
 				lightDiffuseContrib *= penumbraRatio;
 				lightSpecularContrib *= penumbraRatio;

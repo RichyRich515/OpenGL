@@ -54,7 +54,7 @@ std::vector<cGameObject*> vecGameObjects;
 int selectedObject = 0;
 
 std::vector<cLight*> vecLights;
-int selectedLight = 1;
+int selectedLight = 2;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -125,6 +125,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key == GLFW_KEY_V && action == GLFW_PRESS)
 	{
 		vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
+	}
+
+	if (key == GLFW_KEY_K)
+	{
+		vecLights[selectedLight]->param1.z -= 0.1f;
+	}
+
+	if (key == GLFW_KEY_L)
+	{
+		vecLights[selectedLight]->param1.z += 0.1f;
 	}
 
 	if (key == GLFW_KEY_LEFT_SHIFT)
@@ -220,6 +230,9 @@ int main()
 	GLuint eyeLocation_loc = glGetUniformLocation(program, "eyeLocation");
 
 	// TODO: this monstrosity gotta go
+	// 0 = point light
+	// 1 = spot light
+	// 2 = directional light
 #define getUniformLocationInArray(_program, _arrName, _i, _d) glGetUniformLocation(_program, _arrName "[" #_i "]." _d)
 
 #define getLightLocations(_light, _program, _arrName, _i)\
@@ -231,33 +244,55 @@ int main()
 	_light->param1_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "param1");\
 	_light->param2_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "param2")
 
-	// directional light (sun)
+
+	// Ambient Light (Imagine all the sunlight bounced around and evenly lit everything)
+	glUniform4f(glGetUniformLocation(program, "ambientColour"), 0.3f, 0.3f, 0.3f, 1.0f);
+
+	// Directional Light (Sun)
 	cLight* light0 = new cLight();
 	getLightLocations(light0, program, "lights", 0);
 
-	light0->position = glm::vec4(0, 0, 0, 1);
+	light0->position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	light0->param1.x = 2; // Directional light
 	light0->param2.x = 1.0f; // Set on
 	
 	light0->direction = glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);
 
-	light0->diffuse = glm::vec4(1.0f, 1.0f, 0.9f, 1.0f);
-	light0->param1.x = 2; // Directional light
+	light0->diffuse = glm::vec4(0.75f, 0.75f, 0.65f, 1.0f);
 	vecLights.push_back(light0);
 
-	// SpotLight
+	// Point Light
 	cLight* light1 = new cLight();
 	getLightLocations(light1, program, "lights", 1);
 
-	light1->position = glm::vec4(0, 10, 0, 1);
+	light1->position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
+	light1->param1.x = 0; // Point light
 	light1->param2.x = 1.0f; // Set on
 
-	light1->param1.x = 0;
-	light1->atten.y = 0.02f; // Linear attn
-	light1->atten.z = 0.00f; // quadratic attn
+	light1->atten.y = 0.0f; // Linear attn
+	light1->atten.z = 0.2f; // quadratic attn
 	light1->atten.w = 1000000.0f; // Distance cutoff
 
 	light1->diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
 	vecLights.push_back(light1);
+
+	// Spot Light
+	cLight* light2 = new cLight();
+	getLightLocations(light2, program, "lights", 1);
+
+	light2->position = glm::vec4(-5.0f,  0.0f, 0.0f, 1.0f);
+	light2->direction = glm::vec4(0.0f, -1.0f, 0.0f, 1.0f); // Facing down 0.0f, -1.0f, 0.0f, 1.0f
+	light2->param1.x = 1; // Spot light
+	light2->param1.y = 12.5f; //glm::radians(30.0f); // Inner Angle 
+	light2->param1.z = 17.5f; //glm::radians(10.0f); // Outer Angle 
+	light2->param2.x = 1.0f; // Set on
+
+	light2->atten.y = 0.1f; // Linear attn
+	light2->atten.z = 0.0f; // quadratic attn
+	light2->atten.w = 1000000.0f; // Distance cutoff
+
+	light2->diffuse = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	vecLights.push_back(light2);
 
 	// Assign variables in shader
 	for (unsigned i = 0; i < vecLights.size(); ++i)
@@ -270,6 +305,7 @@ int main()
 		glUniform4f(vecLights[i]->param1_loc, vecLights[i]->param1.x, vecLights[i]->param1.y, vecLights[i]->param1.z, vecLights[i]->param1.w);
 		glUniform4f(vecLights[i]->param2_loc, vecLights[i]->param2.x, vecLights[i]->param2.y, vecLights[i]->param2.z, vecLights[i]->param2.w);
 	}
+
 
 	cShaderManager::cShaderProgram* pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 	
