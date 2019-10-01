@@ -179,18 +179,6 @@ int main()
 	cMesh* cubemesh = new cMesh();
 	cMesh* terrainmesh = new cMesh();
 
-	//if (!pModelLoader->loadModel("assets/models/Sky_Pirate_Combined_xyz.ply", piratemesh))
-	//{
-	//	std::cerr << "Failed to load Model" << std::endl;
-	//	exit(EXIT_FAILURE);
-	//}
-	//
-	//
-	//if (!pModelLoader->loadModel("assets/models/bun_zipper_res4_xyz.ply", bunnymesh))
-	//{
-	//	std::cerr << "Failed to load Model" << std::endl;
-	//	exit(EXIT_FAILURE);
-	//}
 	if (!pModelLoader->loadModel("assets/models/terrain_xyzn.ply", terrainmesh))
 	{
 		std::cerr << "Failed to load Model" << std::endl;
@@ -259,6 +247,7 @@ int main()
 	light0->direction = glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f);
 
 	light0->diffuse = glm::vec4(0.75f, 0.75f, 0.65f, 1.0f);
+	//light0->specular = glm::vec4(0.75f, 0.75f, 0.65f, 1.0f);
 	vecLights.push_back(light0);
 
 	// Point Light
@@ -274,6 +263,7 @@ int main()
 	light1->atten.w = 1000000.0f; // Distance cutoff
 
 	light1->diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+	light1->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	vecLights.push_back(light1);
 
 	// Spot Light
@@ -292,6 +282,7 @@ int main()
 	light2->atten.w = 1000000.0f; // Distance cutoff
 
 	light2->diffuse = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	light2->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	vecLights.push_back(light2);
 
 	// Assign variables in shader
@@ -309,12 +300,6 @@ int main()
 
 	cShaderManager::cShaderProgram* pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 	
-	//if (!pVAOManager->LoadModelIntoVAO("pirate", piratemesh, program))
-	//{
-	//	std::cerr << "Failed to load model to GPU" << std::endl;
-	//	exit(EXIT_FAILURE);
-	//}
-	//
 	if (!pVAOManager->LoadModelIntoVAO("terrain", terrainmesh, program))
 	{
 		std::cerr << "Failed to load model to GPU" << std::endl;
@@ -365,15 +350,17 @@ int main()
 
 	vecGameObjects.push_back(cube);
 
-	cGameObject* sphere = new cGameObject("sphere");
+	/*cGameObject* sphere = new cGameObject("sphere");
 	sphere->meshName = "sphere";
 	sphere->mesh = spheremesh;
 	sphere->position = glm::vec3(2.0f, 29.0f, 0.0f);
 	sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	sphere->scale = 1.0f;
 	sphere->color = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
+	sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
 	sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 	sphere->inverseMass = 1.0f;
+	sphere->bounciness = 0.8f;
 	
 	sphere->collisionShapeType = SPHERE;
 	sphere->collisionObjectInfo.radius = 0.5f;
@@ -387,8 +374,10 @@ int main()
 	sphere2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	sphere2->scale = 1.0f;
 	sphere2->color = glm::vec4(0.2f, 1.0f, 0.2f, 1.0f);
+	sphere2->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
 	sphere2->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 	sphere2->inverseMass = 1.0f;
+	sphere2->bounciness = 0.8f;
 	
 	sphere2->collisionShapeType = SPHERE;
 	sphere2->collisionObjectInfo.radius = 0.5f;
@@ -402,13 +391,40 @@ int main()
 	sphere3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	sphere3->scale = 1.0f;
 	sphere3->color = glm::vec4(0.2f, 0.2f, 1.0f, 1.0f);
+	sphere3->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
 	sphere3->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 	sphere3->inverseMass = 1.0f;
+	sphere3->bounciness = 0.8f;
 
 	sphere3->collisionShapeType = SPHERE;
 	sphere3->collisionObjectInfo.radius = 0.5f;
 
-	vecGameObjects.push_back(sphere3);
+	vecGameObjects.push_back(sphere3);*/
+
+	for (unsigned x = 0; x < 3; x++)
+	{
+		for (unsigned z = 0; z < 3; z++)
+		{
+			std::ostringstream name;
+			name << "sphere" << x << z;
+			cGameObject* sphere = new cGameObject(name.str());
+			sphere->meshName = "sphere";
+			sphere->mesh = spheremesh;
+			sphere->position = glm::vec3(x - 1.5f, 30.0f, z - 1.5f);
+			sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+			sphere->scale = 1.0f;
+			sphere->color = glm::vec4(1.0f - (x / 5.0f), 0.2f, 1.0f - (z / 5.0f), 1.0f);
+			sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
+			sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
+			sphere->inverseMass = 1.0f;
+			sphere->bounciness = 0.8f;
+
+			sphere->collisionShapeType = SPHERE;
+			sphere->collisionObjectInfo.radius = 0.5f;
+
+			vecGameObjects.push_back(sphere);
+		}
+	}
 
 	cGameObject* terrain = new cGameObject("terrain");
 	terrain->meshName = "terrain";
@@ -416,7 +432,8 @@ int main()
 	terrain->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	terrain->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	terrain->scale = 1.0f;
-	terrain->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	terrain->color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+	terrain->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1000.0f);
 	terrain->inverseMass = 0.0f;
 
 	terrain->collisionShapeType = MESH;
@@ -500,7 +517,7 @@ int main()
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-		//glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
+		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
 		
 		if (shift_pressed)
 		{
@@ -584,6 +601,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
+	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
 	glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)go->wireFrame);
 
 	if (go->wireFrame)

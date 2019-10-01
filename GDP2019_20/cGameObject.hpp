@@ -30,6 +30,7 @@ public:
 		this->rotation = glm::vec3(0);
 		this->scale = 1.0f;
 		this->color = glm::vec4(1.0f);
+		this->specular = glm::vec4(1.0f);
 		this->wireFrame = false;
 		this->visible = true;
 		this->velocity = glm::vec3(0.0f);
@@ -46,6 +47,7 @@ public:
 		this->rotation = glm::vec3(0);
 		this->scale = 1.0f;
 		this->color = glm::vec4(1.0f);
+		this->specular = glm::vec4(1.0f);
 		this->wireFrame = false;
 		this->visible = true;
 		this->velocity = glm::vec3(0.0f);
@@ -65,12 +67,14 @@ public:
 	glm::vec3 rotation;
 	float scale;
 	glm::vec4 color;
+	glm::vec4 specular; // A IS SHINYNESS, 1 to 10000
 	bool wireFrame;
 	bool visible;
 
 	glm::vec3 velocity;
 	glm::vec3 acceleration;
 	float inverseMass; // Set 0 to ignore during update
+	float bounciness; // Set 0 stop when hitting floor, // Set 1 to maintain 100 of velocity magnitude
 	
 	eCollisionShapeTypes collisionShapeType;
 

@@ -44,8 +44,6 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 void main()  
 {
 	vec4 materialColour = diffuseColour;
-	// TODO: Specular
-	vec4 specColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	if (bDoNotLight)
 	{
@@ -53,11 +51,9 @@ void main()
 		return;
 	}
 
-	vec4 outColour = calculateLightContrib(materialColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specColour);
+	vec4 outColour = calculateLightContrib(materialColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
 	pixelColour = outColour;
 	pixelColour.rgb += materialColour.rgb * ambientColour.rgb;
-	//pixelColour.rgb += vec3(0.5f, 0.5f, 0.5f);
-	//pixelColour.rgb += fNormal.xyz;
 }
 
 
