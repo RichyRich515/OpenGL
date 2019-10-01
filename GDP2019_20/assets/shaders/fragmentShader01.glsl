@@ -21,7 +21,7 @@ struct sLight
 {
 	vec4 position;
 	vec4 diffuse;
-	vec4 specular;	// rgb = highlight colour, w = power
+	vec4 specular;	// rgb = highlight colour, w = power POWER IS 1.0f to 10,000.0f
 	vec4 atten;		// x = constant, y = linear, z = quadratic, w = DistanceCutOff
 	vec4 direction;	// Spot, directional lights
 	vec4 param1;	// x = lightType, y = inner angle, z = outer angle, w = TBD

@@ -36,7 +36,7 @@ static void error_callback(int error, const char* description)
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager);
 
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraEye = glm::vec3(0.0f, 8.0f, 10.0f);
+glm::vec3 cameraEye = glm::vec3(0.0f, 27.0f, 10.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -233,7 +233,7 @@ int main()
 	// 0 = point light
 	// 1 = spot light
 	// 2 = directional light
-#define getUniformLocationInArray(_program, _arrName, _i, _d) glGetUniformLocation(_program, _arrName "[" #_i "]." _d)
+#define getUniformLocationInArray(_program, _arrName, __i, _d) glGetUniformLocation(_program, _arrName "[" #__i "]." _d)
 
 #define getLightLocations(_light, _program, _arrName, _i)\
 	_light->position_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "position");\
@@ -265,12 +265,12 @@ int main()
 	cLight* light1 = new cLight();
 	getLightLocations(light1, program, "lights", 1);
 
-	light1->position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
+	light1->position = glm::vec4(0.0f, 35.0f, 0.0f, 1.0f);
 	light1->param1.x = 0; // Point light
 	light1->param2.x = 1.0f; // Set on
 
-	light1->atten.y = 0.0f; // Linear attn
-	light1->atten.z = 0.2f; // quadratic attn
+	light1->atten.y = 0.2f; // Linear attn
+	light1->atten.z = 0.0f; // quadratic attn
 	light1->atten.w = 1000000.0f; // Distance cutoff
 
 	light1->diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
@@ -278,13 +278,13 @@ int main()
 
 	// Spot Light
 	cLight* light2 = new cLight();
-	getLightLocations(light2, program, "lights", 1);
+	getLightLocations(light2, program, "lights", 2);
 
-	light2->position = glm::vec4(-5.0f,  0.0f, 0.0f, 1.0f);
+	light2->position = glm::vec4(5.0f,  35.0f, 0.0f, 1.0f);
 	light2->direction = glm::vec4(0.0f, -1.0f, 0.0f, 1.0f); // Facing down 0.0f, -1.0f, 0.0f, 1.0f
 	light2->param1.x = 1; // Spot light
-	light2->param1.y = 12.5f; //glm::radians(30.0f); // Inner Angle 
-	light2->param1.z = 17.5f; //glm::radians(10.0f); // Outer Angle 
+	light2->param1.y = 12.5f; // Inner Angle 
+	light2->param1.z = 17.5f; // Outer Angle 
 	light2->param2.x = 1.0f; // Set on
 
 	light2->atten.y = 0.1f; // Linear attn
@@ -298,7 +298,7 @@ int main()
 	for (unsigned i = 0; i < vecLights.size(); ++i)
 	{
 		glUniform4f(vecLights[i]->position_loc, vecLights[i]->position.x, vecLights[i]->position.y, vecLights[i]->position.z, 1.0f);
-		glUniform4f(vecLights[i]->diffuse_loc, vecLights[i]->diffuse.r, vecLights[i]->diffuse.g, vecLights[i]->diffuse.b, 1.0f);
+		glUniform4f(vecLights[i]->diffuse_loc, vecLights[i]->diffuse.r, vecLights[i]->diffuse.g, vecLights[i]->diffuse.b, vecLights[i]->diffuse.a);
 		glUniform4f(vecLights[i]->specular_loc, vecLights[i]->specular.r, vecLights[i]->specular.g, vecLights[i]->specular.b, 1.0f);
 		glUniform4f(vecLights[i]->atten_loc, vecLights[i]->atten.x, vecLights[i]->atten.y, vecLights[i]->atten.z, vecLights[i]->atten.w);
 		glUniform4f(vecLights[i]->direction_loc, vecLights[i]->direction.x, vecLights[i]->direction.y, vecLights[i]->direction.z, 1.0f);
@@ -348,6 +348,7 @@ int main()
 	debugSphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
+	debugSphere->collisionShapeType = UNKNOWN;
 	// Dont push to vecGameObjects
 
 	cGameObject* cube = new cGameObject("cube");
@@ -358,27 +359,69 @@ int main()
 	cube->scale = 1.0f;
 	cube->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	cube->inverseMass = 0.0f;
+
+	//cube->collisionShapeType = AABB; // Bounding Box
+	//cube->collisionObjectInfo.rect = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
+
 	vecGameObjects.push_back(cube);
 
 	cGameObject* sphere = new cGameObject("sphere");
 	sphere->meshName = "sphere";
 	sphere->mesh = spheremesh;
-	sphere->position = glm::vec3(0.0f, 6.0f, 0.0f);
+	sphere->position = glm::vec3(2.0f, 29.0f, 0.0f);
 	sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	sphere->scale = 1.0f;
 	sphere->color = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
 	sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 	sphere->inverseMass = 1.0f;
+	
+	sphere->collisionShapeType = SPHERE;
+	sphere->collisionObjectInfo.radius = 0.5f;
+
 	vecGameObjects.push_back(sphere);
+
+	cGameObject* sphere2 = new cGameObject("sphere2");
+	sphere2->meshName = "sphere";
+	sphere2->mesh = spheremesh;
+	sphere2->position = glm::vec3(2.5f, 30.5f, 0.0f);
+	sphere2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	sphere2->scale = 1.0f;
+	sphere2->color = glm::vec4(0.2f, 1.0f, 0.2f, 1.0f);
+	sphere2->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
+	sphere2->inverseMass = 1.0f;
+	
+	sphere2->collisionShapeType = SPHERE;
+	sphere2->collisionObjectInfo.radius = 0.5f;
+
+	vecGameObjects.push_back(sphere2);
+
+	cGameObject* sphere3 = new cGameObject("sphere3");
+	sphere3->meshName = "sphere";
+	sphere3->mesh = spheremesh;
+	sphere3->position = glm::vec3(3.0f, 31.5f, 0.0f);
+	sphere3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	sphere3->scale = 1.0f;
+	sphere3->color = glm::vec4(0.2f, 0.2f, 1.0f, 1.0f);
+	sphere3->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
+	sphere3->inverseMass = 1.0f;
+
+	sphere3->collisionShapeType = SPHERE;
+	sphere3->collisionObjectInfo.radius = 0.5f;
+
+	vecGameObjects.push_back(sphere3);
 
 	cGameObject* terrain = new cGameObject("terrain");
 	terrain->meshName = "terrain";
 	terrain->mesh = terrainmesh;
-	terrain->position = glm::vec3(0.0f, -25.0f, 0.0f);
+	terrain->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	terrain->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	terrain->scale = 1.0f;
 	terrain->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	terrain->inverseMass = 0.0f;
+
+	terrain->collisionShapeType = MESH;
+	terrain->collisionObjectInfo.mesh = terrainmesh;
+
 	vecGameObjects.push_back(terrain);
 
 	glm::vec3 lightPosition = glm::vec4(0.0f, 2.0f, 0.0f, 0.0f);
@@ -466,7 +509,7 @@ int main()
 			vecLights[selectedLight]->position.x += (mR - mL) * 3 * dt;
 			vecLights[selectedLight]->position.y += (mU - mD) * 3 * dt;
 			vecLights[selectedLight]->position.z += (mF - mB) * 3 * dt;
-			vecLights[selectedLight]->atten.y *= ((fPress || rPress) ? ((fPress - rPress) * 0.01 + 1.00): 1.0); // Linear
+			vecLights[selectedLight]->atten.y *= ((fPress || rPress) ? ((fPress - rPress) * 0.01f + 1.0f): 1.0f); // Linear
 
 
 			glUniform4f(vecLights[selectedLight]->position_loc, vecLights[selectedLight]->position.x, vecLights[selectedLight]->position.y, vecLights[selectedLight]->position.z, 1.0f);

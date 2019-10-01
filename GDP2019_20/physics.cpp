@@ -65,24 +65,6 @@ glm::vec3 ClosestPtPointTriangle(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec
 	return u * a + v * b + w * c;
 }
 
-struct Sphere
-{
-	glm::vec3 c;
-	float r;
-};
-
-
-int TestSphereTriangle(Sphere s, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3& p)
-{
-	// Find point P on triangle ABC closest to sphere center
-	p = ClosestPtPointTriangle(s.c, a, b, c);
-
-	// Sphere and triangle intersect if the (squared) distance from sphere
-	// center to point p is less than the (squared) sphere radius
-	glm::vec3 v = p - s.c;
-	return glm::dot(v, v) <= s.r * s.r;
-}
-
 
 void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 {
@@ -101,14 +83,12 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 		go->position.y += go->velocity.y * dt;
 		go->position.z += go->velocity.z * dt;
 
-		// Test to see if hit ground plane
 
-		//if ((go->position.y - 1.0f) <= 0.0f)
-		//	go->velocity.y = fabs(go->velocity.y) * 0.95; // Lose some velocity
-
-
-		glm::vec3 closetPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-		float closestDistanceSoFar = FLT_MAX;
+		// Sphere x Mesh collision
+		glm::vec3 closestPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+		float closestDistance = FLT_MAX;
+		glm::vec3 p1, p2, p3;
+		unsigned closestTriIndex = 0;
 
 		// Test for all other Tris
 		for (auto itr2 = vecGameObjects.begin(); itr2 != vecGameObjects.end(); ++itr2)
@@ -118,50 +98,88 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 
 			cGameObject* go2 = *itr2;
 
-			cMesh* mesh = go2->mesh;
-			if (!mesh)
-				continue;
-
-
-			for (unsigned i = 0; i < mesh->vecVertices.size(); ++i)
+			switch (go2->collisionShapeType)
 			{
-
-				glm::vec3 p1 = glm::vec3(
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].x,
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].y,
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].z);
-
-				glm::vec3 p2 = glm::vec3(
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_2].x,
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_2].y,
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_2].z);
-
-				glm::vec3 p3 = glm::vec3(
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_3].x,
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_3].y,
-					mesh->vecVertices[mesh->vecTriangles[i].vert_index_3].z);
-
-				glm::vec3 curClosetPoint = ClosestPtPointTriangle(go->position, p1, p2, p3);
-
-
-				// Is this the closest so far?
-				float distanceNow = glm::distance(curClosetPoint, go->position);
-
-				// is this closer than the closest distance
-				if (distanceNow <= closestDistanceSoFar)
+				case SPHERE:
 				{
-					closestDistanceSoFar = distanceNow;
-					closetPoint = curClosetPoint;
+					float d = distance(go->position, go2->position);
+					if (d < (go->collisionObjectInfo.radius + go2->collisionObjectInfo.radius))
+					{
+						glm::vec3 collVec = go->position - go2->position;
+						float mag = length(go->velocity);
+						go->velocity = mag * normalize(collVec) * 0.75f;
+					}
+					break; // SPHERE
 				}
-			}
-		}
+				case MESH:
+					switch (go->collisionShapeType)
+					{
+						case SPHERE:
+						{
+							cMesh* mesh = go2->mesh;
+							if (!mesh)
+								continue;
 
-		//std::cout << closestDistanceSoFar << std::endl;
-		// Bounce based on closest point if collision (need to do normals and cross product stuff here probably)
-		if ((closestDistanceSoFar - 0.7f) < 0.01 )
-		{
-			go->velocity.y = abs(go->velocity.y);
-		}
+							for (unsigned i = 0; i < mesh->vecTriangles.size(); ++i)
+							{
 
-	}
+								p1 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].x,
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].y,
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].z);
+
+								p2 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_2].x,
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_2].y,
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_2].z);
+
+								p3 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_3].x,
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_3].y,
+									mesh->vecVertices[mesh->vecTriangles[i].vert_index_3].z);
+
+								glm::vec3 curClosetPoint = ClosestPtPointTriangle(go->position, p1, p2, p3);
+
+								// Is this the closest so far?
+								float distanceNow = glm::distance(curClosetPoint, go->position);
+
+								// is this closer than the closest distance
+								if (distanceNow <= closestDistance)
+								{
+									closestDistance = distanceNow;
+									closestPoint = curClosetPoint;
+									closestTriIndex = i;
+								}
+							}
+
+							if (closestDistance <= go->collisionObjectInfo.radius)
+							{
+								glm::vec3 n1, n2, n3;
+								n1 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].nx,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].ny,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].nz);
+
+								n2 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].nx,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].ny,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].nz);
+
+								n3 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].nx,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].ny,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].nz);
+
+								glm::vec3 faceNorm = normalize((n1 + n2 + n3) / 3.0f);
+								float mag = length(go->velocity);
+								go->velocity = mag * faceNorm * 0.75f;
+							} // if closestDistance <= radius
+							break;
+						} // MESH-SPHERE
+					} // switch go shape type
+				break; // MESH
+			} // switch go2 shape type
+			
+		} // For gameobjects 2
+	} // For gameobjects 1
 }

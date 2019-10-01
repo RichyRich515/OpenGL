@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{dbde3a81-1d90-485f-b444-96e039676226}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -50,9 +53,6 @@
     <ClInclude Include="GLCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cGameObject.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cShaderManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -61,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="cLight.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cGameObject.hpp">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,9 +7,20 @@
 
 #include "cMesh.hpp"
 
+enum eCollisionShapeTypes
+{
+	AABB,
+	SPHERE,
+	CAPSULE,
+	PLANE,
+	MESH,
+	UNKNOWN
+};
+
 class cGameObject
 {
 public:
+
 	cGameObject()
 	{
 		this->name = "";
@@ -42,6 +53,11 @@ public:
 		this->inverseMass = 0.0f;
 	}
 
+	~cGameObject()
+	{
+		// Clean up
+	}
+
 	std::string name;
 	std::string meshName;
 	cMesh* mesh;
@@ -55,4 +71,15 @@ public:
 	glm::vec3 velocity;
 	glm::vec3 acceleration;
 	float inverseMass; // Set 0 to ignore during update
+	
+	eCollisionShapeTypes collisionShapeType;
+
+	union uCollisionObjectInfo
+	{
+		glm::vec4 rect; // For AABB
+		float radius; // For sphere or capsule
+		float height; // For capsule
+		glm::vec3 plane; // For plane
+		cMesh* mesh; // For mesh
+	} collisionObjectInfo;
 };
