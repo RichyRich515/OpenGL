@@ -65,9 +65,40 @@ glm::vec3 ClosestPtPointTriangle(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec
 	return u * a + v * b + w * c;
 }
 
+// Given point p, return the point on or in AABB that is closest to p
+glm::vec3 ClosestPtPointAABB(glm::vec3 p, glm::vec3 min, glm::vec3 max)
+{
+	glm::vec3 q;
+	// For each coordinate axis, if the point coordinate value is
+	// outside box, clamp it to the box, else keep it as is
+	for (int i = 0; i < 3; i++) 
+	{
+		float v = p[i];
+		if (v < min[i]) 
+			v = min[i];
+		if (v > max[i]) 
+			v = max[i];
+		q[i] = v;
+	}
+	return q;
+}
+
+//// The point on the AABB closest to sphere is returned
+//glm::vec3 TestSphereAABB(glm::vec3 pos, float r, glm::vec3 maxb, glm::vec3 minb)
+//{
+//	// Find point p on AABB closest to sphere center
+//	glm::vec3 p = ClosestPtPointAABB(pos, maxb, minb);
+//	// Sphere and AABB intersect if the (squared) distance from sphere
+//	// center to point p is less than the (squared) sphere radius
+//	glm::vec3 v = p - pos;
+//	return glm::dot(v, v) <= r * r;
+//}
+
 
 void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 {
+	if (dt > MAX_PHYSICS_DELTA_TIME)
+		dt = MAX_PHYSICS_DELTA_TIME;
 	for (auto itr = vecGameObjects.begin(); itr != vecGameObjects.end(); ++itr)
 	{
 		if ((*itr)->inverseMass == 0.0f)
@@ -100,6 +131,28 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 
 			switch (go2->collisionShapeType)
 			{
+				case AABB:
+				{
+					switch (go->collisionShapeType)
+					{
+						case SPHERE:
+						{
+							// Find point p on AABB closest to sphere center
+							glm::vec3 p = ClosestPtPointAABB(go->position, go2->collisionObjectInfo.minmax->first, go2->collisionObjectInfo.minmax->second);
+							glm::vec3 v = go->position - p;
+							float dvv = dot(v, v);
+							float rr = go->collisionObjectInfo.radius * go->collisionObjectInfo.radius;
+							if (dvv <= rr)
+							{
+								float mag = length(go->velocity);
+								go->velocity = mag * glm::normalize(v) * go->bounciness;
+								go->position += glm::normalize(v) * (go->collisionObjectInfo.radius - length(v));
+							}
+							break;
+						} // AABB - SPHERE
+					} // switch go1 shape
+					break;
+				}
 				case SPHERE:
 				{
 					float d = distance(go->position, go2->position);
@@ -107,7 +160,7 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 					{
 						glm::vec3 collVec = go->position - go2->position;
 						float mag = length(go->velocity);
-						go->velocity = mag * normalize(collVec) * 0.75f;
+						go->velocity = mag * normalize(collVec) * go->bounciness;
 					}
 					break; // SPHERE
 				}
@@ -172,7 +225,9 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 
 								glm::vec3 faceNorm = normalize((n1 + n2 + n3) / 3.0f);
 								float mag = length(go->velocity);
-								go->velocity = mag * faceNorm * 0.75f;
+								//go->velocity = mag * faceNorm * go->bounciness;
+								go->velocity = glm::reflect(go->velocity, faceNorm) * go->bounciness;
+								go->position += faceNorm * (go->collisionObjectInfo.radius - closestDistance);
 							} // if closestDistance <= radius
 							break;
 						} // MESH-SPHERE

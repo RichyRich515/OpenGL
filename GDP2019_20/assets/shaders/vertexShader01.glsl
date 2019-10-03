@@ -1,8 +1,9 @@
 #version 420
 
-uniform mat4 matModel;		// Model or World
-uniform mat4 matView;		// View or Camera
-uniform mat4 matProjection; // Projection
+uniform mat4 matModel;					// Model or World
+uniform mat4 matModelInverseTranspose;	// inverse transpose
+uniform mat4 matView;					// View or Camera
+uniform mat4 matProjection;				// Projection
 
 in vec4 vColour;
 in vec4 vPosition;
@@ -26,6 +27,6 @@ void main()
 	fVertWorldLocation = matModel * vec4(vertPosition.xyz, 1.0f);
 
 	fColour = vColour;
-	fNormal = vNormal;
+	fNormal = matModelInverseTranspose * vNormal;
 	fUVx2 = vUVx2;
 }

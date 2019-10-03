@@ -36,7 +36,7 @@ static void error_callback(int error, const char* description)
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager);
 
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraEye = glm::vec3(0.0f, 27.0f, 10.0f);
+glm::vec3 cameraEye = glm::vec3(0.0f, 28.0f, 10.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -60,6 +60,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+	if (key == GLFW_KEY_LEFT_SHIFT)
+		if (action == GLFW_PRESS)
+			shift_pressed = true;
+		else if (action == GLFW_RELEASE)
+			shift_pressed = false;
 
 	if (key == GLFW_KEY_W)
 		if (action == GLFW_PRESS)
@@ -111,15 +117,33 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
 	{
-		++selectedObject;
-		if (selectedObject >= vecGameObjects.size())
-			selectedObject = 0;
+		if (shift_pressed)
+		{
+			++selectedLight;
+			if (selectedLight >= vecLights.size())
+				selectedLight = 0;
+		}
+		else
+		{
+			++selectedObject;
+			if (selectedObject >= vecGameObjects.size())
+				selectedObject = 0;
+		}
 	}
 	else if (key == GLFW_KEY_COMMA && action == GLFW_PRESS)
 	{
-		--selectedObject;
-		if (selectedObject < 0)
-			selectedObject = vecGameObjects.size() - 1;
+		if (shift_pressed)
+		{
+			--selectedLight;
+			if (selectedLight < 0)
+				selectedLight = vecLights.size() - 1;
+		}
+		else
+		{
+			--selectedObject;
+			if (selectedObject < 0)
+				selectedObject = vecGameObjects.size() - 1;
+		}
 	}
 
 	if (key == GLFW_KEY_V && action == GLFW_PRESS)
@@ -137,11 +161,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		vecLights[selectedLight]->param1.z += 0.1f;
 	}
 
-	if (key == GLFW_KEY_LEFT_SHIFT)
-		if (action == GLFW_PRESS)
-			shift_pressed = true;
-		else if (action == GLFW_RELEASE)
-			shift_pressed = false;
 }
 
 int main()
@@ -234,7 +253,7 @@ int main()
 
 
 	// Ambient Light (Imagine all the sunlight bounced around and evenly lit everything)
-	glUniform4f(glGetUniformLocation(program, "ambientColour"), 0.3f, 0.3f, 0.3f, 1.0f);
+	glUniform4f(glGetUniformLocation(program, "ambientColour"), 0.5f, 0.5f, 0.5f, 1.0f);
 
 	// Directional Light (Sun)
 	cLight* light0 = new cLight();
@@ -326,7 +345,7 @@ int main()
 
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
-	debugSphere->position = glm::vec3(0.0f, 6.0f, 0.0f);
+	debugSphere->position = glm::vec3(0.0f, 0.0f, 0.0f);
 	debugSphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	debugSphere->scale = 1.0f;
 	debugSphere->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -339,81 +358,35 @@ int main()
 	cGameObject* cube = new cGameObject("cube");
 	cube->meshName = "cube";
 	cube->mesh = cubemesh;
-	cube->position = glm::vec3(0.0f, 0.0f, 0.0f);
+	cube->position = glm::vec3(2.0f, 25.0f, 0.0f);
 	cube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	cube->scale = 1.0f;
-	cube->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	cube->color = glm::vec4(0.1f, 0.1f, 1.0f, 1.0f);
 	cube->inverseMass = 0.0f;
 
-	//cube->collisionShapeType = AABB; // Bounding Box
-	//cube->collisionObjectInfo.rect = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
+	cube->collisionShapeType = AABB; // Bounding Box
+	cube->collisionObjectInfo.minmax = new cGameObject::AABBminmax();
+	cube->collisionObjectInfo.minmax->first = glm::vec3(-0.5f, -0.5f, -0.5f) + cube->position;
+	cube->collisionObjectInfo.minmax->second = glm::vec3(0.5f, 0.5f, 0.5f) + cube->position;
 
 	vecGameObjects.push_back(cube);
 
-	/*cGameObject* sphere = new cGameObject("sphere");
-	sphere->meshName = "sphere";
-	sphere->mesh = spheremesh;
-	sphere->position = glm::vec3(2.0f, 29.0f, 0.0f);
-	sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	sphere->scale = 1.0f;
-	sphere->color = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
-	sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
-	sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
-	sphere->inverseMass = 1.0f;
-	sphere->bounciness = 0.8f;
-	
-	sphere->collisionShapeType = SPHERE;
-	sphere->collisionObjectInfo.radius = 0.5f;
+	int sx = 2;
+	int sz = 2;
 
-	vecGameObjects.push_back(sphere);
-
-	cGameObject* sphere2 = new cGameObject("sphere2");
-	sphere2->meshName = "sphere";
-	sphere2->mesh = spheremesh;
-	sphere2->position = glm::vec3(2.5f, 30.5f, 0.0f);
-	sphere2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	sphere2->scale = 1.0f;
-	sphere2->color = glm::vec4(0.2f, 1.0f, 0.2f, 1.0f);
-	sphere2->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
-	sphere2->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
-	sphere2->inverseMass = 1.0f;
-	sphere2->bounciness = 0.8f;
-	
-	sphere2->collisionShapeType = SPHERE;
-	sphere2->collisionObjectInfo.radius = 0.5f;
-
-	vecGameObjects.push_back(sphere2);
-
-	cGameObject* sphere3 = new cGameObject("sphere3");
-	sphere3->meshName = "sphere";
-	sphere3->mesh = spheremesh;
-	sphere3->position = glm::vec3(3.0f, 31.5f, 0.0f);
-	sphere3->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	sphere3->scale = 1.0f;
-	sphere3->color = glm::vec4(0.2f, 0.2f, 1.0f, 1.0f);
-	sphere3->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
-	sphere3->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
-	sphere3->inverseMass = 1.0f;
-	sphere3->bounciness = 0.8f;
-
-	sphere3->collisionShapeType = SPHERE;
-	sphere3->collisionObjectInfo.radius = 0.5f;
-
-	vecGameObjects.push_back(sphere3);*/
-
-	for (unsigned x = 0; x < 3; x++)
+	for (unsigned x = 0; x < sx; x++)
 	{
-		for (unsigned z = 0; z < 3; z++)
+		for (unsigned z = 0; z < sz; z++)
 		{
 			std::ostringstream name;
 			name << "sphere" << x << z;
 			cGameObject* sphere = new cGameObject(name.str());
 			sphere->meshName = "sphere";
 			sphere->mesh = spheremesh;
-			sphere->position = glm::vec3(x - 1.5f, 30.0f, z - 1.5f);
+			sphere->position = glm::vec3(x - (sx / 2.0f), 30.0f, z - (sz / 2.0f));
 			sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 			sphere->scale = 1.0f;
-			sphere->color = glm::vec4(1.0f - (x / 5.0f), 0.2f, 1.0f - (z / 5.0f), 1.0f);
+			sphere->color = glm::vec4(1.0f - (x / (float)sx), 0.2f, 1.0f - (z / (float)sz), 1.0f);
 			sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
 			sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
 			sphere->inverseMass = 1.0f;
@@ -456,7 +429,6 @@ int main()
 	
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
-	//glUniform1f(atten_loc, lightAtten);	// default light value
 
 	// timing
 	float totalTime;
@@ -544,14 +516,15 @@ int main()
 			drawObject(debugSphere, program, pVAOManager);
 		}
 
-
+		
 		physicsUpdate(vecGameObjects, dt);
 
 
 		std::ostringstream windowTitle;
 		windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
 			<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
-			<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\"";
+			<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\" "
+			<< "Light: [" << selectedLight << "]";
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
 		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
@@ -598,8 +571,9 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 	glm::mat4 translation = glm::translate(glm::mat4(1.0f), go->position);
 
 	m *= rotationX * rotationY * rotationZ * translation * scale;
-
+	glm::mat4 mInverseTranspose = glm::inverse(glm::transpose(m));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(mInverseTranspose));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
 	glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)go->wireFrame);

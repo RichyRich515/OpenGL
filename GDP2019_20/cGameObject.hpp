@@ -4,6 +4,7 @@
 #include <glm/vec4.hpp>
 
 #include <string>
+#include <utility>
 
 #include "cMesh.hpp"
 
@@ -58,6 +59,8 @@ public:
 	~cGameObject()
 	{
 		// Clean up
+		if (collisionShapeType == AABB)
+			delete collisionObjectInfo.minmax;
 	}
 
 	std::string name;
@@ -78,9 +81,11 @@ public:
 	
 	eCollisionShapeTypes collisionShapeType;
 
+	typedef std::pair<glm::vec3, glm::vec3> AABBminmax;
+
 	union uCollisionObjectInfo
 	{
-		glm::vec4 rect; // For AABB
+		AABBminmax* minmax; // For AABB
 		float radius; // For sphere or capsule
 		float height; // For capsule
 		glm::vec3 plane; // For plane
