@@ -19,6 +19,12 @@
     <Filter Include="jsoncpp">
       <UniqueIdentifier>{dffef3b6-dc4a-4ef9-bd7a-2b5e7d8339af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DebugRenderer">
+      <UniqueIdentifier>{2afd640f-4a42-419f-82bb-2f374fa34369}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lights">
+      <UniqueIdentifier>{204d8df5-44b4-4560-94ca-de4b9c6cb25f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -45,6 +51,27 @@
     <ClCompile Include="src\json\jsoncpp.cpp">
       <Filter>jsoncpp</Filter>
     </ClCompile>
+    <ClCompile Include="DebugRenderer\cDebugRenderer.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugRenderer\cDebugRenderer_BuiltInShapes.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugRenderer\CErrorLog.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugRenderer\cGLRenderStateHelper.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugRenderer\COpenGLError.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="cGameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="cLight.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -65,11 +92,26 @@
     <ClInclude Include="Physics.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cLight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cGameObject.hpp">
       <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugRenderer\cDebugRenderer.h">
+      <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugRenderer\CErrorLog.h">
+      <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugRenderer\cGLRenderStateHelper.h">
+      <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugRenderer\COpenGLError.h">
+      <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugRenderer\iDebugRenderer.h">
+      <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="cLight.hpp">
+      <Filter>Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,13 +4,18 @@
 #include <glm/vec4.hpp>
 
 #include <string>
+#include <map>
 #include <utility>
+
+#include <json/json.h>
 
 #include "cMesh.hpp"
 
 enum eCollisionShapeTypes
 {
+	NONE = 0,
 	AABB,
+	OBB,
 	SPHERE,
 	CAPSULE,
 	PLANE,
@@ -22,45 +27,18 @@ class cGameObject
 {
 public:
 
-	cGameObject()
-	{
-		this->name = "";
-		this->meshName = "";
-		this->mesh = NULL;
-		this->position = glm::vec3(0);
-		this->rotation = glm::vec3(0);
-		this->scale = 1.0f;
-		this->color = glm::vec4(1.0f);
-		this->specular = glm::vec4(1.0f);
-		this->wireFrame = false;
-		this->visible = true;
-		this->velocity = glm::vec3(0.0f);
-		this->acceleration = glm::vec3(0.0f);
-		this->inverseMass = 0.0f;
-	}
+	cGameObject();
 
-	cGameObject(std::string name)
-	{
-		this->name = name;
-		this->meshName = "";
-		this->mesh = NULL;
-		this->position = glm::vec3(0);
-		this->rotation = glm::vec3(0);
-		this->scale = 1.0f;
-		this->color = glm::vec4(1.0f);
-		this->specular = glm::vec4(1.0f);
-		this->wireFrame = false;
-		this->visible = true;
-		this->velocity = glm::vec3(0.0f);
-		this->acceleration = glm::vec3(0.0f);
-		this->inverseMass = 0.0f;
-	}
+	cGameObject(std::string name);
+
+	cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes);
 
 	~cGameObject()
 	{
 		// Clean up
 		if (collisionShapeType == AABB)
 			delete collisionObjectInfo.minmax;
+		// TODO: Capsule
 	}
 
 	std::string name;

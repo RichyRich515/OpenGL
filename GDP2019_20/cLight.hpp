@@ -2,11 +2,19 @@
 
 #include "GLCommon.h"
 
+#include <json/json.h>
+
 #include <glm/glm.hpp>
+
+constexpr unsigned MAX_BUFFER = 256;
 
 class cLight
 {
 public:
+	cLight();
+	cLight(unsigned i, Json::Value obj, GLuint program);
+	~cLight() {}
+
 	glm::vec4 position;
 	glm::vec4 diffuse;
 	glm::vec4 specular;		// rgb = highlight colour, w = power 1 - 10000

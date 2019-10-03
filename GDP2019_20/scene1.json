@@ -1,4 +1,8 @@
 {
+	"world": {
+		"ambience": [ 0.5, 0.5, 0.5, 1.0 ],
+		"gravity": [ 0.0, -1.0, 0.0 ]
+	},
 	"models": [
 		{
 			"name": "terrain",
@@ -43,6 +47,44 @@
 		}
 	],
 	"gameObjects": [
-
+		{
+			"name": "cube1",
+			"meshName": "cube",
+			"position": [ 2.0, 25.0, 0.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
+			"scale": 1.0,
+			"color": [ 0.1, 0.1, 1.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 1.0 ],
+			"wireFrame": false,
+			"visible": true,
+			"velocity": [ 0.0, 0.0, 0.0 ],
+			"acceleration": [ 0.0, 0.0, 0.0 ],
+			"inverseMass": 0.0,
+			"bounciness": 0.0,
+			"collisionShapeType": 1,
+			"collisionObjectInfo": {
+				"min": [ -0.5, -0.5, -0.5 ],
+				"max": [ 0.5, 0.5, 0.5 ]
+			}
+		},
+		{
+			"name": "terrain1",
+			"meshName": "terrain",
+			"position": [ 0.0, 0.0, 0.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
+			"scale": 1.0,
+			"color": [ 0.7, 0.7, 0.7, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 1000.0 ],
+			"wireFrame": false,
+			"visible": true,
+			"velocity": [ 0.0, 0.0, 0.0 ],
+			"acceleration": [ 0.0, 0.0, 0.0 ],
+			"inverseMass": 0.0,
+			"bounciness": 0.0,
+			"collisionShapeType": 6,
+			"collisionObjectInfo": {
+				"mesh": "terrain"
+			}
+		}
 	]
 }

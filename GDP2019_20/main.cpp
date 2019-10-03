@@ -30,6 +30,9 @@
 #include "cLight.hpp"
 #include "Physics.hpp"
 
+#include "DebugRenderer/cDebugRenderer.h"
+
+cDebugRenderer* debugRenderer;
 
 static void error_callback(int error, const char* description)
 {
@@ -197,9 +200,11 @@ int main()
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
 
-	// TODO: Constant strings
-	//		 Make a class for this
+	debugRenderer = new cDebugRenderer();
+	debugRenderer->initialize();
 
+	// TODO: Constant strings
+	//		 Make a class for this??
 	// Read scene file
 	std::ifstream sceneFile("scene1.json");
 	Json::Value root;
@@ -207,6 +212,8 @@ int main()
 	sceneFile.close();
 	Json::Value models = root["models"];
 	Json::Value lights = root["lights"];
+	Json::Value gameObjects = root["gameObjects"];
+	Json::Value world = root["world"];
 
 	std::map<std::string, cMesh*> mapMeshes;
 	for (unsigned i = 0; i < models.size(); ++i)
@@ -243,113 +250,43 @@ int main()
 	GLuint projection_loc = glGetUniformLocation(program, "matProjection");
 	GLuint eyeLocation_loc = glGetUniformLocation(program, "eyeLocation");
 
-	// TODO: this monstrosity gotta go somewhere else
-#define getUniformLocationInArray(_program, _arrName, __i, _d) glGetUniformLocation(_program, _arrName "[" #__i "]." _d)
-
-#define getLightLocations(_light, _program, _arrName, _i)\
-	_light->position_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "position");\
-	_light->diffuse_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "diffuse");\
-	_light->specular_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "specular");\
-	_light->atten_loc =		getUniformLocationInArray(_program, _arrName, ##_i, "atten");\
-	_light->direction_loc = getUniformLocationInArray(_program, _arrName, ##_i, "direction");\
-	_light->param1_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "param1");\
-	_light->param2_loc =	getUniformLocationInArray(_program, _arrName, ##_i, "param2")
-
-
 	// Ambient Light (Imagine all the sunlight bounced around and evenly lit everything)
-	glUniform4f(glGetUniformLocation(program, "ambientColour"), 0.5f, 0.5f, 0.5f, 1.0f);
+	Json::Value ambience = world["ambience"];
+	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0].asFloat(), ambience[1].asFloat(), ambience[2].asFloat(), ambience[3].asFloat());
 
-	for (unsigned i = 0; i < MAX_LIGHTS; ++i)
+
+	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
 	{
-		cLight* l = new cLight();
-		l->param2.x = 0; // disabled
+		cLight* l = new cLight(i, lights[i], program);
 		vecLights.push_back(l);
 	}
 
-	// Directional Light (Sun)
-	getLightLocations(vecLights[0], program, "lights", 0);
-	getLightLocations(vecLights[1], program, "lights", 1);
-	getLightLocations(vecLights[2], program, "lights", 2);
-	getLightLocations(vecLights[3], program, "lights", 3);
-	getLightLocations(vecLights[4], program, "lights", 4);
-	getLightLocations(vecLights[5], program, "lights", 5);
-	getLightLocations(vecLights[6], program, "lights", 6);
-	getLightLocations(vecLights[7], program, "lights", 7);
-	getLightLocations(vecLights[8], program, "lights", 8);
-	getLightLocations(vecLights[9], program, "lights", 9);
-
-	for (unsigned i = 0; i < lights.size(); ++i)
-	{
-		for (unsigned j = 0; j < 4; ++j) // length of vec4
-		{
-			vecLights[i]->position[j] = lights[i]["position"][j].asFloat();
-			vecLights[i]->diffuse[j] = lights[i]["diffuse"][j].asFloat();;
-			vecLights[i]->specular[j] = lights[i]["specular"][j].asFloat();
-			vecLights[i]->atten[j] = lights[i]["atten"][j].asFloat();
-			vecLights[i]->direction[j] = lights[i]["direction"][j].asFloat();
-			vecLights[i]->param1[j] = lights[i]["param1"][j].asFloat();
-			vecLights[i]->param2[j] = lights[i]["param2"][j].asFloat();
-		}
-	}
-
-	// Assign variables in shader
-	for (unsigned i = 0; i < vecLights.size(); ++i)
-	{
-		// TODO: check these 1.0fs
-		glUniform4f(vecLights[i]->position_loc, vecLights[i]->position.x, vecLights[i]->position.y, vecLights[i]->position.z, 1.0f);
-		glUniform4f(vecLights[i]->diffuse_loc, vecLights[i]->diffuse.r, vecLights[i]->diffuse.g, vecLights[i]->diffuse.b, vecLights[i]->diffuse.a);
-		glUniform4f(vecLights[i]->specular_loc, vecLights[i]->specular.r, vecLights[i]->specular.g, vecLights[i]->specular.b, 1.0f);
-		glUniform4f(vecLights[i]->atten_loc, vecLights[i]->atten.x, vecLights[i]->atten.y, vecLights[i]->atten.z, vecLights[i]->atten.w);
-		glUniform4f(vecLights[i]->direction_loc, vecLights[i]->direction.x, vecLights[i]->direction.y, vecLights[i]->direction.z, 1.0f);
-		glUniform4f(vecLights[i]->param1_loc, vecLights[i]->param1.x, vecLights[i]->param1.y, vecLights[i]->param1.z, vecLights[i]->param1.w);
-		glUniform4f(vecLights[i]->param2_loc, vecLights[i]->param2.x, vecLights[i]->param2.y, vecLights[i]->param2.z, vecLights[i]->param2.w);
-	}
-
-
 	cShaderManager::cShaderProgram* pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 	
-	if (!pVAOManager->LoadModelIntoVAO("terrain", mapMeshes["terrain"], program))
+	for (auto m : mapMeshes)
 	{
-		std::cerr << "Failed to load model to GPU" << std::endl;
-		exit(EXIT_FAILURE);
+		if (!pVAOManager->LoadModelIntoVAO(m.first, m.second, program))
+		{
+			std::cerr << "Failed to load model " << m.first << " to GPU" << std::endl;
+			exit(EXIT_FAILURE);
+		}
 	}
-
-	if (!pVAOManager->LoadModelIntoVAO("sphere", mapMeshes["sphere"], program))
-	{
-		std::cerr << "Failed to load model to GPU" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	if (!pVAOManager->LoadModelIntoVAO("cube", mapMeshes["cube"], program))
-	{
-		std::cerr << "Failed to load model to GPU" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
+	
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
 	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
 
-	cGameObject* cube = new cGameObject("cube");
-	cube->meshName = "cube";
-	cube->mesh = mapMeshes["cube"];
-	cube->position = glm::vec3(2.0f, 25.0f, 0.0f);
-	cube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	cube->scale = 1.0f;
-	cube->color = glm::vec4(0.1f, 0.1f, 1.0f, 1.0f);
-	cube->inverseMass = 0.0f;
+	for (unsigned i = 0; i < gameObjects.size(); ++i)
+	{
+		cGameObject* go = new cGameObject(gameObjects[i], mapMeshes);
+		vecGameObjects.push_back(go);
+	}
 
-	cube->collisionShapeType = AABB; // Bounding Box
-	cube->collisionObjectInfo.minmax = new cGameObject::AABBminmax();
-	cube->collisionObjectInfo.minmax->first = glm::vec3(-0.5f, -0.5f, -0.5f) + cube->position;
-	cube->collisionObjectInfo.minmax->second = glm::vec3(0.5f, 0.5f, 0.5f) + cube->position;
 
-	vecGameObjects.push_back(cube);
-
+	// TODO: delete this temp sphere creation stuff
 	unsigned sx = 5;
 	unsigned sz = 2;
-
 	for (unsigned x = 0; x < sx; x++)
 	{
 		for (unsigned z = 0; z < sz; z++)
@@ -375,27 +312,9 @@ int main()
 		}
 	}
 
-	cGameObject* terrain = new cGameObject("terrain");
-	terrain->meshName = "terrain";
-	terrain->mesh = mapMeshes["terrain"];
-	terrain->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	terrain->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	terrain->scale = 1.0f;
-	terrain->color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
-	terrain->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1000.0f);
-	terrain->inverseMass = 0.0f;
-
-	terrain->collisionShapeType = MESH;
-	terrain->collisionObjectInfo.mesh = mapMeshes["terrain"];
-
-	vecGameObjects.push_back(terrain);
-
-	glm::vec3 lightPosition = glm::vec4(0.0f, 2.0f, 0.0f, 0.0f);
-	//glUniform3f(lightpos_loc, lightPosition.x, lightPosition.y, lightPosition.z);
-	float lightAtten = 1.0f;
 	float ratio;
 	int width, height;
-	glm::mat4 m, v, p;
+	glm::mat4 v, p;
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
 	// FOV, aspect ratio, near clip, far clip
@@ -426,6 +345,7 @@ int main()
 		dt = glfwGetTime() - lastTime;
 		lastTime = glfwGetTime();
 
+		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Camera Movement
@@ -469,7 +389,7 @@ int main()
 		
 		if (shift_pressed)
 		{
-			m = glm::mat4(1.0f);
+			glm::mat4 m = glm::mat4(1.0f);
 			// Move light if shift pressed
 			vecLights[selectedLight]->position.x += (mR - mL) * 3 * dt;
 			vecLights[selectedLight]->position.y += (mU - mD) * 3 * dt;
@@ -478,8 +398,8 @@ int main()
 
 
 			glUniform4f(vecLights[selectedLight]->position_loc, vecLights[selectedLight]->position.x, vecLights[selectedLight]->position.y, vecLights[selectedLight]->position.z, 1.0f);
-			glUniform4f(vecLights[selectedLight]->diffuse_loc, vecLights[selectedLight]->diffuse.r, vecLights[selectedLight]->diffuse.g, vecLights[selectedLight]->diffuse.b, 1.0f);
-			glUniform4f(vecLights[selectedLight]->specular_loc, vecLights[selectedLight]->specular.r, vecLights[selectedLight]->specular.g, vecLights[selectedLight]->specular.b, 1.0f);
+			glUniform4f(vecLights[selectedLight]->diffuse_loc, vecLights[selectedLight]->diffuse.r, vecLights[selectedLight]->diffuse.g, vecLights[selectedLight]->diffuse.b, vecLights[selectedLight]->diffuse.a);
+			glUniform4f(vecLights[selectedLight]->specular_loc, vecLights[selectedLight]->specular.r, vecLights[selectedLight]->specular.g, vecLights[selectedLight]->specular.b, vecLights[selectedLight]->specular.w);
 			glUniform4f(vecLights[selectedLight]->atten_loc, vecLights[selectedLight]->atten.x, vecLights[selectedLight]->atten.y, vecLights[selectedLight]->atten.z, vecLights[selectedLight]->atten.w);
 			glUniform4f(vecLights[selectedLight]->direction_loc, vecLights[selectedLight]->direction.x, vecLights[selectedLight]->direction.y, vecLights[selectedLight]->direction.z, 1.0f);
 			glUniform4f(vecLights[selectedLight]->param1_loc, vecLights[selectedLight]->param1.x, vecLights[selectedLight]->param1.y, vecLights[selectedLight]->param1.z, vecLights[selectedLight]->param1.w);
@@ -495,7 +415,6 @@ int main()
 		
 		physicsUpdate(vecGameObjects, dt);
 
-
 		std::ostringstream windowTitle;
 		windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
 			<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
@@ -503,6 +422,7 @@ int main()
 			<< "Light: [" << selectedLight << "]";
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
+		debugRenderer->addLine(glm::vec3(-10, 25, 0), glm::vec3(10, 32, 0), glm::vec3(0, 1, 0));
 		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
 		{
 			if (!vecGameObjects[i]->visible)
@@ -510,6 +430,9 @@ int main()
 
 			drawObject(vecGameObjects[i], program, pVAOManager);
 		}
+		
+		debugRenderer->RenderDebugObjects(v, p, dt);
+
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.
 	}

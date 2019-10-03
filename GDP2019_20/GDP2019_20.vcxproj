@@ -142,10 +142,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cGameObject.cpp" />
+    <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
+    <ClCompile Include="DebugRenderer\cDebugRenderer.cpp" />
+    <ClCompile Include="DebugRenderer\cDebugRenderer_BuiltInShapes.cpp" />
+    <ClCompile Include="DebugRenderer\CErrorLog.cpp" />
+    <ClCompile Include="DebugRenderer\cGLRenderStateHelper.cpp" />
+    <ClCompile Include="DebugRenderer\COpenGLError.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
@@ -158,6 +165,11 @@
     <ClInclude Include="cModelLoader.hpp" />
     <ClInclude Include="cShaderManager.hpp" />
     <ClInclude Include="cVAOManager.hpp" />
+    <ClInclude Include="DebugRenderer\cDebugRenderer.h" />
+    <ClInclude Include="DebugRenderer\CErrorLog.h" />
+    <ClInclude Include="DebugRenderer\cGLRenderStateHelper.h" />
+    <ClInclude Include="DebugRenderer\COpenGLError.h" />
+    <ClInclude Include="DebugRenderer\iDebugRenderer.h" />
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="Physics.hpp" />
   </ItemGroup>

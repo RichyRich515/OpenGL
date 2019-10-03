@@ -110,6 +110,7 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 		go->velocity.y += go->acceleration.y * dt;
 		go->velocity.z += go->acceleration.z * dt;
 
+
 		go->position.x += go->velocity.x * dt;
 		go->position.y += go->velocity.y * dt;
 		go->position.z += go->velocity.z * dt;
@@ -226,7 +227,9 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 								glm::vec3 faceNorm = normalize((n1 + n2 + n3) / 3.0f);
 								float mag = length(go->velocity);
 								//go->velocity = mag * faceNorm * go->bounciness;
-								go->velocity = glm::reflect(go->velocity, faceNorm) * go->bounciness;
+								glm::vec3 refl = glm::reflect(glm::normalize(go->velocity), faceNorm);
+								go->velocity = refl * mag * go->bounciness;
+								// move outside the tri
 								go->position += faceNorm * (go->collisionObjectInfo.radius - closestDistance);
 							} // if closestDistance <= radius
 							break;
