@@ -149,6 +149,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
+    <ClCompile Include="src\json\jsoncpp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cGameObject.hpp" />
@@ -163,6 +164,7 @@
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />
+    <None Include="scene1.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

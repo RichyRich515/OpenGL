@@ -1,0 +1,48 @@
+{
+	"models": [
+		{
+			"name": "terrain",
+			"location": "assets/models/terrain_xyzn.ply"
+		},
+		{
+			"name": "sphere",
+			"location": "assets/models/sphere_xyzn.ply"
+		},
+		{
+			"name": "cube",
+			"location": "assets/models/cube_xyzn.ply"
+		}
+	],
+	"lights": [
+		{
+			"position": [ 0.0, 0.0, 0.0, 1.0 ],
+			"diffuse": [ 0.75, 0.75, 0.65, 1.0 ],
+			"specular": [ 0.0, 0.0, 0.0, 0.0 ],
+			"atten": [ 0.0, 0.0, 0.0, 0.0 ],
+			"direction": [ -1.0, -1.0, 0.0, 1.0 ],
+			"param1": [ 2, 0.0, 0.0, 0 ],
+			"param2": [ 1, 0, 0, 0 ]
+		},
+		{
+			"position": [ 0.0, 35.0, 0.0, 1.0 ],
+			"diffuse": [ 1.0, 0.0, 1.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 1.0 ],
+			"atten": [ 0.0, 0.2, 0.0, 10000.0 ],
+			"direction": [ 0.0, 0.0, 0.0, 1.0 ],
+			"param1": [ 0, 0.0, 0.0, 0 ],
+			"param2": [ 1, 0, 0, 0 ]
+		},
+		{
+			"position": [ 5.0, 35.0, 0.0, 1.0 ],
+			"diffuse": [ 0.0, 1.0, 0.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 1.0 ],
+			"atten": [ 0.0, 0.1, 0.0, 10000.0 ],
+			"direction": [ 0.0, -1.0, 0.0, 1.0 ],
+			"param1": [ 1, 12.5, 17.5, 0 ],
+			"param2": [ 1, 0, 0, 0 ]
+		}
+	],
+	"gameObjects": [
+
+	]
+}

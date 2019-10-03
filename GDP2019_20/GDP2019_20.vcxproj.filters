@@ -16,6 +16,9 @@
     <Filter Include="GameObject">
       <UniqueIdentifier>{dbde3a81-1d90-485f-b444-96e039676226}</UniqueIdentifier>
     </Filter>
+    <Filter Include="jsoncpp">
+      <UniqueIdentifier>{dffef3b6-dc4a-4ef9-bd7a-2b5e7d8339af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -38,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="physics.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\json\jsoncpp.cpp">
+      <Filter>jsoncpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +77,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="assets\shaders\fragmentShader01.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="scene1.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
