@@ -83,17 +83,6 @@ glm::vec3 ClosestPtPointAABB(glm::vec3 p, glm::vec3 min, glm::vec3 max)
 	return q;
 }
 
-//// The point on the AABB closest to sphere is returned
-//glm::vec3 TestSphereAABB(glm::vec3 pos, float r, glm::vec3 maxb, glm::vec3 minb)
-//{
-//	// Find point p on AABB closest to sphere center
-//	glm::vec3 p = ClosestPtPointAABB(pos, maxb, minb);
-//	// Sphere and AABB intersect if the (squared) distance from sphere
-//	// center to point p is less than the (squared) sphere radius
-//	glm::vec3 v = p - pos;
-//	return glm::dot(v, v) <= r * r;
-//}
-
 
 void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 {

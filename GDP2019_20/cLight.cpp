@@ -46,3 +46,21 @@ cLight::cLight(unsigned i, Json::Value obj, GLuint program)
 	glUniform4f(this->param2_loc, this->param2.x, this->param2.y, this->param2.z, this->param2.w);
 }
 
+Json::Value cLight::serializeJSONObject()
+{
+	Json::Value obj = Json::objectValue;
+
+	for (unsigned j = 0; j < 4; ++j) // length of vec4
+	{
+		obj["position"][j] = this->position[j];
+		obj["diffuse"][j] = this->diffuse[j];
+		obj["specular"][j] = this->specular[j];
+		obj["atten"][j] = this->atten[j];
+		obj["direction"][j] = this->direction[j];
+		obj["param1"][j] = this->param1[j];
+		obj["param2"][j] = this->param2[j];
+	}
+
+	return obj;
+}
+

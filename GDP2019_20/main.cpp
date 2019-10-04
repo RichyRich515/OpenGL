@@ -34,6 +34,7 @@
 
 cDebugRenderer* debugRenderer;
 
+
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
@@ -45,7 +46,8 @@ glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraEye = glm::vec3(0.0f, 28.0f, 10.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-//glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+float pitch = 0.0f; // X axis rotation ( up, down)
+float yaw = -90.0f; // Y axis rotation (left, right)
 glm::vec3 cameraDirection = glm::normalize(cameraEye - cameraFront);
 glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 
@@ -53,16 +55,120 @@ float CAMERA_SPEED = 3.0f;
 
 float cameraSensitivity = 0.1f;
 
-// Camera movement
-bool shift_pressed = false, mF = false, mB = false, mL = false, mR = false, mU = false, mD = false, rPress = false, fPress = false;
+// TODO: THis outta global space
+GLuint program = 0;
 
+std::map<std::string, cMesh*> mapMeshes;
+
+// List of all game objects in scene
 std::vector<cGameObject*> vecGameObjects;
 int selectedObject = 0;
 
+
+// Max lights from the shader
 constexpr unsigned MAX_LIGHTS = 10;
 
+// List of all lights in scene
 std::vector<cLight*> vecLights;
 int selectedLight = 2;
+
+
+// write current scene to a file
+bool writeSceneToFile(std::string filename)
+{
+	std::ofstream ofs(filename);
+
+	Json::Value root;
+	root["world"] = Json::objectValue;
+	root["camera"] = Json::objectValue;
+	root["gameObjects"] = Json::arrayValue;
+	root["lights"] = Json::arrayValue;
+
+	// TODO: ambience and gravity properly
+	glm::vec4 ambience = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	glm::vec3 gravity = glm::vec3(0.0f, -1.0f, 0.0f);
+	for (unsigned i = 0; i < 3; ++i) // vec 3s
+	{
+		root["camera"]["cameraEye"][i] = cameraEye[i];
+		root["camera"]["cameraUp"][i] = cameraUp[i];
+		root["camera"]["cameraFront"][i] = cameraFront[i];
+		root["world"]["gravity"][i] = gravity[i];
+	}
+	for (unsigned i = 0; i < 4; ++i) // vec 4s
+	{
+		root["world"]["ambience"][i] = ambience[i];
+	}
+
+	root["camera"]["pitch"] = pitch;
+	root["camera"]["yaw"] = yaw;
+
+	for (auto g : vecGameObjects)
+		root["gameObjects"].append(g->serializeJSONObject());
+
+	for (auto l : vecLights)
+		root["lights"].append(l->serializeJSONObject());
+
+	ofs << root;
+}
+
+void openSceneFromFile(std::string filename)
+{
+	glUseProgram(program);
+	selectedObject = 0;
+	selectedLight = 0;
+	std::ifstream scenejson(filename);
+	Json::Value root;
+	scenejson >> root;
+	scenejson.close();
+
+	Json::Value world = root["world"];
+	Json::Value camera = root["camera"];
+	Json::Value lights = root["lights"];
+	Json::Value gameObjects = root["gameObjects"];
+
+	for (unsigned i = 0; i < 3; ++i)
+	{
+		cameraEye[i] = camera["cameraEye"][i].asFloat();
+		cameraUp[i] = camera["cameraUp"][i].asFloat();
+		cameraFront[i] = camera["cameraFront"][i].asFloat();
+	}
+	cameraDirection = glm::normalize(cameraEye - cameraFront);
+	cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	pitch = camera["pitch"].asFloat();
+	yaw = camera["yaw"].asFloat();
+
+	// TODO: move this somewhere else???
+	// Ambient Light (Imagine all the sunlight bounced around and evenly lit everything)
+	Json::Value ambience = world["ambience"];
+	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0].asFloat(), ambience[1].asFloat(), ambience[2].asFloat(), ambience[3].asFloat());
+	
+
+	for (auto g : vecGameObjects)
+		delete g;
+	vecGameObjects.clear();
+
+	for (auto l : vecLights)
+		delete l;
+	vecLights.clear();
+
+	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
+	{
+		cLight* l = new cLight(i, lights[i], program);
+		vecLights.push_back(l);
+	}
+
+	for (unsigned i = 0; i < gameObjects.size(); ++i)
+	{
+		cGameObject* go = new cGameObject(gameObjects[i], mapMeshes);
+		vecGameObjects.push_back(go);
+	}
+}
+
+
+// TODO: keyboard manager
+bool ctrl_pressed = false, shift_pressed = false, 
+	mF = false, mB = false, mL = false, mR = false, 
+	mU = false, mD = false, rPress = false, fPress = false;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -74,6 +180,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			shift_pressed = true;
 		else if (action == GLFW_RELEASE)
 			shift_pressed = false;
+
+	if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL)
+		if (action == GLFW_PRESS)
+			ctrl_pressed = true;
+		else if (action == GLFW_RELEASE)
+			ctrl_pressed = false;
 
 	if (key == GLFW_KEY_W)
 		if (action == GLFW_PRESS)
@@ -156,7 +268,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if (key == GLFW_KEY_V && action == GLFW_PRESS)
 	{
-		vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
+		if (shift_pressed)
+		{
+			vecLights[selectedLight]->param2.x = !vecLights[selectedLight]->param2.x;
+		}
+		else
+		{
+			vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
+		}
 	}
 
 	if (key == GLFW_KEY_K)
@@ -169,6 +288,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		vecLights[selectedLight]->param1.z += 0.1f;
 	}
 
+	if (ctrl_pressed && key == GLFW_KEY_O && action == GLFW_PRESS)
+	{
+		// Open scene
+		openSceneFromFile("scene2.json");
+	}
+	if (ctrl_pressed && key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+		// Print scene (to file)
+		writeSceneToFile("scene2.json");
+	}
 }
 
 int main()
@@ -183,7 +312,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	window = glfwCreateWindow(1920, 1080, "OpenGL", NULL, NULL);
+	window = glfwCreateWindow(1920, 1080, "", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -206,16 +335,11 @@ int main()
 	// TODO: Constant strings
 	//		 Make a class for this??
 	// Read scene file
-	std::ifstream sceneFile("scene1.json");
-	Json::Value root;
-	sceneFile >> root;
-	sceneFile.close();
-	Json::Value models = root["models"];
-	Json::Value lights = root["lights"];
-	Json::Value gameObjects = root["gameObjects"];
-	Json::Value world = root["world"];
+	std::ifstream modelsjson("models.json");
+	Json::Value models;
+	modelsjson >> models;
+	modelsjson.close();
 
-	std::map<std::string, cMesh*> mapMeshes;
 	for (unsigned i = 0; i < models.size(); ++i)
 	{
 		std::string name = models[i]["name"].asString();
@@ -229,7 +353,7 @@ int main()
 		}
 		mapMeshes[name] = m;
 	}
-
+	
 	// make shader
 	cShaderManager::cShader vertexShader01;
 	vertexShader01.fileName = "assets/shaders/vertexShader01.glsl";
@@ -244,25 +368,12 @@ int main()
 		std::cerr << "Failed to create shader program: " << pShaderManager->getLastError() << std::endl;
 	}
 
-	GLuint program = pShaderManager->getIDFromFriendlyName("shader01");
+	program = pShaderManager->getIDFromFriendlyName("shader01");
 	glUseProgram(program);
 	GLuint view_loc = glGetUniformLocation(program, "matView");
 	GLuint projection_loc = glGetUniformLocation(program, "matProjection");
 	GLuint eyeLocation_loc = glGetUniformLocation(program, "eyeLocation");
 
-	// Ambient Light (Imagine all the sunlight bounced around and evenly lit everything)
-	Json::Value ambience = world["ambience"];
-	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0].asFloat(), ambience[1].asFloat(), ambience[2].asFloat(), ambience[3].asFloat());
-
-
-	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
-	{
-		cLight* l = new cLight(i, lights[i], program);
-		vecLights.push_back(l);
-	}
-
-	cShaderManager::cShaderProgram* pShaderProgram = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
-	
 	for (auto m : mapMeshes)
 	{
 		if (!pVAOManager->LoadModelIntoVAO(m.first, m.second, program))
@@ -271,18 +382,13 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	openSceneFromFile("scene1.json");
 	
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
 	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
-
-	for (unsigned i = 0; i < gameObjects.size(); ++i)
-	{
-		cGameObject* go = new cGameObject(gameObjects[i], mapMeshes);
-		vecGameObjects.push_back(go);
-	}
-
 
 	// TODO: delete this temp sphere creation stuff
 	unsigned sx = 5;
@@ -336,8 +442,6 @@ int main()
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
 
-	float pitch = 0.0f; // X axis rotation ( up, down)
-	float yaw = -90.0f; // Y axis rotation (left, right)
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -422,7 +526,7 @@ int main()
 			<< "Light: [" << selectedLight << "]";
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 
-		debugRenderer->addLine(glm::vec3(-10, 25, 0), glm::vec3(10, 32, 0), glm::vec3(0, 1, 0));
+		//debugRenderer->addLine(glm::vec3(-10, 25, 0), glm::vec3(10, 32, 0), glm::vec3(0, 1, 0));
 		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
 		{
 			if (!vecGameObjects[i]->visible)

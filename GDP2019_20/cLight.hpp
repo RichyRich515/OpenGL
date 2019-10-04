@@ -15,6 +15,8 @@ public:
 	cLight(unsigned i, Json::Value obj, GLuint program);
 	~cLight() {}
 
+	Json::Value serializeJSONObject();
+
 	glm::vec4 position;
 	glm::vec4 diffuse;
 	glm::vec4 specular;		// rgb = highlight colour, w = power 1 - 10000

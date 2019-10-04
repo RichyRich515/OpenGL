@@ -33,13 +33,9 @@ public:
 
 	cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes);
 
-	~cGameObject()
-	{
-		// Clean up
-		if (collisionShapeType == AABB)
-			delete collisionObjectInfo.minmax;
-		// TODO: Capsule
-	}
+	~cGameObject();
+
+	Json::Value serializeJSONObject();
 
 	std::string name;
 	std::string meshName;

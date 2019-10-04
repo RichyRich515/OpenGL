@@ -90,3 +90,68 @@ cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMes
 		break;
 	}
 }
+
+cGameObject::~cGameObject()
+{
+	// Clean up
+	if (collisionShapeType == AABB)
+		delete collisionObjectInfo.minmax;
+	// TODO: Capsule
+}
+
+Json::Value cGameObject::serializeJSONObject()
+{
+	Json::Value obj = Json::objectValue;
+	obj["name"] = this->name;
+	obj["meshName"] = this->meshName;
+	// write vec3s
+	for (unsigned j = 0; j < 3; ++j)
+	{
+		obj["position"][j] = this->position[j];
+		obj["rotation"][j] = this->rotation[j];
+		obj["velocity"][j] = this->velocity[j];
+		obj["acceleration"][j] = this->acceleration[j];
+	}
+	// write vec4s
+	for (unsigned j = 0; j < 4; ++j)
+	{
+		obj["color"][j] = this->color[j];
+		obj["specular"][j] = this->specular[j];
+	}
+	obj["scale"] = this->scale;
+	obj["wireFrame"] = this->wireFrame;
+	obj["visible"] = this->visible;
+	obj["inverseMass"] = this->inverseMass;
+	obj["bounciness"] = this->bounciness;
+	obj["collisionShapeType"] = (int)this->collisionShapeType ;
+	Json::Value collisionObjectInfo = Json::objectValue;
+	switch (this->collisionShapeType)
+	{
+	case AABB:
+	{
+		// write vec3s
+		for (unsigned j = 0; j < 3; ++j)
+		{
+			collisionObjectInfo["min"][j] = this->collisionObjectInfo.minmax->first[j];
+			collisionObjectInfo["max"][j] = this->collisionObjectInfo.minmax->second[j];
+		}
+		break;
+	}
+	case OBB:
+		break;
+	case SPHERE:
+		collisionObjectInfo["radius"] = this->collisionObjectInfo.radius;
+		break;
+	case CAPSULE:
+		break;
+	case PLANE:
+		break;
+	case MESH:
+		collisionObjectInfo["mesh"] = this->meshName;
+		break;
+	default:
+		break;
+	}
+	obj["collisionObjectInfo"] = collisionObjectInfo;
+	return obj;
+}

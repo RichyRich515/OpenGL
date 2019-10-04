@@ -1,0 +1,22 @@
+[
+	{
+		"name": "terrain",
+		"location": "assets/models/terrain_xyzn.ply"
+	},
+	{
+		"name": "sphere",
+		"location": "assets/models/sphere_xyzn.ply"
+	},
+	{
+		"name": "cube",
+		"location": "assets/models/cube_xyzn.ply"
+	},
+	{
+		"name": "bunny",
+		"location": "assets/models/bun_zipper_res4_xyzn.ply"
+	},
+	{
+		"name": "carrot",
+		"location": "assets/models/carrot_xyzn.ply"
+	}
+]

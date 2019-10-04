@@ -1,22 +1,15 @@
 {
 	"world": {
-		"ambience": [ 0.5, 0.5, 0.5, 1.0 ],
+		"ambience": [ 0.3, 0.3, 0.3, 1.0 ],
 		"gravity": [ 0.0, -1.0, 0.0 ]
 	},
-	"models": [
-		{
-			"name": "terrain",
-			"location": "assets/models/terrain_xyzn.ply"
-		},
-		{
-			"name": "sphere",
-			"location": "assets/models/sphere_xyzn.ply"
-		},
-		{
-			"name": "cube",
-			"location": "assets/models/cube_xyzn.ply"
-		}
-	],
+	"camera": {
+		"cameraEye": [ 0.0, 28.0, 10.0 ],
+		"cameraUp": [ 0.0, 1.0, 0.0 ],
+		"cameraFront": [ 0.0, 0.0, 1.0 ],
+		"pitch": 0,
+		"yaw": -90
+	},
 	"lights": [
 		{
 			"position": [ 0.0, 0.0, 0.0, 1.0 ],

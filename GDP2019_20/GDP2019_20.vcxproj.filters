@@ -124,5 +124,11 @@
     <None Include="scene1.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="models.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="scene2.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
