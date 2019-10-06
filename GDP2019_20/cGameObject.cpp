@@ -36,6 +36,7 @@ cGameObject::cGameObject(std::string name)
 
 cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes)
 {
+	this->name = obj["name"].asString();
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
 	// Load vec3s
@@ -70,8 +71,6 @@ cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMes
 			this->collisionObjectInfo.minmax->first[j] = collisionObjectInfo["min"][j].asFloat();
 			this->collisionObjectInfo.minmax->second[j] = collisionObjectInfo["max"][j].asFloat();
 		}
-		this->collisionObjectInfo.minmax->first += this->position;
-		this->collisionObjectInfo.minmax->second += this->position;
 		break;
 	}
 	case OBB:
@@ -154,4 +153,9 @@ Json::Value cGameObject::serializeJSONObject()
 	}
 	obj["collisionObjectInfo"] = collisionObjectInfo;
 	return obj;
+}
+
+void cGameObject::translate(glm::vec3 velocity)
+{
+	this->position += velocity;
 }

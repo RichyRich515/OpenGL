@@ -28,14 +28,14 @@ class cGameObject
 public:
 
 	cGameObject();
-
 	cGameObject(std::string name);
-
 	cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes);
-
 	~cGameObject();
 
 	Json::Value serializeJSONObject();
+
+	// Move an object
+	void translate(glm::vec3 velocity);
 
 	std::string name;
 	std::string meshName;

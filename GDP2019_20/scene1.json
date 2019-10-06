@@ -66,7 +66,7 @@
 			"position": [ 0.0, 0.0, 0.0 ],
 			"rotation": [ 0.0, 0.0, 0.0 ],
 			"scale": 1.0,
-			"color": [ 0.7, 0.7, 0.7, 1.0 ],
+			"color": [ 0.2, 0.3, 0.2, 1.0 ],
 			"specular": [ 1.0, 1.0, 1.0, 1000.0 ],
 			"wireFrame": false,
 			"visible": true,
@@ -78,6 +78,57 @@
 			"collisionObjectInfo": {
 				"mesh": "terrain"
 			}
+		},
+		{
+			"name": "bunny1",
+			"meshName": "bunny",
+			"position": [ 5.0, 27.0, 0.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
+			"scale": 1.0,
+			"color": [ 1.0, 1.0, 1.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 10000.0 ],
+			"wireFrame": false,
+			"visible": true,
+			"velocity": [ 0.0, 0.0, 0.0 ],
+			"acceleration": [ 0.0, 0.0, 0.0 ],
+			"inverseMass": 0.0,
+			"bounciness": 0.0,
+			"collisionShapeType": 0,
+			"collisionObjectInfo": {}
+		},
+		{
+			"name": "carrot1",
+			"meshName": "carrot",
+			"position": [ 4.0, 27.0, 1.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
+			"scale": 1.0,
+			"color": [ 1.0, 0.4, 0.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 10000.0 ],
+			"wireFrame": false,
+			"visible": true,
+			"velocity": [ 0.0, 0.0, 0.0 ],
+			"acceleration": [ 0.0, 0.0, 0.0 ],
+			"inverseMass": 0.0,
+			"bounciness": 0.0,
+			"collisionShapeType": 0,
+			"collisionObjectInfo": {}
+		},
+		{
+			"name": "carrot2",
+			"meshName": "carrot",
+			"position": [ 4.0, 27.0, -1.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
+			"scale": 1.0,
+			"color": [ 1.0, 0.4, 0.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 10000.0 ],
+			"wireFrame": false,
+			"visible": true,
+			"velocity": [ 0.0, 0.0, 0.0 ],
+			"acceleration": [ 0.0, 0.0, 0.0 ],
+			"inverseMass": 0.0,
+			"bounciness": 0.0,
+			"collisionShapeType": 0,
+			"collisionObjectInfo": {}
 		}
 	]
 }

@@ -6,7 +6,8 @@
 
 #include <vector>
 #include "cGameObject.hpp"
+#include "DebugRenderer/cDebugRenderer.h"
 
 constexpr float MAX_PHYSICS_DELTA_TIME = 0.17f;
 
-void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt);
+void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRenderer* debugRenderer, bool debug_mode);

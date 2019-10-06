@@ -84,7 +84,7 @@ glm::vec3 ClosestPtPointAABB(glm::vec3 p, glm::vec3 min, glm::vec3 max)
 }
 
 
-void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
+void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRenderer* debugRenderer, bool debug_mode)
 {
 	if (dt > MAX_PHYSICS_DELTA_TIME)
 		dt = MAX_PHYSICS_DELTA_TIME;
@@ -128,8 +128,14 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 						case SPHERE:
 						{
 							// Find point p on AABB closest to sphere center
-							glm::vec3 p = ClosestPtPointAABB(go->position, go2->collisionObjectInfo.minmax->first, go2->collisionObjectInfo.minmax->second);
+							glm::vec3 p = ClosestPtPointAABB(go->position, go2->collisionObjectInfo.minmax->first + go2->position, go2->collisionObjectInfo.minmax->second + go2->position);
 							glm::vec3 v = go->position - p;
+
+							//if (debug_mode)
+							//{
+							//	debugRenderer->addLine(go->position, go2->position, glm::vec3(0.0f, 1.0f, 0.0f), 0);
+							//}
+
 							float dvv = dot(v, v);
 							float rr = go->collisionObjectInfo.radius * go->collisionObjectInfo.radius;
 							if (dvv <= rr)
@@ -146,6 +152,10 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 				case SPHERE:
 				{
 					float d = distance(go->position, go2->position);
+					//if (debug_mode)
+					//{
+					//	debugRenderer->addLine(go->position, go2->position, glm::vec3(0.0f, 1.0f, 0.0f), 0);
+					//}
 					if (d < (go->collisionObjectInfo.radius + go2->collisionObjectInfo.radius))
 					{
 						glm::vec3 collVec = go->position - go2->position;
@@ -194,6 +204,27 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt)
 									closestTriIndex = i;
 								}
 							}
+
+							if (debug_mode)
+							{
+								debugRenderer->addTriangle(
+									glm::vec3(
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].x,
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].y,
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].z),
+									glm::vec3(
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].x,
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].y,
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].z),
+									glm::vec3(
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].x,
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].y,
+										mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].z),
+									glm::vec3(1.0f, 0.0f, 0.0f), 0);
+
+								debugRenderer->addLine(go->position, closestPoint, glm::vec3(0.0f, 1.0f, 0.0f), 0);
+							}
+
 
 							if (closestDistance <= go->collisionObjectInfo.radius)
 							{
