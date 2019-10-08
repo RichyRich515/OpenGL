@@ -83,8 +83,14 @@ cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMes
 	case PLANE:
 		break;
 	case MESH:
-		this->collisionObjectInfo.mesh = mapMeshes[collisionObjectInfo["mesh"].asString()];
+	{
+		this->collisionObjectInfo.meshes = new MeshPair();
+		this->collisionObjectInfo.meshes->first = mapMeshes[collisionObjectInfo["mesh"].asString()];
+		cMesh* collMesh = new cMesh();
+		*collMesh = *this->collisionObjectInfo.meshes->first;
+		this->collisionObjectInfo.meshes->second = collMesh;
 		break;
+	}
 	default:
 		break;
 	}
@@ -95,6 +101,11 @@ cGameObject::~cGameObject()
 	// Clean up
 	if (collisionShapeType == AABB)
 		delete collisionObjectInfo.minmax;
+	else if (collisionShapeType == MESH)
+	{
+		delete this->collisionObjectInfo.meshes->second; // Main mesh is cleaned by mesh manager
+		delete this->collisionObjectInfo.meshes;
+	}
 	// TODO: Capsule
 }
 
@@ -146,7 +157,7 @@ Json::Value cGameObject::serializeJSONObject()
 	case PLANE:
 		break;
 	case MESH:
-		collisionObjectInfo["mesh"] = this->meshName;
+		collisionObjectInfo["mesh"] = this->meshName; // TODO: copy collision mesh name instead
 		break;
 	default:
 		break;
@@ -154,6 +165,29 @@ Json::Value cGameObject::serializeJSONObject()
 	obj["collisionObjectInfo"] = collisionObjectInfo;
 	return obj;
 }
+
+
+void cGameObject::calculateCollisionMeshTransformed()
+{
+	for (std::vector<sPlyVertex>::iterator origVertItr = this->collisionObjectInfo.meshes->first->vecVertices.begin(),
+										   collVertItr = this->collisionObjectInfo.meshes->second->vecVertices.begin();
+		origVertItr != this->collisionObjectInfo.meshes->first->vecVertices.end();
+		// they are copies of each other so same size
+		++origVertItr, ++collVertItr)
+	{
+		glm::vec4 verts = glm::vec4(origVertItr->x, origVertItr->y, origVertItr->z, 1.0f);
+		glm::vec4 norms = glm::vec4(origVertItr->nx, origVertItr->ny, origVertItr->nz, 1.0f);
+		verts = this->matWorld * verts;
+		norms = this->inverseTransposeMatWorld * norms;
+		collVertItr->x = verts.x;
+		collVertItr->y = verts.y;
+		collVertItr->z = verts.z;
+		collVertItr->nx = norms.x;
+		collVertItr->ny = norms.y;
+		collVertItr->nz = norms.z;
+	}
+}
+
 
 void cGameObject::translate(glm::vec3 velocity)
 {

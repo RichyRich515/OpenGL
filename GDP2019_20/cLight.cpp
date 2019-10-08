@@ -36,14 +36,7 @@ cLight::cLight(unsigned i, Json::Value obj, GLuint program)
 		this->param2[j] = obj["param2"][j].asFloat();
 	}
 
-	// TODO: check these 1.0fs
-	glUniform4f(this->position_loc, this->position.x, this->position.y, this->position.z, this->position.w);
-	glUniform4f(this->diffuse_loc, this->diffuse.r, this->diffuse.g, this->diffuse.b, this->diffuse.a);
-	glUniform4f(this->specular_loc, this->specular.r, this->specular.g, this->specular.b, this->specular.a);
-	glUniform4f(this->atten_loc, this->atten.x, this->atten.y, this->atten.z, this->atten.w);
-	glUniform4f(this->direction_loc, this->direction.x, this->direction.y, this->direction.z, this->direction.w);
-	glUniform4f(this->param1_loc, this->param1.x, this->param1.y, this->param1.z, this->param1.w);
-	glUniform4f(this->param2_loc, this->param2.x, this->param2.y, this->param2.z, this->param2.w);
+	updateShaderUniforms();
 }
 
 Json::Value cLight::serializeJSONObject()
@@ -64,3 +57,13 @@ Json::Value cLight::serializeJSONObject()
 	return obj;
 }
 
+void cLight::updateShaderUniforms()
+{
+	glUniform4f(this->position_loc, this->position.x, this->position.y, this->position.z, this->position.w);
+	glUniform4f(this->diffuse_loc, this->diffuse.r, this->diffuse.g, this->diffuse.b, this->diffuse.a);
+	glUniform4f(this->specular_loc, this->specular.r, this->specular.g, this->specular.b, this->specular.a);
+	glUniform4f(this->atten_loc, this->atten.x, this->atten.y, this->atten.z, this->atten.w);
+	glUniform4f(this->direction_loc, this->direction.x, this->direction.y, this->direction.z, this->direction.w);
+	glUniform4f(this->param1_loc, this->param1.x, this->param1.y, this->param1.z, this->param1.w);
+	glUniform4f(this->param2_loc, this->param2.x, this->param2.y, this->param2.z, this->param2.w);
+}

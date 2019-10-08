@@ -74,7 +74,7 @@ int selectedLight = 2;
 
 
 // write current scene to a file
-bool writeSceneToFile(std::string filename)
+void writeSceneToFile(std::string filename)
 {
 	std::ofstream ofs(filename);
 
@@ -512,13 +512,7 @@ int main()
 			vecLights[selectedLight]->atten.y *= ((fPress || rPress) ? ((fPress - rPress) * 0.01f + 1.0f) : 1.0f); // Linear
 
 
-			glUniform4f(vecLights[selectedLight]->position_loc, vecLights[selectedLight]->position.x, vecLights[selectedLight]->position.y, vecLights[selectedLight]->position.z, 1.0f);
-			glUniform4f(vecLights[selectedLight]->diffuse_loc, vecLights[selectedLight]->diffuse.r, vecLights[selectedLight]->diffuse.g, vecLights[selectedLight]->diffuse.b, vecLights[selectedLight]->diffuse.a);
-			glUniform4f(vecLights[selectedLight]->specular_loc, vecLights[selectedLight]->specular.r, vecLights[selectedLight]->specular.g, vecLights[selectedLight]->specular.b, vecLights[selectedLight]->specular.w);
-			glUniform4f(vecLights[selectedLight]->atten_loc, vecLights[selectedLight]->atten.x, vecLights[selectedLight]->atten.y, vecLights[selectedLight]->atten.z, vecLights[selectedLight]->atten.w);
-			glUniform4f(vecLights[selectedLight]->direction_loc, vecLights[selectedLight]->direction.x, vecLights[selectedLight]->direction.y, vecLights[selectedLight]->direction.z, 1.0f);
-			glUniform4f(vecLights[selectedLight]->param1_loc, vecLights[selectedLight]->param1.x, vecLights[selectedLight]->param1.y, vecLights[selectedLight]->param1.z, vecLights[selectedLight]->param1.w);
-			glUniform4f(vecLights[selectedLight]->param2_loc, vecLights[selectedLight]->param2.x, vecLights[selectedLight]->param2.y, vecLights[selectedLight]->param2.z, vecLights[selectedLight]->param2.w);
+			vecLights[selectedLight]->updateShaderUniforms();
 
 			debugSphere->position = vecLights[selectedLight]->position;
 			debugSphere->scale = 0.1f / vecLights[selectedLight]->atten.y;
@@ -547,7 +541,9 @@ int main()
 		}
 
 		if (debug_mode)
+		{
 			debugRenderer->RenderDebugObjects(v, p, dt);
+		}
 
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.
@@ -574,21 +570,23 @@ int main()
 	exit(EXIT_SUCCESS);
 }
 
+
 // Draw an object
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 {
-	glm::mat4 m = glm::mat4(1.0f);
-
+	glm::mat4 translation = glm::translate(glm::mat4(1.0f), go->position);
 	glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), go->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), go->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), go->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(go->scale, go->scale, go->scale));
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), go->position);
 
-	m *= rotationX * rotationY * rotationZ * translation * scale;
-	glm::mat4 mInverseTranspose = glm::inverse(glm::transpose(m));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(m));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(mInverseTranspose));
+	go->matWorld = glm::mat4(1.0f) * rotationX * rotationY * rotationZ * translation * scale;
+	go->inverseTransposeMatWorld = glm::inverse(glm::transpose(go->matWorld));
+	if (go->collisionShapeType == MESH)
+		go->calculateCollisionMeshTransformed();
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
 	glUniform1f(glGetUniformLocation(shader, "bDoNotLight"), (float)go->wireFrame);

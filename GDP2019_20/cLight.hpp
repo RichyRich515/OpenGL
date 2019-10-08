@@ -17,6 +17,8 @@ public:
 
 	Json::Value serializeJSONObject();
 
+	void updateShaderUniforms();
+
 	glm::vec4 position;
 	glm::vec4 diffuse;
 	glm::vec4 specular;		// rgb = highlight colour, w = power 1 - 10000

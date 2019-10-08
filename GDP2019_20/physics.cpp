@@ -88,6 +88,7 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 {
 	if (dt > MAX_PHYSICS_DELTA_TIME)
 		dt = MAX_PHYSICS_DELTA_TIME;
+
 	for (auto itr = vecGameObjects.begin(); itr != vecGameObjects.end(); ++itr)
 	{
 		if ((*itr)->inverseMass == 0.0f)
@@ -169,13 +170,12 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 					{
 						case SPHERE:
 						{
-							cMesh* mesh = go2->mesh;
+							cMesh* mesh = go2->collisionObjectInfo.meshes->second; // transformed collision mesh
 							if (!mesh)
 								continue;
 
 							for (unsigned i = 0; i < mesh->vecTriangles.size(); ++i)
 							{
-
 								p1 = glm::vec3(
 									mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].x,
 									mesh->vecVertices[mesh->vecTriangles[i].vert_index_1].y,

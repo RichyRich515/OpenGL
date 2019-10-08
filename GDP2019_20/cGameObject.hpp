@@ -2,6 +2,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 #include <string>
 #include <map>
@@ -37,9 +38,16 @@ public:
 	// Move an object
 	void translate(glm::vec3 velocity);
 
+	// Transform the collision mesh by the world matrix
+	void calculateCollisionMeshTransformed();
+
 	std::string name;
 	std::string meshName;
 	cMesh* mesh;
+
+	glm::mat4 matWorld;
+	glm::mat4 inverseTransposeMatWorld;
+
 	glm::vec3 position;
 	glm::vec3 rotation;
 	float scale;
@@ -56,6 +64,7 @@ public:
 	eCollisionShapeTypes collisionShapeType;
 
 	typedef std::pair<glm::vec3, glm::vec3> AABBminmax;
+	typedef std::pair<cMesh*, cMesh*> MeshPair;
 
 	union uCollisionObjectInfo
 	{
@@ -63,6 +72,6 @@ public:
 		float radius; // For sphere or capsule
 		float height; // For capsule
 		glm::vec3 plane; // For plane
-		cMesh* mesh; // For mesh
+		MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
 	} collisionObjectInfo;
 };
