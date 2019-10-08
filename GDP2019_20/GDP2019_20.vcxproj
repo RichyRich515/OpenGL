@@ -171,6 +171,7 @@
     <ClInclude Include="DebugRenderer\COpenGLError.h" />
     <ClInclude Include="DebugRenderer\iDebugRenderer.h" />
     <ClInclude Include="GLCommon.h" />
+    <ClInclude Include="KeyboardManager.hpp" />
     <ClInclude Include="Physics.hpp" />
   </ItemGroup>
   <ItemGroup>

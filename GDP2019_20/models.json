@@ -18,5 +18,13 @@
 	{
 		"name": "carrot",
 		"location": "assets/models/carrot_xyzn.ply"
+	},
+	{
+		"name": "fir_tree",
+		"location": "assets/models/Fir_Tree_xyzn.ply"
+	},
+	{
+		"name": "crystal",
+		"location": "assets/models/Crystal_xyzn.ply"
 	}
 ]

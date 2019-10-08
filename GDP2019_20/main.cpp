@@ -170,6 +170,8 @@ bool ctrl_pressed = false, shift_pressed = false,
 mF = false, mB = false, mL = false, mR = false,
 mU = false, mD = false, rPress = false, fPress = false;
 
+bool kJ = false, kL = false, kI = false, kK = false, kU = false, kO = false;
+
 bool debug_mode = false;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -177,71 +179,82 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	if (key == GLFW_KEY_LEFT_SHIFT)
+	else if (key == GLFW_KEY_LEFT_SHIFT)
+	{
 		if (action == GLFW_PRESS)
 			shift_pressed = true;
 		else if (action == GLFW_RELEASE)
 			shift_pressed = false;
-
-	if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL)
+	}
+	else if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL)
+	{
 		if (action == GLFW_PRESS)
 			ctrl_pressed = true;
 		else if (action == GLFW_RELEASE)
 			ctrl_pressed = false;
-
-	if (key == GLFW_KEY_GRAVE_ACCENT)
+	}
+	else if (key == GLFW_KEY_GRAVE_ACCENT)
+	{
 		if (action == GLFW_PRESS)
 			debug_mode = !debug_mode;
+	}
 
-	if (key == GLFW_KEY_W)
+	else if (key == GLFW_KEY_W)
 		if (action == GLFW_PRESS)
 			mF = true;
 		else if (action == GLFW_RELEASE)
 			mF = false;
 
-	if (key == GLFW_KEY_S)
+	else if (key == GLFW_KEY_S)
 		if (action == GLFW_PRESS)
 			mB = true;
 		else if (action == GLFW_RELEASE)
 			mB = false;
 
-	if (key == GLFW_KEY_A)
+	else if (key == GLFW_KEY_A)
 		if (action == GLFW_PRESS)
 			mL = true;
 		else if (action == GLFW_RELEASE)
 			mL = false;
 
-	if (key == GLFW_KEY_D)
+	else if (key == GLFW_KEY_D)
 		if (action == GLFW_PRESS)
 			mR = true;
 		else if (action == GLFW_RELEASE)
 			mR = false;
 
-	if (key == GLFW_KEY_SPACE)
+	else if (key == GLFW_KEY_SPACE)
 		if (action == GLFW_PRESS)
 			mU = true;
 		else if (action == GLFW_RELEASE)
 			mU = false;
 
-	if (key == GLFW_KEY_C)
+	else if (key == GLFW_KEY_C)
 		if (action == GLFW_PRESS)
 			mD = true;
 		else if (action == GLFW_RELEASE)
 			mD = false;
 
-	if (key == GLFW_KEY_R)
+	else if (key == GLFW_KEY_R)
 		if (action == GLFW_PRESS)
 			rPress = true;
 		else if (action == GLFW_RELEASE)
 			rPress = false;
 
-	if (key == GLFW_KEY_F)
+	else if (key == GLFW_KEY_F)
 		if (action == GLFW_PRESS)
 			fPress = true;
 		else if (action == GLFW_RELEASE)
 			fPress = false;
 
-	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
+	else if (key == GLFW_KEY_J)
+		if (action == GLFW_PRESS)
+			kJ = true;
+		else if (action == GLFW_RELEASE)
+			kJ = false;
+
+
+	else if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
 	{
 		if (shift_pressed)
 		{
@@ -272,7 +285,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 	}
 
-	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	else if (key == GLFW_KEY_V && action == GLFW_PRESS)
 	{
 		if (shift_pressed)
 		{
@@ -284,22 +297,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 	}
 
-	if (key == GLFW_KEY_K)
+	else if (key == GLFW_KEY_K)
 	{
 		vecLights[selectedLight]->param1.z -= 0.1f;
 	}
 
-	if (key == GLFW_KEY_L)
+	else if (key == GLFW_KEY_L)
 	{
 		vecLights[selectedLight]->param1.z += 0.1f;
 	}
 
-	if (ctrl_pressed && key == GLFW_KEY_O && action == GLFW_PRESS)
+	else if (ctrl_pressed && key == GLFW_KEY_O && action == GLFW_PRESS)
 	{
 		// Open scene
 		openSceneFromFile("scene2.json");
 	}
-	if (ctrl_pressed && key == GLFW_KEY_P && action == GLFW_PRESS)
+	else if (ctrl_pressed && key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
 		// Print scene (to file)
 		writeSceneToFile("scene2.json");

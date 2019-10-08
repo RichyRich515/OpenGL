@@ -25,6 +25,9 @@
     <Filter Include="Lights">
       <UniqueIdentifier>{204d8df5-44b4-4560-94ca-de4b9c6cb25f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="InputManager">
+      <UniqueIdentifier>{0a60ee32-9a7c-4253-ad00-5b51845aebf1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="cLight.hpp">
       <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyboardManager.hpp">
+      <Filter>InputManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
