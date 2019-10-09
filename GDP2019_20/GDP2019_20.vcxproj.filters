@@ -75,6 +75,9 @@
     <ClCompile Include="cLight.cpp">
       <Filter>Lights</Filter>
     </ClCompile>
+    <ClCompile Include="cKeyboardManager.cpp">
+      <Filter>InputManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -116,7 +119,7 @@
     <ClInclude Include="cLight.hpp">
       <Filter>Lights</Filter>
     </ClInclude>
-    <ClInclude Include="KeyboardManager.hpp">
+    <ClInclude Include="cKeyboardManager.hpp">
       <Filter>InputManager</Filter>
     </ClInclude>
   </ItemGroup>

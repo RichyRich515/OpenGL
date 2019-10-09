@@ -29,6 +29,7 @@
 #include "cGameObject.hpp"
 #include "cLight.hpp"
 #include "Physics.hpp"
+#include "cKeyboardManager.hpp"
 
 #include "DebugRenderer/cDebugRenderer.h"
 
@@ -164,7 +165,6 @@ void openSceneFromFile(std::string filename)
 	}
 }
 
-
 // TODO: keyboard manager
 bool ctrl_pressed = false, shift_pressed = false,
 mF = false, mB = false, mL = false, mR = false,
@@ -174,87 +174,91 @@ bool kJ = false, kL = false, kI = false, kK = false, kU = false, kO = false;
 
 bool debug_mode = false;
 
+cKeyboardManager* pKeyboardManager = NULL;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	pKeyboardManager->handleKeyboardInput(key, scancode, action, mods);
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	else if (key == GLFW_KEY_LEFT_SHIFT)
+	if (key == GLFW_KEY_LEFT_SHIFT)
 	{
 		if (action == GLFW_PRESS)
 			shift_pressed = true;
 		else if (action == GLFW_RELEASE)
 			shift_pressed = false;
 	}
-	else if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL)
+	if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL)
 	{
 		if (action == GLFW_PRESS)
 			ctrl_pressed = true;
 		else if (action == GLFW_RELEASE)
 			ctrl_pressed = false;
 	}
-	else if (key == GLFW_KEY_GRAVE_ACCENT)
+	if (key == GLFW_KEY_GRAVE_ACCENT)
 	{
 		if (action == GLFW_PRESS)
 			debug_mode = !debug_mode;
 	}
 
-	else if (key == GLFW_KEY_W)
+	if (key == GLFW_KEY_W)
 		if (action == GLFW_PRESS)
 			mF = true;
 		else if (action == GLFW_RELEASE)
 			mF = false;
 
-	else if (key == GLFW_KEY_S)
+	if (key == GLFW_KEY_S)
 		if (action == GLFW_PRESS)
 			mB = true;
 		else if (action == GLFW_RELEASE)
 			mB = false;
 
-	else if (key == GLFW_KEY_A)
+	if (key == GLFW_KEY_A)
 		if (action == GLFW_PRESS)
 			mL = true;
 		else if (action == GLFW_RELEASE)
 			mL = false;
 
-	else if (key == GLFW_KEY_D)
+	if (key == GLFW_KEY_D)
 		if (action == GLFW_PRESS)
 			mR = true;
 		else if (action == GLFW_RELEASE)
 			mR = false;
 
-	else if (key == GLFW_KEY_SPACE)
+	if (key == GLFW_KEY_SPACE)
 		if (action == GLFW_PRESS)
 			mU = true;
 		else if (action == GLFW_RELEASE)
 			mU = false;
 
-	else if (key == GLFW_KEY_C)
+	if (key == GLFW_KEY_C)
 		if (action == GLFW_PRESS)
 			mD = true;
 		else if (action == GLFW_RELEASE)
 			mD = false;
 
-	else if (key == GLFW_KEY_R)
+	if (key == GLFW_KEY_R)
 		if (action == GLFW_PRESS)
 			rPress = true;
 		else if (action == GLFW_RELEASE)
 			rPress = false;
 
-	else if (key == GLFW_KEY_F)
+	if (key == GLFW_KEY_F)
 		if (action == GLFW_PRESS)
 			fPress = true;
 		else if (action == GLFW_RELEASE)
 			fPress = false;
 
-	else if (key == GLFW_KEY_J)
+	if (key == GLFW_KEY_J)
 		if (action == GLFW_PRESS)
 			kJ = true;
 		else if (action == GLFW_RELEASE)
 			kJ = false;
 
 
-	else if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
+	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
 	{
 		if (shift_pressed)
 		{
@@ -297,17 +301,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 	}
 
-	else if (key == GLFW_KEY_K)
+	if (key == GLFW_KEY_K)
 	{
 		vecLights[selectedLight]->param1.z -= 0.1f;
 	}
 
-	else if (key == GLFW_KEY_L)
+	if (key == GLFW_KEY_L)
 	{
 		vecLights[selectedLight]->param1.z += 0.1f;
 	}
 
-	else if (ctrl_pressed && key == GLFW_KEY_O && action == GLFW_PRESS)
+	if (ctrl_pressed && key == GLFW_KEY_O && action == GLFW_PRESS)
 	{
 		// Open scene
 		openSceneFromFile("scene2.json");
@@ -347,6 +351,7 @@ int main()
 	cModelLoader* pModelLoader = new cModelLoader();
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
+	pKeyboardManager = new cKeyboardManager();
 
 	debugRenderer = new cDebugRenderer();
 	debugRenderer->initialize();
@@ -578,6 +583,7 @@ int main()
 	delete pShaderManager;
 	delete pModelLoader;
 	delete pVAOManager;
+	delete pKeyboardManager;
 	delete debugRenderer;
 
 	exit(EXIT_SUCCESS);

@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cGameObject.cpp" />
+    <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cShader.cpp" />
@@ -171,7 +172,7 @@
     <ClInclude Include="DebugRenderer\COpenGLError.h" />
     <ClInclude Include="DebugRenderer\iDebugRenderer.h" />
     <ClInclude Include="GLCommon.h" />
-    <ClInclude Include="KeyboardManager.hpp" />
+    <ClInclude Include="cKeyboardManager.hpp" />
     <ClInclude Include="Physics.hpp" />
   </ItemGroup>
   <ItemGroup>
