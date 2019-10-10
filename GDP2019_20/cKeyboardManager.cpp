@@ -31,10 +31,16 @@ bool cKeyboardManager::keyRepeating(int key)
 
 bool cKeyboardManager::keyPressed(int key)
 {
-	return (!previous_keys[key] && current_keys[key]);
+	bool ret = (!previous_keys[key] && current_keys[key]);
+	if (ret)
+		previous_keys[key] = current_keys[key];
+	return ret;
 }
 
 bool cKeyboardManager::keyReleased(int key)
 {
-	return (previous_keys[key] && !current_keys[key]);
+	bool ret = (previous_keys[key] && !current_keys[key]);
+	if (ret)
+		previous_keys[key] = current_keys[key];
+	return ret;
 }

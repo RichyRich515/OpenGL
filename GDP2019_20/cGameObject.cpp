@@ -193,3 +193,8 @@ void cGameObject::translate(glm::vec3 velocity)
 {
 	this->position += velocity;
 }
+
+void cGameObject::rotate(glm::vec3 rotation)
+{
+	this->rotation += rotation;
+}

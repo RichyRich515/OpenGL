@@ -71,7 +71,7 @@ constexpr unsigned MAX_LIGHTS = 10;
 
 // List of all lights in scene
 std::vector<cLight*> vecLights;
-int selectedLight = 2;
+int selectedLight = 0;
 
 
 // write current scene to a file
@@ -110,6 +110,7 @@ void writeSceneToFile(std::string filename)
 		root["lights"].append(l->serializeJSONObject());
 
 	ofs << root;
+	std::cout << "Saved scene to " << filename << std::endl;
 }
 
 void openSceneFromFile(std::string filename)
@@ -163,14 +164,12 @@ void openSceneFromFile(std::string filename)
 		cGameObject* go = new cGameObject(gameObjects[i], mapMeshes);
 		vecGameObjects.push_back(go);
 	}
+
+	std::cout << "Opened scene " << filename << std::endl;
 }
 
 // TODO: keyboard manager
-bool ctrl_pressed = false, shift_pressed = false,
-mF = false, mB = false, mL = false, mR = false,
-mU = false, mD = false, rPress = false, fPress = false;
-
-bool kJ = false, kL = false, kI = false, kK = false, kU = false, kO = false;
+bool ctrl_pressed = false, shift_pressed = false;
 
 bool debug_mode = false;
 
@@ -202,61 +201,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		if (action == GLFW_PRESS)
 			debug_mode = !debug_mode;
 	}
-
-	if (key == GLFW_KEY_W)
-		if (action == GLFW_PRESS)
-			mF = true;
-		else if (action == GLFW_RELEASE)
-			mF = false;
-
-	if (key == GLFW_KEY_S)
-		if (action == GLFW_PRESS)
-			mB = true;
-		else if (action == GLFW_RELEASE)
-			mB = false;
-
-	if (key == GLFW_KEY_A)
-		if (action == GLFW_PRESS)
-			mL = true;
-		else if (action == GLFW_RELEASE)
-			mL = false;
-
-	if (key == GLFW_KEY_D)
-		if (action == GLFW_PRESS)
-			mR = true;
-		else if (action == GLFW_RELEASE)
-			mR = false;
-
-	if (key == GLFW_KEY_SPACE)
-		if (action == GLFW_PRESS)
-			mU = true;
-		else if (action == GLFW_RELEASE)
-			mU = false;
-
-	if (key == GLFW_KEY_C)
-		if (action == GLFW_PRESS)
-			mD = true;
-		else if (action == GLFW_RELEASE)
-			mD = false;
-
-	if (key == GLFW_KEY_R)
-		if (action == GLFW_PRESS)
-			rPress = true;
-		else if (action == GLFW_RELEASE)
-			rPress = false;
-
-	if (key == GLFW_KEY_F)
-		if (action == GLFW_PRESS)
-			fPress = true;
-		else if (action == GLFW_RELEASE)
-			fPress = false;
-
-	if (key == GLFW_KEY_J)
-		if (action == GLFW_PRESS)
-			kJ = true;
-		else if (action == GLFW_RELEASE)
-			kJ = false;
-
 
 	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
 	{
@@ -299,27 +243,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 			vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
 		}
-	}
-
-	if (key == GLFW_KEY_K)
-	{
-		vecLights[selectedLight]->param1.z -= 0.1f;
-	}
-
-	if (key == GLFW_KEY_L)
-	{
-		vecLights[selectedLight]->param1.z += 0.1f;
-	}
-
-	if (ctrl_pressed && key == GLFW_KEY_O && action == GLFW_PRESS)
-	{
-		// Open scene
-		openSceneFromFile("scene2.json");
-	}
-	else if (ctrl_pressed && key == GLFW_KEY_P && action == GLFW_PRESS)
-	{
-		// Print scene (to file)
-		writeSceneToFile("scene2.json");
 	}
 }
 
@@ -496,20 +419,47 @@ int main()
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		cameraFront = glm::normalize(front);
 
+		if (pKeyboardManager->keyPressed(GLFW_KEY_T))
+		{
+			std::cout << "pressed t" << std::endl;
+		}
+
+		if (shift_pressed && pKeyboardManager->keyPressed(GLFW_KEY_O))
+		{
+			// Open scene
+			openSceneFromFile("scene2.json");
+		}
+		else if (shift_pressed && pKeyboardManager->keyPressed(GLFW_KEY_P))
+		{
+			// Print scene (to file)
+			writeSceneToFile("scene2.json");
+		}
+
+		int xMove = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
+		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+
+		int xRot = pKeyboardManager->keyDown(GLFW_KEY_I) - pKeyboardManager->keyDown(GLFW_KEY_K);
+		int yRot = pKeyboardManager->keyDown(GLFW_KEY_U) - pKeyboardManager->keyDown(GLFW_KEY_O);
+		int zRot = pKeyboardManager->keyDown(GLFW_KEY_J) - pKeyboardManager->keyDown(GLFW_KEY_L);
+
+		int scaleFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
 
 		if (ctrl_pressed)
 		{
-			glm::vec3 velocity = dt * CAMERA_SPEED * glm::vec3(mR - mL, mU - mD, mF - mB);
+			glm::vec3 velocity = dt * CAMERA_SPEED * glm::vec3(xMove, yMove, zMove);
+			glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
 			vecGameObjects[selectedObject]->translate(velocity);
-			vecGameObjects[selectedObject]->scale += (rPress - fPress) * 1.0f * dt;
+			vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
+			vecGameObjects[selectedObject]->rotate(rotation);
 		}
 		else if (!shift_pressed)
 		{
 			float cameraSpeed = CAMERA_SPEED;
 
-			cameraEye += (mF - mB) * cameraSpeed * dt * cameraFront;
-			cameraEye += (mR - mL) * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
-			cameraEye += (mU - mD) * cameraSpeed * dt * cameraUp;
+			cameraEye += zMove * cameraSpeed * dt * cameraFront;
+			cameraEye += xMove * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+			cameraEye += yMove * cameraSpeed * dt * cameraUp;
 		}
 
 		v = glm::mat4(1.0f);
@@ -524,10 +474,10 @@ int main()
 			glm::mat4 m = glm::mat4(1.0f);
 			float speed = 3.0f;
 			// Move light if shift pressed
-			vecLights[selectedLight]->position.x += (mR - mL) * speed * dt;
-			vecLights[selectedLight]->position.y += (mU - mD) * speed * dt;
-			vecLights[selectedLight]->position.z += (mF - mB) * speed * dt;
-			vecLights[selectedLight]->atten.y *= ((fPress || rPress) ? ((fPress - rPress) * 0.01f + 1.0f) : 1.0f); // Linear
+			vecLights[selectedLight]->position.x += xMove * speed * dt;
+			vecLights[selectedLight]->position.y += yMove * speed * dt;
+			vecLights[selectedLight]->position.z += zMove * speed * dt;
+			vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
 
 
 			vecLights[selectedLight]->updateShaderUniforms();
@@ -599,7 +549,12 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 	glm::mat4 rotationZ = glm::rotate(glm::mat4(1.0f), go->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(go->scale, go->scale, go->scale));
 
-	go->matWorld = glm::mat4(1.0f) * rotationX * rotationY * rotationZ * translation * scale;
+	go->matWorld = glm::mat4(1.0f);
+	go->matWorld *= translation;
+	go->matWorld *= rotationX; 
+	go->matWorld *= rotationY; 
+	go->matWorld *= rotationZ;
+	go->matWorld *= scale;
 	go->inverseTransposeMatWorld = glm::inverse(glm::transpose(go->matWorld));
 	if (go->collisionShapeType == MESH)
 		go->calculateCollisionMeshTransformed();

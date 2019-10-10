@@ -37,6 +37,7 @@ public:
 
 	// Move an object
 	void translate(glm::vec3 velocity);
+	void rotate(glm::vec3 rotation);
 
 	// Transform the collision mesh by the world matrix
 	void calculateCollisionMeshTransformed();

@@ -159,9 +159,9 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 					//}
 					if (d < (go->collisionObjectInfo.radius + go2->collisionObjectInfo.radius))
 					{
-						glm::vec3 collVec = go->position - go2->position;
+						glm::vec3 collVec = glm::normalize(go->position - go2->position);
 						float mag = length(go->velocity);
-						go->velocity = mag * normalize(collVec) * go->bounciness;
+						go->velocity = mag * collVec * go->bounciness;
 					}
 					break; // SPHERE
 				}
@@ -244,7 +244,7 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].ny,
 									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].nz);
 
-								glm::vec3 faceNorm = normalize((n1 + n2 + n3) / 3.0f);
+								glm::vec3 faceNorm = glm::normalize((n1 + n2 + n3) / 3.0f);
 								float mag = length(go->velocity);
 								//go->velocity = mag * faceNorm * go->bounciness;
 								glm::vec3 refl = glm::reflect(glm::normalize(go->velocity), faceNorm);
