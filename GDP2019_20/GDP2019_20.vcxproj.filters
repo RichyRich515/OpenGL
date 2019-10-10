@@ -28,6 +28,9 @@
     <Filter Include="InputManager">
       <UniqueIdentifier>{0a60ee32-9a7c-4253-ad00-5b51845aebf1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{b361f73b-451c-4732-bd9e-ded9333fabb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -46,9 +49,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\json\jsoncpp.cpp">
@@ -78,6 +78,9 @@
     <ClCompile Include="cKeyboardManager.cpp">
       <Filter>InputManager</Filter>
     </ClCompile>
+    <ClCompile Include="physics.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -93,9 +96,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cShaderManager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cGameObject.hpp">
@@ -121,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="cKeyboardManager.hpp">
       <Filter>InputManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.hpp">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

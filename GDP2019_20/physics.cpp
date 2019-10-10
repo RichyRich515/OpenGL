@@ -84,7 +84,22 @@ glm::vec3 ClosestPtPointAABB(glm::vec3 p, glm::vec3 min, glm::vec3 max)
 }
 
 
-void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRenderer* debugRenderer, bool debug_mode)
+// Calculates the face normal of a tri
+// From https://stackoverflow.com/questions/13689632/converting-vertex-normals-to-face-normals
+glm::vec3 CalcNormalOfFace(glm::vec3 const& v1, glm::vec3 const& v2, glm::vec3 const& v3, glm::vec3 const& n1, glm::vec3 const& n2, glm::vec3 const& n3)
+{
+	glm::vec3 p0 = v2 - v1;
+	glm::vec3 p1 = v3 - v1;
+	glm::vec3 faceNormal = glm::normalize(glm::cross(p0, p1));
+
+	glm::vec3 vertexNormal = (n1 + n2 + n3) / 3.0f; // or you can average 3 normals.
+	float d = glm::dot(faceNormal, vertexNormal);
+
+	return (d < 0.0f) ? -faceNormal : faceNormal;
+}
+
+
+void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, glm::vec3 gravity, float dt, cDebugRenderer* debugRenderer, bool debug_mode)
 {
 	if (dt > MAX_PHYSICS_DELTA_TIME)
 		dt = MAX_PHYSICS_DELTA_TIME;
@@ -96,21 +111,16 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 
 		cGameObject* go = *itr;
 
-		go->velocity.x += go->acceleration.x * dt;
-		go->velocity.y += go->acceleration.y * dt;
-		go->velocity.z += go->acceleration.z * dt;
-
+		go->velocity.x += (go->acceleration.x + gravity.x) * dt ;
+		go->velocity.y += (go->acceleration.y + gravity.y) * dt;
+		go->velocity.z += (go->acceleration.z + gravity.z) * dt;
+		
 
 		go->position.x += go->velocity.x * dt;
 		go->position.y += go->velocity.y * dt;
 		go->position.z += go->velocity.z * dt;
 
 
-		// Sphere x Mesh collision
-		glm::vec3 closestPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-		float closestDistance = FLT_MAX;
-		glm::vec3 p1, p2, p3;
-		unsigned closestTriIndex = 0;
 
 		// Test for all other Tris
 		for (auto itr2 = vecGameObjects.begin(); itr2 != vecGameObjects.end(); ++itr2)
@@ -159,9 +169,18 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 					//}
 					if (d < (go->collisionObjectInfo.radius + go2->collisionObjectInfo.radius))
 					{
-						glm::vec3 collVec = glm::normalize(go->position - go2->position);
-						float mag = length(go->velocity);
-						go->velocity = mag * collVec * go->bounciness;
+						glm::vec3 collisionVector = go->position - go2->position;
+						glm::vec3 normCollisionVector = glm::normalize(collisionVector);
+						float overlap = d - (go->collisionObjectInfo.radius + go2->collisionObjectInfo.radius);
+						float halflap = -overlap / 2.0f;
+
+						go->velocity = length(go->velocity) * normCollisionVector * go->bounciness;
+						go->position += halflap * normCollisionVector;
+						if (go2->inverseMass)
+						{
+							go2->velocity = length(go2->velocity) * -normCollisionVector * go2->bounciness;
+							go2->position += halflap * -normCollisionVector;
+						}
 					}
 					break; // SPHERE
 				}
@@ -170,6 +189,11 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 					{
 						case SPHERE:
 						{
+							// Sphere x Mesh collision
+							glm::vec3 closestPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+							float closestDistance = FLT_MAX;
+							glm::vec3 p1, p2, p3;
+							unsigned closestTriIndex = 0;
 							cMesh* mesh = go2->collisionObjectInfo.meshes->second; // transformed collision mesh
 							if (!mesh)
 								continue;
@@ -228,6 +252,21 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 
 							if (closestDistance <= go->collisionObjectInfo.radius)
 							{
+								p1 = glm::vec3(
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].x,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].y,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].z);
+																		 
+								p2 = glm::vec3(							 
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].x,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].y,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_2].z);
+																		 
+								p3 = glm::vec3(							 
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].x,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].y,
+									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].z);
+
 								glm::vec3 n1, n2, n3;
 								n1 = glm::vec3(
 									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_1].nx,
@@ -244,13 +283,15 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRe
 									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].ny,
 									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].nz);
 
-								glm::vec3 faceNorm = glm::normalize((n1 + n2 + n3) / 3.0f);
+								glm::vec3 faceNorm = CalcNormalOfFace(p1, p2, p3, n1, n2, n3);
 								float mag = length(go->velocity);
 								//go->velocity = mag * faceNorm * go->bounciness;
-								glm::vec3 refl = glm::reflect(glm::normalize(go->velocity), faceNorm);
+								glm::vec3 refl = glm::normalize(glm::reflect(glm::normalize(go->velocity), faceNorm));
 								go->velocity = refl * mag * go->bounciness;
 								// move outside the tri
 								go->position += faceNorm * (go->collisionObjectInfo.radius - closestDistance);
+								debugRenderer->addLine(closestPoint, closestPoint + faceNorm, glm::vec3(0.0, 1.0f, 1.0f), 1.0f);
+								debugRenderer->addLine(closestPoint, closestPoint + refl, glm::vec3(1.0, 1.0f, 0.0f), 1.0f);
 							} // if closestDistance <= radius
 							break;
 						} // MESH-SPHERE

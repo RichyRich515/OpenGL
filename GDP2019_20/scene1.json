@@ -1,10 +1,10 @@
 {
 	"world": {
 		"ambience": [ 0.3, 0.3, 0.3, 1.0 ],
-		"gravity": [ 0.0, -1.0, 0.0 ]
+		"gravity": [ 0.0, -6.0, 0.0 ]
 	},
 	"camera": {
-		"cameraEye": [ 0.0, 28.0, 10.0 ],
+		"cameraEye": [ 0.0, 20.0, 25.0 ],
 		"cameraUp": [ 0.0, 1.0, 0.0 ],
 		"cameraFront": [ 0.0, 0.0, 1.0 ],
 		"pitch": 0,
@@ -50,13 +50,13 @@
 	],
 	"gameObjects": [
 		{
-			"name": "terrain1",
-			"meshName": "terrain",
-			"position": [ 0.0, 0.0, 0.0 ],
+			"name": "plinko1",
+			"meshName": "plinko",
+			"position": [ 0.0, 20.0, -1.0 ],
 			"rotation": [ 0.0, 0.0, 0.0 ],
-			"scale": 1.0,
-			"color": [ 0.2, 0.3, 0.2, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 1000.0 ],
+			"scale": 0.40,
+			"color": [ 0.5, 0.5, 0.5, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 100.0 ],
 			"wireFrame": false,
 			"visible": true,
 			"velocity": [ 0.0, 0.0, 0.0 ],
@@ -65,7 +65,26 @@
 			"bounciness": 0.0,
 			"collisionShapeType": 6,
 			"collisionObjectInfo": {
-				"mesh": "terrain"
+				"mesh": "plinko"
+			}
+		},
+		{
+			"name": "plinkocover1",
+			"meshName": "plinko_cover",
+			"position": [ 0.0, 20.0, 0.7 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
+			"scale": 0.20,
+			"color": [ 1.0, 1.0, 1.0, 1.0 ],
+			"specular": [ 1.0, 1.0, 1.0, 100.0 ],
+			"wireFrame": true,
+			"visible": true,
+			"velocity": [ 0.0, 0.0, 0.0 ],
+			"acceleration": [ 0.0, 0.0, 0.0 ],
+			"inverseMass": 0.0,
+			"bounciness": 0.0,
+			"collisionShapeType": 6,
+			"collisionObjectInfo": {
+				"mesh": "plinko_cover"
 			}
 		},
 		{

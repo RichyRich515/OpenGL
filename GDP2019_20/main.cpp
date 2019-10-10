@@ -73,6 +73,7 @@ constexpr unsigned MAX_LIGHTS = 10;
 std::vector<cLight*> vecLights;
 int selectedLight = 0;
 
+glm::vec3 gravity;
 
 // write current scene to a file
 void writeSceneToFile(std::string filename)
@@ -87,7 +88,6 @@ void writeSceneToFile(std::string filename)
 
 	// TODO: ambience and gravity properly
 	glm::vec4 ambience = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
-	glm::vec3 gravity = glm::vec3(0.0f, -1.0f, 0.0f);
 	for (unsigned i = 0; i < 3; ++i) // vec 3s
 	{
 		root["camera"]["cameraEye"][i] = cameraEye[i];
@@ -133,6 +133,7 @@ void openSceneFromFile(std::string filename)
 		cameraEye[i] = camera["cameraEye"][i].asFloat();
 		cameraUp[i] = camera["cameraUp"][i].asFloat();
 		cameraFront[i] = camera["cameraFront"][i].asFloat();
+		gravity[i] = world["gravity"][i].asFloat();
 	}
 	cameraDirection = glm::normalize(cameraEye - cameraFront);
 	cameraRight = glm::normalize(glm::cross(up, cameraDirection));
@@ -195,11 +196,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			ctrl_pressed = true;
 		else if (action == GLFW_RELEASE)
 			ctrl_pressed = false;
-	}
-	if (key == GLFW_KEY_GRAVE_ACCENT)
-	{
-		if (action == GLFW_PRESS)
-			debug_mode = !debug_mode;
 	}
 
 	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
@@ -338,30 +334,34 @@ int main()
 	debugSphere->wireFrame = true;
 
 	// TODO: delete this temp sphere creation stuff
-	unsigned sx = 5;
-	unsigned sz = 2;
-	for (unsigned x = 0; x < sx; x++)
+	unsigned sx = 17;
+	unsigned sz = 1;
+	unsigned sy = 2;
+	for (unsigned x = 0; x < sx; ++x)
 	{
-		for (unsigned z = 0; z < sz; z++)
+		for (unsigned y = 0; y < sy; ++y)
 		{
-			std::ostringstream name;
-			name << "sphere" << x << z;
-			cGameObject* sphere = new cGameObject(name.str());
-			sphere->meshName = "sphere";
-			sphere->mesh = mapMeshes["sphere"];
-			sphere->position = glm::vec3(x - (sx / 2.0f), 30.0f, z - (sz / 2.0f));
-			sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-			sphere->scale = 1.0f;
-			sphere->color = glm::vec4(1.0f - (x / (float)sx), 0.2f, 1.0f - (z / (float)sz), 1.0f);
-			sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
-			sphere->acceleration = glm::vec3(0.0f, -1.0f, 0.0f);
-			sphere->inverseMass = 1.0f;
-			sphere->bounciness = 0.8f;
+			for (unsigned z = 0; z < sz; ++z)
+			{
+				std::ostringstream name;
+				name << "sphere" << x << z;
+				cGameObject* sphere = new cGameObject(name.str());
+				sphere->meshName = "sphere";
+				sphere->mesh = mapMeshes["sphere"];
+				sphere->position = glm::vec3((x * 1.1f) - 9.0f, 40.0f + (y * 2), z - (sz / 2.0f));
+				sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+				sphere->scale = 1.0f;
+				sphere->color = glm::vec4(1.0f - (x / (float)sx), 1.0f - (y / (float)sy), 1.0f - (z / (float)sz), 1.0f);
+				sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
+				sphere->acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
+				sphere->inverseMass = 1.0f;
+				sphere->bounciness = 0.6f;
 
-			sphere->collisionShapeType = SPHERE;
-			sphere->collisionObjectInfo.radius = 0.5f;
+				sphere->collisionShapeType = SPHERE;
+				sphere->collisionObjectInfo.radius = 0.5f;
 
-			vecGameObjects.push_back(sphere);
+				vecGameObjects.push_back(sphere);
+			}
 		}
 	}
 
@@ -377,6 +377,8 @@ int main()
 
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
+	//glEnable(GL_BLEND);			// Transparency
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Transparency
 
 	// timing
 	float totalTime;
@@ -419,9 +421,9 @@ int main()
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		cameraFront = glm::normalize(front);
 
-		if (pKeyboardManager->keyPressed(GLFW_KEY_T))
+		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 		{
-			std::cout << "pressed t" << std::endl;
+			debug_mode = !debug_mode;
 		}
 
 		if (shift_pressed && pKeyboardManager->keyPressed(GLFW_KEY_O))
@@ -490,7 +492,7 @@ int main()
 		}
 
 		// collisions and stuff
-		physicsUpdate(vecGameObjects, dt, debugRenderer, debug_mode);
+		physicsUpdate(vecGameObjects, gravity, dt, debugRenderer, debug_mode);
 
 		std::ostringstream windowTitle;
 		windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "

@@ -10,4 +10,4 @@
 
 constexpr float MAX_PHYSICS_DELTA_TIME = 0.17f;
 
-void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, float dt, cDebugRenderer* debugRenderer, bool debug_mode);
+void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, glm::vec3 gravity, float dt, cDebugRenderer* debugRenderer, bool debug_mode);

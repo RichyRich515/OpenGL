@@ -4,8 +4,20 @@
 		"location": "assets/models/terrain_xyzn.ply"
 	},
 	{
+		"name": "plinko",
+		"location": "assets/models/plinko_xyzn.ply"
+	},
+	{
+		"name": "plinko_cover",
+		"location": "assets/models/plinko_cover_xyzn.ply"
+	},
+	{
 		"name": "sphere",
 		"location": "assets/models/sphere_xyzn.ply"
+	},
+	{
+		"name": "cylinder",
+		"location": "assets/models/cylinder_xyzn.ply"
 	},
 	{
 		"name": "cube",
