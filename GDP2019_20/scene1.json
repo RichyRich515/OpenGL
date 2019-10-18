@@ -1,131 +1,2287 @@
 {
-	"world": {
-		"ambience": [ 0.3, 0.3, 0.3, 1.0 ],
-		"gravity": [ 0.0, -6.0, 0.0 ]
+	"camera" : 
+	{
+		"cameraEye" : 
+		[
+			0.0,
+			20.0,
+			25.0
+		],
+		"cameraFront" : 
+		[
+			0.027909647673368454,
+			0.029666263610124588,
+			-0.99917018413543701
+		],
+		"cameraUp" : 
+		[
+			0.0,
+			1.0,
+			0.0
+		],
+		"pitch" : 1.7000011205673218,
+		"yaw" : -88.399986267089844
 	},
-	"camera": {
-		"cameraEye": [ 0.0, 20.0, 25.0 ],
-		"cameraUp": [ 0.0, 1.0, 0.0 ],
-		"cameraFront": [ 0.0, 0.0, 1.0 ],
-		"pitch": 0,
-		"yaw": -90
-	},
-	"lights": [
+	"gameObjects" : 
+	[
 		{
-			"position": [ 0.0, 0.0, 0.0, 1.0 ],
-			"diffuse": [ 0.75, 0.75, 0.65, 1.0 ],
-			"specular": [ 0.0, 0.0, 0.0, 0.0 ],
-			"atten": [ 0.0, 0.0, 0.0, 0.0 ],
-			"direction": [ -1.0, -1.0, 0.0, 1.0 ],
-			"param1": [ 2, 0.0, 0.0, 0 ],
-			"param2": [ 1, 0, 0, 0 ]
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : 
+			{
+				"mesh" : "plinko"
+			},
+			"collisionShapeType" : 6,
+			"color" : 
+			[
+				0.5,
+				0.5,
+				0.5,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "plinko",
+			"name" : "plinko1",
+			"position" : 
+			[
+				0.0,
+				20.0,
+				-1.0
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 0.40000000596046448,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				100.0
+			],
+			"type" : "",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
 		},
 		{
-			"position": [ 0.0, 35.0, 0.0, 1.0 ],
-			"diffuse": [ 1.0, 0.0, 0.0, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 1.0 ],
-			"atten": [ 0.0, 0.3, 0.0, 10000.0 ],
-			"direction": [ 0.0, 0.0, 0.0, 1.0 ],
-			"param1": [ 0, 0.0, 0.0, 0 ],
-			"param2": [ 1, 0, 0, 0 ]
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : 
+			{
+				"mesh" : "plinko_cover"
+			},
+			"collisionShapeType" : 6,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "plinko_cover",
+			"name" : "plinkocover1",
+			"position" : 
+			[
+				0.0,
+				20.0,
+				0.69999998807907104
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 0.20000000298023224,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				100.0
+			],
+			"type" : "",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : true
 		},
 		{
-			"position": [ 0.0, 35.0, 0.0, 1.0 ],
-			"diffuse": [ 1.0, 0.0, 0.0, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 1.0 ],
-			"atten": [ 0.0, 0.3, 0.0, 10000.0 ],
-			"direction": [ 0.0, 0.0, 0.0, 1.0 ],
-			"param1": [ 0, 0.0, 0.0, 0 ],
-			"param2": [ 1, 0, 0, 0 ]
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : 
+			{
+				"max" : 
+				[
+					0.5,
+					0.5,
+					0.5
+				],
+				"min" : 
+				[
+					-0.5,
+					-0.5,
+					-0.5
+				]
+			},
+			"collisionShapeType" : 1,
+			"color" : 
+			[
+				0.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "cube1",
+			"position" : 
+			[
+				2.0,
+				25.0,
+				0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1000.0
+			],
+			"type" : "",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
 		},
 		{
-			"position": [ 0.0, 35.0, 0.0, 1.0 ],
-			"diffuse": [ 1.0, 0.0, 0.0, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 1.0 ],
-			"atten": [ 0.0, 0.3, 0.0, 10000.0 ],
-			"direction": [ 0.0, 0.0, 0.0, 1.0 ],
-			"param1": [ 0, 0.0, 0.0, 0 ],
-			"param2": [ 1, 0, 0, 0 ]
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : 
+			{
+				"max" : 
+				[
+					0.5,
+					0.5,
+					0.5
+				],
+				"min" : 
+				[
+					-0.5,
+					-0.5,
+					-0.5
+				]
+			},
+			"collisionShapeType" : 1,
+			"color" : 
+			[
+				0.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "cube1",
+			"position" : 
+			[
+				-3.0,
+				23.0,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1000.0
+			],
+			"type" : "",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere000",
+			"position" : 
+			[
+				-9.0,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				1.0,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere010",
+			"position" : 
+			[
+				-9.0,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.94117647409439087,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere100",
+			"position" : 
+			[
+				-7.9000000953674316,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.94117647409439087,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere110",
+			"position" : 
+			[
+				-7.9000000953674316,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.88235294818878174,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere200",
+			"position" : 
+			[
+				-6.8000001907348633,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.88235294818878174,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere210",
+			"position" : 
+			[
+				-6.8000001907348633,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.82352942228317261,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere300",
+			"position" : 
+			[
+				-5.6999998092651367,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.82352942228317261,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere310",
+			"position" : 
+			[
+				-5.6999998092651367,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.76470589637756348,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere400",
+			"position" : 
+			[
+				-4.5999999046325684,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.76470589637756348,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere410",
+			"position" : 
+			[
+				-4.5999999046325684,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.70588231086730957,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere500",
+			"position" : 
+			[
+				-3.5,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.70588231086730957,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere510",
+			"position" : 
+			[
+				-3.5,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.64705884456634521,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere600",
+			"position" : 
+			[
+				-2.3999996185302734,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.64705884456634521,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere610",
+			"position" : 
+			[
+				-2.3999996185302734,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.58823525905609131,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere700",
+			"position" : 
+			[
+				-1.2999997138977051,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.58823525905609131,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere710",
+			"position" : 
+			[
+				-1.2999997138977051,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.52941179275512695,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere800",
+			"position" : 
+			[
+				-0.19999980926513672,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.52941179275512695,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere810",
+			"position" : 
+			[
+				-0.19999980926513672,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.47058820724487305,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere900",
+			"position" : 
+			[
+				0.90000057220458984,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.47058820724487305,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere910",
+			"position" : 
+			[
+				0.90000057220458984,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.41176468133926392,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1000",
+			"position" : 
+			[
+				2.0,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.41176468133926392,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1010",
+			"position" : 
+			[
+				2.0,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.35294115543365479,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1100",
+			"position" : 
+			[
+				3.1000003814697266,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.35294115543365479,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1110",
+			"position" : 
+			[
+				3.1000003814697266,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.29411762952804565,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1200",
+			"position" : 
+			[
+				4.2000007629394531,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.29411762952804565,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1210",
+			"position" : 
+			[
+				4.2000007629394531,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.23529410362243652,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1300",
+			"position" : 
+			[
+				5.3000001907348633,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.23529410362243652,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1310",
+			"position" : 
+			[
+				5.3000001907348633,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.17647057771682739,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1400",
+			"position" : 
+			[
+				6.4000005722045898,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.17647057771682739,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1410",
+			"position" : 
+			[
+				6.4000005722045898,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.11764705181121826,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1500",
+			"position" : 
+			[
+				7.5,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.11764705181121826,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1510",
+			"position" : 
+			[
+				7.5,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.058823525905609131,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1600",
+			"position" : 
+			[
+				8.6000003814697266,
+				31.1094970703125,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.75,
+			"collisionObjectInfo" : 
+			{
+				"radius" : 0.5
+			},
+			"collisionShapeType" : 3,
+			"color" : 
+			[
+				0.058823525905609131,
+				0.5,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 1.0,
+			"meshName" : "sphere",
+			"name" : "sphere1610",
+			"position" : 
+			[
+				8.6000003814697266,
+				33.109493255615234,
+				-0.5
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10.0
+			],
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				-13.021347999572754,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
 		}
 	],
-	"gameObjects": [
+	"lights" : 
+	[
 		{
-			"name": "plinko1",
-			"meshName": "plinko",
-			"position": [ 0.0, 20.0, -1.0 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"scale": 0.40,
-			"color": [ 0.5, 0.5, 0.5, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 100.0 ],
-			"wireFrame": false,
-			"visible": true,
-			"velocity": [ 0.0, 0.0, 0.0 ],
-			"acceleration": [ 0.0, 0.0, 0.0 ],
-			"inverseMass": 0.0,
-			"bounciness": 0.0,
-			"collisionShapeType": 6,
-			"collisionObjectInfo": {
-				"mesh": "plinko"
-			}
+			"atten" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"diffuse" : 
+			[
+				0.75,
+				0.75,
+				0.64999997615814209,
+				1.0
+			],
+			"direction" : 
+			[
+				-1.0,
+				-1.0,
+				0.0,
+				1.0
+			],
+			"param1" : 
+			[
+				2.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"param2" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"specular" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			]
 		},
 		{
-			"name": "plinkocover1",
-			"meshName": "plinko_cover",
-			"position": [ 0.0, 20.0, 0.7 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"scale": 0.20,
-			"color": [ 1.0, 1.0, 1.0, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 100.0 ],
-			"wireFrame": true,
-			"visible": true,
-			"velocity": [ 0.0, 0.0, 0.0 ],
-			"acceleration": [ 0.0, 0.0, 0.0 ],
-			"inverseMass": 0.0,
-			"bounciness": 0.0,
-			"collisionShapeType": 6,
-			"collisionObjectInfo": {
-				"mesh": "plinko_cover"
-			}
+			"atten" : 
+			[
+				0.0,
+				0.30000001192092896,
+				0.0,
+				10000.0
+			],
+			"diffuse" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"direction" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"param1" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"param2" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position" : 
+			[
+				0.0,
+				35.0,
+				0.0,
+				1.0
+			],
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			]
 		},
 		{
-			"name": "cube1",
-			"meshName": "cube",
-			"position": [ 2.0, 25.0, 0.5 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"scale": 1.0,
-			"color": [ 0.0, 0.0, 1.0, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 1000.0 ],
-			"wireFrame": false,
-			"visible": true,
-			"velocity": [ 0.0, 0.0, 0.0 ],
-			"acceleration": [ 0.0, 0.0, 0.0 ],
-			"inverseMass": 0.0,
-			"bounciness": 0.0,
-			"collisionShapeType": 1,
-			"collisionObjectInfo": {
-				"min": [ -0.5, -0.5, -0.5 ],
-				"max": [ 0.5, 0.5, 0.5 ]
-			}
+			"atten" : 
+			[
+				0.0,
+				0.30000001192092896,
+				0.0,
+				10000.0
+			],
+			"diffuse" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"direction" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"param1" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"param2" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position" : 
+			[
+				0.0,
+				35.0,
+				0.0,
+				1.0
+			],
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			]
 		},
 		{
-			"name": "cube1",
-			"meshName": "cube",
-			"position": [ -3.0, 23.0, -0.5 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"scale": 1.0,
-			"color": [ 0.0, 1.0, 0.0, 1.0 ],
-			"specular": [ 1.0, 1.0, 1.0, 1000.0 ],
-			"wireFrame": false,
-			"visible": true,
-			"velocity": [ 0.0, 0.0, 0.0 ],
-			"acceleration": [ 0.0, 0.0, 0.0 ],
-			"inverseMass": 0.0,
-			"bounciness": 0.0,
-			"collisionShapeType": 1,
-			"collisionObjectInfo": {
-				"min": [ -0.5, -0.5, -0.5 ],
-				"max": [ 0.5, 0.5, 0.5 ]
-			}
+			"atten" : 
+			[
+				0.0,
+				0.30000001192092896,
+				0.0,
+				10000.0
+			],
+			"diffuse" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"direction" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"param1" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"param2" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position" : 
+			[
+				0.0,
+				35.0,
+				0.0,
+				1.0
+			],
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			]
 		}
-	]
+	],
+	"world" : 
+	{
+		"ambience" : 
+		[
+			0.30000001192092896,
+			0.30000001192092896,
+			0.30000001192092896,
+			1.0
+		],
+		"gravity" : 
+		[
+			0.0,
+			-9.8000001907348633,
+			0.0
+		]
+	}
 }

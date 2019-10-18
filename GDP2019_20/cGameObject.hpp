@@ -12,7 +12,9 @@
 
 #include "cMesh.hpp"
 
-enum eCollisionShapeTypes
+#include "iMessageable.hpp"
+
+enum class eCollisionShapeType
 {
 	NONE = 0,
 	AABB,
@@ -24,7 +26,7 @@ enum eCollisionShapeTypes
 	UNKNOWN
 };
 
-class cGameObject
+class cGameObject : public iMessageable
 {
 public:
 
@@ -33,16 +35,23 @@ public:
 	cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes);
 	~cGameObject();
 
-	Json::Value serializeJSONObject();
+	virtual void init();
+	virtual void update(float dt);
+
+	virtual sMessage message(sMessage const& msg);
+
+	// Constructor will call this
+	virtual void instatiateBaseVariables(Json::Value obj, std::map<std::string, cMesh*>& mapMeshes);
+	virtual void instatiateUniqueVariables(Json::Value obj);
+	virtual Json::Value serializeJSONObject();
 
 	// Move an object
 	void translate(glm::vec3 velocity);
 	void rotate(glm::vec3 rotation);
 
-	// Transform the collision mesh by the world matrix
-	void calculateCollisionMeshTransformed();
 
 	std::string name;
+	std::string type;
 	std::string meshName;
 	cMesh* mesh;
 
@@ -59,10 +68,13 @@ public:
 
 	glm::vec3 velocity;
 	glm::vec3 acceleration;
-	float inverseMass; // Set 0 to ignore during update
-	float bounciness; // Set 0 stop when hitting floor, // Set 1 to maintain 100 of velocity magnitude
+	float inverseMass; // Set 0.0f to ignore during physics
+	float bounciness; // Set 0.0f stop when hitting, Set to 1.0f maintain 100% of velocity
 	
-	eCollisionShapeTypes collisionShapeType;
+	// Transform the collision mesh by the world matrix
+	void calculateCollisionMeshTransformed();
+
+	eCollisionShapeType collisionShapeType;
 
 	typedef std::pair<glm::vec3, glm::vec3> AABBminmax;
 	typedef std::pair<cMesh*, cMesh*> MeshPair;
@@ -70,9 +82,9 @@ public:
 	union uCollisionObjectInfo
 	{
 		AABBminmax* minmax; // For AABB
-		float radius; // For sphere or capsule
-		float height; // For capsule
-		glm::vec3 plane; // For plane
+		float radius; // For sphere
+		float height; // TODO: For capsule
+		glm::vec3 plane; // TODO: For plane
 		MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
 	} collisionObjectInfo;
 };

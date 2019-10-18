@@ -148,7 +148,9 @@
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
+    <ClCompile Include="cSineWaveMovingGameObject.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
+    <ClCompile Include="cWorld.cpp" />
     <ClCompile Include="DebugRenderer\cDebugRenderer.cpp" />
     <ClCompile Include="DebugRenderer\cDebugRenderer_BuiltInShapes.cpp" />
     <ClCompile Include="DebugRenderer\CErrorLog.cpp" />
@@ -161,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cGameObject.hpp" />
+    <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
     <ClInclude Include="cModelLoader.hpp" />
@@ -173,7 +176,10 @@
     <ClInclude Include="DebugRenderer\iDebugRenderer.h" />
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="cKeyboardManager.hpp" />
+    <ClInclude Include="iMessageable.hpp" />
     <ClInclude Include="Physics.hpp" />
+    <ClInclude Include="cWorld.hpp" />
+    <ClInclude Include="cSineWaveMovingGameObject.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl" />

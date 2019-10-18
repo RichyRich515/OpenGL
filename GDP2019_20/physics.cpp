@@ -132,11 +132,11 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, glm::vec3 gravity,
 
 			switch (go2->collisionShapeType)
 			{
-				case AABB:
+				case eCollisionShapeType::AABB:
 				{
 					switch (go->collisionShapeType)
 					{
-						case SPHERE:
+						case eCollisionShapeType::SPHERE:
 						{
 							// Find point p on AABB closest to sphere center
 							glm::vec3 p = ClosestPtPointAABB(go->position, go2->collisionObjectInfo.minmax->first + go2->position, go2->collisionObjectInfo.minmax->second + go2->position);
@@ -160,7 +160,7 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, glm::vec3 gravity,
 					} // switch go1 shape
 					break;
 				}
-				case SPHERE:
+				case eCollisionShapeType::SPHERE:
 				{
 					float d = distance(go->position, go2->position);
 					//if (debug_mode)
@@ -184,10 +184,10 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, glm::vec3 gravity,
 					}
 					break; // SPHERE
 				}
-				case MESH:
+				case eCollisionShapeType::MESH:
 					switch (go->collisionShapeType)
 					{
-						case SPHERE:
+						case eCollisionShapeType::SPHERE:
 						{
 							// Sphere x Mesh collision
 							glm::vec3 closestPoint = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -284,10 +284,9 @@ void physicsUpdate(std::vector<cGameObject*>& vecGameObjects, glm::vec3 gravity,
 									mesh->vecVertices[mesh->vecTriangles[closestTriIndex].vert_index_3].nz);
 
 								glm::vec3 faceNorm = CalcNormalOfFace(p1, p2, p3, n1, n2, n3);
-								float mag = length(go->velocity);
 								//go->velocity = mag * faceNorm * go->bounciness;
-								glm::vec3 refl = glm::normalize(glm::reflect(glm::normalize(go->velocity), faceNorm));
-								go->velocity = refl * mag * go->bounciness;
+								glm::vec3 refl = glm::normalize(glm::reflect(go->velocity, faceNorm));
+								go->velocity = refl * length(go->velocity) * go->bounciness;
 								// move outside the tri
 								go->position += faceNorm * (go->collisionObjectInfo.radius - closestDistance);
 								debugRenderer->addLine(closestPoint, closestPoint + faceNorm, glm::vec3(0.0, 1.0f, 1.0f), 1.0f);

@@ -4,6 +4,7 @@ cGameObject::cGameObject()
 {
 	this->name = "";
 	this->meshName = "";
+	this->type = "basic";
 	this->mesh = NULL;
 	this->position = glm::vec3(0);
 	this->rotation = glm::vec3(0);
@@ -21,6 +22,7 @@ cGameObject::cGameObject(std::string name)
 {
 	this->name = name;
 	this->meshName = "";
+	this->type = "basic";
 	this->mesh = NULL;
 	this->position = glm::vec3(0);
 	this->rotation = glm::vec3(0);
@@ -36,7 +38,26 @@ cGameObject::cGameObject(std::string name)
 
 cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes)
 {
+	this->instatiateBaseVariables(obj, mapMeshes);
+}
+
+cGameObject::~cGameObject()
+{
+	// Clean up
+	if (collisionShapeType == eCollisionShapeType::AABB)
+		delete collisionObjectInfo.minmax;
+	else if (collisionShapeType == eCollisionShapeType::MESH)
+	{
+		delete this->collisionObjectInfo.meshes->second; // Main mesh is cleaned by mesh manager
+		delete this->collisionObjectInfo.meshes;
+	}
+	// TODO: Capsule
+}
+
+void cGameObject::instatiateBaseVariables(Json::Value obj, std::map<std::string, cMesh*>& mapMeshes)
+{
 	this->name = obj["name"].asString();
+	this->type = obj["type"].asString();
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
 	// Load vec3s
@@ -58,11 +79,11 @@ cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMes
 	this->visible = obj["visible"].asBool();
 	this->inverseMass = obj["inverseMass"].asFloat();
 	this->bounciness = obj["bounciness"].asFloat();
-	this->collisionShapeType = (eCollisionShapeTypes)obj["collisionShapeType"].asInt();
+	this->collisionShapeType = (eCollisionShapeType)obj["collisionShapeType"].asInt();
 	Json::Value collisionObjectInfo = obj["collisionObjectInfo"];
 	switch (this->collisionShapeType)
 	{
-	case AABB:
+	case eCollisionShapeType::AABB:
 	{
 		this->collisionObjectInfo.minmax = new cGameObject::AABBminmax();
 		// load vec3s
@@ -73,16 +94,16 @@ cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMes
 		}
 		break;
 	}
-	case OBB:
+	case eCollisionShapeType::OBB:
 		break;
-	case SPHERE:
+	case eCollisionShapeType::SPHERE:
 		this->collisionObjectInfo.radius = collisionObjectInfo["radius"].asFloat();
 		break;
-	case CAPSULE:
+	case eCollisionShapeType::CAPSULE:
 		break;
-	case PLANE:
+	case eCollisionShapeType::PLANE:
 		break;
-	case MESH:
+	case eCollisionShapeType::MESH:
 	{
 		this->collisionObjectInfo.meshes = new MeshPair();
 		this->collisionObjectInfo.meshes->first = mapMeshes[collisionObjectInfo["mesh"].asString()];
@@ -96,23 +117,16 @@ cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMes
 	}
 }
 
-cGameObject::~cGameObject()
+void cGameObject::instatiateUniqueVariables(Json::Value obj)
 {
-	// Clean up
-	if (collisionShapeType == AABB)
-		delete collisionObjectInfo.minmax;
-	else if (collisionShapeType == MESH)
-	{
-		delete this->collisionObjectInfo.meshes->second; // Main mesh is cleaned by mesh manager
-		delete this->collisionObjectInfo.meshes;
-	}
-	// TODO: Capsule
+	// None for base game object
 }
 
 Json::Value cGameObject::serializeJSONObject()
 {
 	Json::Value obj = Json::objectValue;
 	obj["name"] = this->name;
+	obj["type"] = this->type;
 	obj["meshName"] = this->meshName;
 	// write vec3s
 	for (unsigned j = 0; j < 3; ++j)
@@ -137,7 +151,7 @@ Json::Value cGameObject::serializeJSONObject()
 	Json::Value collisionObjectInfo = Json::objectValue;
 	switch (this->collisionShapeType)
 	{
-	case AABB:
+	case eCollisionShapeType::AABB:
 	{
 		// write vec3s
 		for (unsigned j = 0; j < 3; ++j)
@@ -147,16 +161,16 @@ Json::Value cGameObject::serializeJSONObject()
 		}
 		break;
 	}
-	case OBB:
+	case eCollisionShapeType::OBB:
 		break;
-	case SPHERE:
+	case eCollisionShapeType::SPHERE:
 		collisionObjectInfo["radius"] = this->collisionObjectInfo.radius;
 		break;
-	case CAPSULE:
+	case eCollisionShapeType::CAPSULE:
 		break;
-	case PLANE:
+	case eCollisionShapeType::PLANE:
 		break;
-	case MESH:
+	case eCollisionShapeType::MESH:
 		collisionObjectInfo["mesh"] = this->meshName; // TODO: copy collision mesh name instead
 		break;
 	default:
@@ -197,4 +211,20 @@ void cGameObject::translate(glm::vec3 velocity)
 void cGameObject::rotate(glm::vec3 rotation)
 {
 	this->rotation += rotation;
+}
+
+void cGameObject::init()
+{
+
+}
+
+void cGameObject::update(float dt)
+{
+
+}
+
+sMessage cGameObject::message(sMessage const& msg)
+{
+
+	return sMessage();
 }

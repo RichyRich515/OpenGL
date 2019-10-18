@@ -31,10 +31,10 @@
 #include "Physics.hpp"
 #include "cKeyboardManager.hpp"
 
+// TODO: delete this
+#include "cSineWaveMovingGameObject.hpp"
+
 #include "DebugRenderer/cDebugRenderer.h"
-
-cDebugRenderer* debugRenderer;
-
 
 static void error_callback(int error, const char* description)
 {
@@ -56,7 +56,7 @@ float CAMERA_SPEED = 3.0f;
 
 float cameraSensitivity = 0.1f;
 
-// TODO: THis outta global space
+// TODO: Get this outta global space
 GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
@@ -74,6 +74,7 @@ std::vector<cLight*> vecLights;
 int selectedLight = 0;
 
 glm::vec3 gravity;
+glm::vec4 ambience;
 
 // write current scene to a file
 void writeSceneToFile(std::string filename)
@@ -86,8 +87,6 @@ void writeSceneToFile(std::string filename)
 	root["gameObjects"] = Json::arrayValue;
 	root["lights"] = Json::arrayValue;
 
-	// TODO: ambience and gravity properly
-	glm::vec4 ambience = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
 	for (unsigned i = 0; i < 3; ++i) // vec 3s
 	{
 		root["camera"]["cameraEye"][i] = cameraEye[i];
@@ -140,10 +139,12 @@ void openSceneFromFile(std::string filename)
 	pitch = camera["pitch"].asFloat();
 	yaw = camera["yaw"].asFloat();
 
-	// TODO: move this somewhere else???
-	// Ambient Light (Imagine all the sunlight bounced around and evenly lit everything)
-	Json::Value ambience = world["ambience"];
-	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0].asFloat(), ambience[1].asFloat(), ambience[2].asFloat(), ambience[3].asFloat());
+	Json::Value ambienceobj = world["ambience"];
+	for (unsigned i = 0; i < 4; ++i) // vec 4s
+	{
+		ambience[i] = ambienceobj[i].asFloat();
+	}
+	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
 
 	for (auto g : vecGameObjects)
@@ -151,7 +152,12 @@ void openSceneFromFile(std::string filename)
 	vecGameObjects.clear();
 
 	for (auto l : vecLights)
+	{
+		l->param2.x = 0;
+		l->updateShaderUniforms();
 		delete l;
+	}
+		
 	vecLights.clear();
 
 	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
@@ -159,6 +165,7 @@ void openSceneFromFile(std::string filename)
 		cLight* l = new cLight(i, lights[i], program);
 		vecLights.push_back(l);
 	}
+
 
 	for (unsigned i = 0; i < gameObjects.size(); ++i)
 	{
@@ -169,7 +176,6 @@ void openSceneFromFile(std::string filename)
 	std::cout << "Opened scene " << filename << std::endl;
 }
 
-// TODO: keyboard manager
 bool ctrl_pressed = false, shift_pressed = false;
 
 bool debug_mode = false;
@@ -196,49 +202,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			ctrl_pressed = true;
 		else if (action == GLFW_RELEASE)
 			ctrl_pressed = false;
-	}
-
-	if (key == GLFW_KEY_PERIOD && action == GLFW_PRESS)
-	{
-		if (shift_pressed)
-		{
-			++selectedLight;
-			if (selectedLight >= vecLights.size())
-				selectedLight = 0;
-		}
-		else
-		{
-			++selectedObject;
-			if (selectedObject >= vecGameObjects.size())
-				selectedObject = 0;
-		}
-	}
-	else if (key == GLFW_KEY_COMMA && action == GLFW_PRESS)
-	{
-		if (shift_pressed)
-		{
-			--selectedLight;
-			if (selectedLight < 0)
-				selectedLight = (int)vecLights.size() - 1;
-		}
-		else
-		{
-			--selectedObject;
-			if (selectedObject < 0)
-				selectedObject = (int)vecGameObjects.size() - 1;
-		}
-	}
-
-	else if (key == GLFW_KEY_V && action == GLFW_PRESS)
-	{
-		if (shift_pressed)
-		{
-			vecLights[selectedLight]->param2.x = !vecLights[selectedLight]->param2.x;
-		}
-		else
-		{
-			vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
-		}
 	}
 }
 
@@ -267,17 +230,18 @@ int main()
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
 
+	
 	cModelLoader* pModelLoader = new cModelLoader();
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
 	pKeyboardManager = new cKeyboardManager();
 
-	debugRenderer = new cDebugRenderer();
-	debugRenderer->initialize();
+	cDebugRenderer* pDebugRenderer = new cDebugRenderer();
+	pDebugRenderer->initialize();
 
 	// TODO: Constant strings
 	//		 Make a class for this??
-	// Read scene file
+	// load all models
 	std::ifstream modelsjson("models.json");
 	Json::Value models;
 	modelsjson >> models;
@@ -326,44 +290,19 @@ int main()
 		}
 	}
 
-	openSceneFromFile("scene1.json");
-
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
 	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
 
-	// TODO: delete this temp sphere creation stuff
-	unsigned sx = 17;
-	unsigned sz = 1;
-	unsigned sy = 2;
-	for (unsigned x = 0; x < sx; ++x)
-	{
-		for (unsigned y = 0; y < sy; ++y)
-		{
-			for (unsigned z = 0; z < sz; ++z)
-			{
-				std::ostringstream name;
-				name << "sphere" << x << z;
-				cGameObject* sphere = new cGameObject(name.str());
-				sphere->meshName = "sphere";
-				sphere->mesh = mapMeshes["sphere"];
-				sphere->position = glm::vec3((x * 1.1f) - 9.0f, 40.0f + (y * 2), z - (sz / 2.0f));
-				sphere->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-				sphere->scale = 1.0f;
-				sphere->color = glm::vec4(1.0f - (x / (float)sx), 1.0f - (y / (float)sy), 1.0f - (z / (float)sz), 1.0f);
-				sphere->specular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
-				sphere->acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
-				sphere->inverseMass = 1.0f;
-				sphere->bounciness = 0.6f;
+	openSceneFromFile("scene1.json");
 
-				sphere->collisionShapeType = SPHERE;
-				sphere->collisionObjectInfo.radius = 0.5f;
-
-				vecGameObjects.push_back(sphere);
-			}
-		}
-	}
+	cGameObject* sinwaveobj = new cSineWaveMovingGameObject("sinwaveobj");
+	sinwaveobj->position = glm::vec3(0.0f, 25.0f, 3.0f);
+	sinwaveobj->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	sinwaveobj->mesh = mapMeshes["cube"];
+	sinwaveobj->meshName = "cube";
+	vecGameObjects.push_back(sinwaveobj);
 
 	float ratio;
 	int width, height;
@@ -377,7 +316,7 @@ int main()
 
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
-	//glEnable(GL_BLEND);			// Transparency
+	//glEnable(GL_BLEND);		// Transparency
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Transparency
 
 	// timing
@@ -390,7 +329,6 @@ int main()
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
-
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -426,16 +364,87 @@ int main()
 			debug_mode = !debug_mode;
 		}
 
-		if (shift_pressed && pKeyboardManager->keyPressed(GLFW_KEY_O))
+		if (ctrl_pressed)
 		{
-			// Open scene
-			openSceneFromFile("scene2.json");
+			if (pKeyboardManager->keyPressed(GLFW_KEY_1))
+			{
+				openSceneFromFile("scene1.json");
+			}
+			else if (pKeyboardManager->keyPressed(GLFW_KEY_2))
+			{
+				openSceneFromFile("scene2.json");
+			}
+			else if (pKeyboardManager->keyPressed(GLFW_KEY_3))
+			{
+				openSceneFromFile("scene3.json");
+			}
 		}
-		else if (shift_pressed && pKeyboardManager->keyPressed(GLFW_KEY_P))
+		if (shift_pressed)
 		{
-			// Print scene (to file)
-			writeSceneToFile("scene2.json");
+			if (pKeyboardManager->keyPressed(GLFW_KEY_1))
+			{
+				writeSceneToFile("scene1.json");
+			}
+			else if (pKeyboardManager->keyPressed(GLFW_KEY_2))
+			{
+				writeSceneToFile("scene2.json");
+			}
+			else if (pKeyboardManager->keyPressed(GLFW_KEY_3))
+			{
+				writeSceneToFile("scene3.json");
+			}
 		}
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_V))
+		{
+			if (shift_pressed)
+			{
+				if (vecLights.size())
+					vecLights[selectedLight]->param2.x = !vecLights[selectedLight]->param2.x;
+			}
+			else
+			{
+				if (vecGameObjects.size())
+					vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
+			}
+		}
+		if (pKeyboardManager->keyPressed(GLFW_KEY_B))
+		{
+			if (vecGameObjects.size())
+				vecGameObjects[selectedObject]->wireFrame = !vecGameObjects[selectedObject]->wireFrame;
+		}
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
+		{
+			if (shift_pressed)
+			{
+				++selectedLight;
+				if (selectedLight >= vecLights.size())
+					selectedLight = 0;
+			}
+			else
+			{
+				++selectedObject;
+				if (selectedObject >= vecGameObjects.size())
+					selectedObject = 0;
+			}
+		}
+		else if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
+		{
+			if (shift_pressed)
+			{
+				--selectedLight;
+				if (selectedLight < 0)
+					selectedLight = (int)vecLights.size() - 1;
+			}
+			else
+			{
+				--selectedObject;
+				if (selectedObject < 0)
+					selectedObject = (int)vecGameObjects.size() - 1;
+			}
+		}
+
 
 		int xMove = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
 		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
@@ -449,13 +458,36 @@ int main()
 
 		if (ctrl_pressed)
 		{
-			glm::vec3 velocity = dt * CAMERA_SPEED * glm::vec3(xMove, yMove, zMove);
-			glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
-			vecGameObjects[selectedObject]->translate(velocity);
-			vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
-			vecGameObjects[selectedObject]->rotate(rotation);
+			if (vecGameObjects.size())
+			{
+				glm::vec3 velocity = dt * CAMERA_SPEED * glm::vec3(xMove, yMove, zMove);
+				glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
+				vecGameObjects[selectedObject]->translate(velocity);
+				vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
+				vecGameObjects[selectedObject]->rotate(rotation);
+			}
 		}
-		else if (!shift_pressed)
+		else if (shift_pressed)
+		{
+			if (vecLights.size())
+			{
+				float speed = 3.0f;
+				// Move light if shift pressed
+				vecLights[selectedLight]->position.x += xMove * speed * dt;
+				vecLights[selectedLight]->position.y += yMove * speed * dt;
+				vecLights[selectedLight]->position.z += zMove * speed * dt;
+				vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
+
+				vecLights[selectedLight]->updateShaderUniforms();
+
+				debugSphere->position = vecLights[selectedLight]->position;
+				debugSphere->scale = 0.1f / vecLights[selectedLight]->atten.y;
+				debugSphere->color = vecLights[selectedLight]->diffuse;
+				// Draw light sphere if shift pressed
+				drawObject(debugSphere, program, pVAOManager);
+			}
+		}
+		else
 		{
 			float cameraSpeed = CAMERA_SPEED;
 
@@ -471,39 +503,24 @@ int main()
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
 		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
 
-		if (shift_pressed)
-		{
-			glm::mat4 m = glm::mat4(1.0f);
-			float speed = 3.0f;
-			// Move light if shift pressed
-			vecLights[selectedLight]->position.x += xMove * speed * dt;
-			vecLights[selectedLight]->position.y += yMove * speed * dt;
-			vecLights[selectedLight]->position.z += zMove * speed * dt;
-			vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
-
-
-			vecLights[selectedLight]->updateShaderUniforms();
-
-			debugSphere->position = vecLights[selectedLight]->position;
-			debugSphere->scale = 0.1f / vecLights[selectedLight]->atten.y;
-			debugSphere->color = vecLights[selectedLight]->diffuse;
-			// Draw light sphere if shift pressed
-			drawObject(debugSphere, program, pVAOManager);
-		}
-
 		// collisions and stuff
-		physicsUpdate(vecGameObjects, gravity, dt, debugRenderer, debug_mode);
+		physicsUpdate(vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
 
-		std::ostringstream windowTitle;
-		windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
-			<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
-			<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\" "
-			<< "Light: [" << selectedLight << "]";
-		glfwSetWindowTitle(window, windowTitle.str().c_str());
+		if (vecGameObjects.size() && vecLights.size())
+		{
+			std::ostringstream windowTitle;
+			windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
+				<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
+				<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\" "
+				<< "Light: [" << selectedLight << "]";
+			glfwSetWindowTitle(window, windowTitle.str().c_str());
+		}
+		
 
-		//debugRenderer->addLine(glm::vec3(-10, 25, 0), glm::vec3(10, 32, 0), glm::vec3(0, 1, 0));
 		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
 		{
+			vecGameObjects[i]->update(dt);
+
 			if (!vecGameObjects[i]->visible)
 				continue;
 
@@ -512,15 +529,15 @@ int main()
 
 		if (debug_mode)
 		{
-			debugRenderer->RenderDebugObjects(v, p, dt);
+			pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.
 	}
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
 
 	// Delete everything
 	for (auto g : vecGameObjects)
@@ -536,8 +553,10 @@ int main()
 	delete pModelLoader;
 	delete pVAOManager;
 	delete pKeyboardManager;
-	delete debugRenderer;
-
+	delete pDebugRenderer;
+	
+	delete debugSphere;
+	delete sinwaveobj;
 	exit(EXIT_SUCCESS);
 }
 
@@ -558,7 +577,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager)
 	go->matWorld *= rotationZ;
 	go->matWorld *= scale;
 	go->inverseTransposeMatWorld = glm::inverse(glm::transpose(go->matWorld));
-	if (go->collisionShapeType == MESH)
+	if (go->collisionShapeType == eCollisionShapeType::MESH)
 		go->calculateCollisionMeshTransformed();
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
