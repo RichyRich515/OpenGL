@@ -13,17 +13,17 @@ class cSineWaveMovingGameObject : public cGameObject
 public:
 	cSineWaveMovingGameObject();
 	cSineWaveMovingGameObject(std::string name);
-	cSineWaveMovingGameObject(Json::Value obj, std::map<std::string, cMesh*>& mapMeshes);
+	cSineWaveMovingGameObject(Json::Value& obj, std::map<std::string, cMesh*> & mapMeshes);
 
 	virtual void init();
 	virtual void update(float dt);
 
 	virtual sMessage message(sMessage const& msg);
 
-	// Constructor will call this
-	virtual void instatiateUniqueVariables(Json::Value obj);
+	virtual void instatiateUniqueVariables(Json::Value& obj);
+	virtual void serializeUniqueVariables(Json::Value & obj);
 private:
 	float counter;
 	glm::vec3 startingPos;
-	bool moving = false;
+	bool moving;
 };

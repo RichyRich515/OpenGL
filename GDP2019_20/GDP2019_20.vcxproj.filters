@@ -37,14 +37,29 @@
     <Filter Include="Messageable">
       <UniqueIdentifier>{3fc45f69-4627-4ab8-a84c-90411b0141a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NewFilter1">
-      <UniqueIdentifier>{866ab2da-cfe0-464b-8ec9-15b848888772}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameObjectFactory">
       <UniqueIdentifier>{d4d8f2ee-c1eb-45aa-87d8-12493619d252}</UniqueIdentifier>
     </Filter>
     <Filter Include="CustomObjects">
       <UniqueIdentifier>{dc176671-d0b7-4d6e-bce0-9b7f402a3428}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SpaceGame">
+      <UniqueIdentifier>{a9cbdd6b-4142-4a7d-a482-0c18392d1764}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SpaceGame\Ships">
+      <UniqueIdentifier>{b936a4ad-1bc7-4c75-82a8-b1a62057236a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SpaceGame\Engines">
+      <UniqueIdentifier>{f4b9a361-fbd9-4e97-9af8-c3f3e6444152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SpaceGame\Weapons">
+      <UniqueIdentifier>{69452657-6c61-4f5f-9522-86587da47422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Scenes">
+      <UniqueIdentifier>{f710265c-cd38-4e3b-9e5d-4ba824ec31d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{a4da7a4e-8d3e-4517-b864-ad0380652284}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +117,33 @@
     <ClCompile Include="cSineWaveMovingGameObject.cpp">
       <Filter>CustomObjects</Filter>
     </ClCompile>
+    <ClCompile Include="cGameObjectFactory.cpp">
+      <Filter>GameObjectFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="cBasicShip.cpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClCompile>
+    <ClCompile Include="cBasicEngine.cpp">
+      <Filter>SpaceGame\Engines</Filter>
+    </ClCompile>
+    <ClCompile Include="cBasicWeapon.cpp">
+      <Filter>SpaceGame\Weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="cSpaceGameFactory.cpp">
+      <Filter>SpaceGame</Filter>
+    </ClCompile>
+    <ClCompile Include="cPlanet.cpp">
+      <Filter>SpaceGame</Filter>
+    </ClCompile>
+    <ClCompile Include="cFactoryManager.cpp">
+      <Filter>GameObjectFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="cPlinokBallGameObject.cpp">
+      <Filter>CustomObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="cShipBuilder.cpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -158,22 +200,61 @@
     <ClInclude Include="cSineWaveMovingGameObject.hpp">
       <Filter>CustomObjects</Filter>
     </ClInclude>
+    <ClInclude Include="cGameObjectFactory.hpp">
+      <Filter>GameObjectFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="iShip.hpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="cBasicShip.hpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="iEngine.hpp">
+      <Filter>SpaceGame\Engines</Filter>
+    </ClInclude>
+    <ClInclude Include="iWeapon.hpp">
+      <Filter>SpaceGame\Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="cBasicEngine.hpp">
+      <Filter>SpaceGame\Engines</Filter>
+    </ClInclude>
+    <ClInclude Include="cBasicWeapon.hpp">
+      <Filter>SpaceGame\Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="cShipBuilder.hpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="cFactoryManager.hpp">
+      <Filter>GameObjectFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="cPlanet.hpp">
+      <Filter>SpaceGame</Filter>
+    </ClInclude>
+    <ClInclude Include="cSpaceGameFactory.hpp">
+      <Filter>SpaceGame</Filter>
+    </ClInclude>
+    <ClInclude Include="cPlinkoBallGameObject.hpp">
+      <Filter>CustomObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\shaders\vertexShader01.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\fragmentShader01.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="scene1.json">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="models.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="scene1.json">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
     <None Include="scene2.json">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="scene3.json">
+      <Filter>Resource Files\Scenes</Filter>
+    </None>
+    <None Include="assets\shaders\fragmentShader01.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\vertexShader01.glsl">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

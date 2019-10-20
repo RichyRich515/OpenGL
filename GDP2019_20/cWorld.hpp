@@ -4,6 +4,7 @@
 
 #include "iMessageable.hpp"
 #include "cGameObject.hpp"
+#include "cLight.hpp"
 
 // Singleton world object
 class cWorld : iMessageable
@@ -12,12 +13,14 @@ public:
 	virtual sMessage message(sMessage const& msg);
 
 	void addGameObject(cGameObject* go);
+	void addLight(cLight* light);
 
 	static cWorld* getWorld();
-private:
-	cWorld();
 
 	std::vector<cGameObject*> vecGameObjects;
+	std::vector<cLight*> vecLights;
+private:
+	cWorld();
 
 	static cWorld _world;
 };

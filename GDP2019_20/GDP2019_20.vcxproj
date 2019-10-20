@@ -142,13 +142,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cBasicEngine.cpp" />
+    <ClCompile Include="cBasicShip.cpp" />
+    <ClCompile Include="cBasicWeapon.cpp" />
+    <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cGameObject.cpp" />
+    <ClCompile Include="cGameObjectFactory.cpp" />
     <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
+    <ClCompile Include="cPlanet.cpp" />
+    <ClCompile Include="cPlinokBallGameObject.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
+    <ClCompile Include="cShipBuilder.cpp" />
     <ClCompile Include="cSineWaveMovingGameObject.cpp" />
+    <ClCompile Include="cSpaceGameFactory.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="cWorld.cpp" />
     <ClCompile Include="DebugRenderer\cDebugRenderer.cpp" />
@@ -162,7 +171,17 @@
     <ClCompile Include="src\json\jsoncpp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cBasicEngine.hpp" />
+    <ClInclude Include="cBasicShip.hpp" />
+    <ClInclude Include="cBasicWeapon.hpp" />
+    <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
+    <ClInclude Include="cGameObjectFactory.hpp" />
+    <ClInclude Include="cPlanet.hpp" />
+    <ClInclude Include="cPlinkoBallGameObject.hpp" />
+    <ClInclude Include="cShipBuilder.hpp" />
+    <ClInclude Include="cSpaceGameFactory.hpp" />
+    <ClInclude Include="iEngine.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
@@ -177,6 +196,8 @@
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="cKeyboardManager.hpp" />
     <ClInclude Include="iMessageable.hpp" />
+    <ClInclude Include="iShip.hpp" />
+    <ClInclude Include="iWeapon.hpp" />
     <ClInclude Include="Physics.hpp" />
     <ClInclude Include="cWorld.hpp" />
     <ClInclude Include="cSineWaveMovingGameObject.hpp" />
@@ -187,6 +208,7 @@
     <None Include="models.json" />
     <None Include="scene1.json" />
     <None Include="scene2.json" />
+    <None Include="scene3.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

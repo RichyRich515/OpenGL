@@ -1,5 +1,6 @@
 // Main.cpp
 // Entrypoint for program
+// Richard Woods
 // 2019-09-04
 
 #include "GLCommon.h"
@@ -31,10 +32,12 @@
 #include "Physics.hpp"
 #include "cKeyboardManager.hpp"
 
-// TODO: delete this
-#include "cSineWaveMovingGameObject.hpp"
+#include "iGameObjectFactory.hpp"
+#include "cFactoryManager.hpp"
 
 #include "DebugRenderer/cDebugRenderer.h"
+
+#include "cWorld.hpp"
 
 static void error_callback(int error, const char* description)
 {
@@ -61,17 +64,18 @@ GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
 
-// List of all game objects in scene
-std::vector<cGameObject*> vecGameObjects;
-int selectedObject = 0;
 
+// factory for any game object
+iGameObjectFactory* pGameObjectFactory;
+
+
+int selectedObject = 0;
+int selectedLight = 0;
 
 // Max lights from the shader
 constexpr unsigned MAX_LIGHTS = 10;
 
-// List of all lights in scene
-std::vector<cLight*> vecLights;
-int selectedLight = 0;
+cWorld* world = nullptr;
 
 glm::vec3 gravity;
 glm::vec4 ambience;
@@ -99,13 +103,15 @@ void writeSceneToFile(std::string filename)
 		root["world"]["ambience"][i] = ambience[i];
 	}
 
+	root["world"]["factoryType"] = pGameObjectFactory->getTypeString();
+
 	root["camera"]["pitch"] = pitch;
 	root["camera"]["yaw"] = yaw;
 
-	for (auto g : vecGameObjects)
+	for (auto g : world->vecGameObjects)
 		root["gameObjects"].append(g->serializeJSONObject());
 
-	for (auto l : vecLights)
+	for (auto l : world->vecLights)
 		root["lights"].append(l->serializeJSONObject());
 
 	ofs << root;
@@ -122,7 +128,7 @@ void openSceneFromFile(std::string filename)
 	scenejson >> root;
 	scenejson.close();
 
-	Json::Value world = root["world"];
+	Json::Value world_node = root["world"];
 	Json::Value camera = root["camera"];
 	Json::Value lights = root["lights"];
 	Json::Value gameObjects = root["gameObjects"];
@@ -132,46 +138,60 @@ void openSceneFromFile(std::string filename)
 		cameraEye[i] = camera["cameraEye"][i].asFloat();
 		cameraUp[i] = camera["cameraUp"][i].asFloat();
 		cameraFront[i] = camera["cameraFront"][i].asFloat();
-		gravity[i] = world["gravity"][i].asFloat();
+		gravity[i] = world_node["gravity"][i].asFloat();
 	}
 	cameraDirection = glm::normalize(cameraEye - cameraFront);
 	cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 	pitch = camera["pitch"].asFloat();
 	yaw = camera["yaw"].asFloat();
 
-	Json::Value ambienceobj = world["ambience"];
+	Json::Value ambienceobj = world_node["ambience"];
 	for (unsigned i = 0; i < 4; ++i) // vec 4s
 	{
 		ambience[i] = ambienceobj[i].asFloat();
 	}
 	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
-
-	for (auto g : vecGameObjects)
-		delete g;
-	vecGameObjects.clear();
-
-	for (auto l : vecLights)
+	if (pGameObjectFactory)
+		delete pGameObjectFactory;
+	pGameObjectFactory = cFactoryManager::getObjectFactory(world_node["factoryType"].asString());
+	if (!pGameObjectFactory)
 	{
+		std::cout << "Invalid factory [" << world_node["factoryType"].asString() << "]\nexiting" << std::endl;
+		exit(EXIT_FAILURE);
+		// TODO: cleanup??
+	}
+
+	for (auto g : world->vecGameObjects)
+		delete g;
+	world->vecGameObjects.clear();
+
+	for (auto l : world->vecLights)
+	{
+		// reset lights in shader so they don't stick around
 		l->param2.x = 0;
 		l->updateShaderUniforms();
 		delete l;
 	}
 		
-	vecLights.clear();
+	world->vecLights.clear();
 
 	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
 	{
 		cLight* l = new cLight(i, lights[i], program);
-		vecLights.push_back(l);
+		world->vecLights.push_back(l);
 	}
 
 
 	for (unsigned i = 0; i < gameObjects.size(); ++i)
 	{
-		cGameObject* go = new cGameObject(gameObjects[i], mapMeshes);
-		vecGameObjects.push_back(go);
+		cGameObject* go = pGameObjectFactory->createFromJSON(gameObjects[i], mapMeshes);
+		world->vecGameObjects.push_back(go);
 	}
+
+
+	for (auto go : world->vecGameObjects)
+		go->init();
 
 	std::cout << "Opened scene " << filename << std::endl;
 }
@@ -235,7 +255,8 @@ int main()
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
 	pKeyboardManager = new cKeyboardManager();
-
+	world = cWorld::getWorld();
+	
 	cDebugRenderer* pDebugRenderer = new cDebugRenderer();
 	pDebugRenderer->initialize();
 
@@ -295,14 +316,7 @@ int main()
 	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
 
-	openSceneFromFile("scene1.json");
-
-	cGameObject* sinwaveobj = new cSineWaveMovingGameObject("sinwaveobj");
-	sinwaveobj->position = glm::vec3(0.0f, 25.0f, 3.0f);
-	sinwaveobj->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	sinwaveobj->mesh = mapMeshes["cube"];
-	sinwaveobj->meshName = "cube";
-	vecGameObjects.push_back(sinwaveobj);
+	openSceneFromFile("scene3.json");
 
 	float ratio;
 	int width, height;
@@ -324,17 +338,18 @@ int main()
 	float lastTime = 0;
 	float dt;
 
-	double cursorX = 0, cursorY = 0, lastcursorX = 0, lastcursorY = 0;
+	double cursorX = 0, cursorY = 0;
+	float lastcursorX = 0, lastcursorY = 0;
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
-	lastcursorX = cursorX;
-	lastcursorY = cursorY;
-
+	lastcursorX = (float)cursorX;
+	lastcursorY = (float)cursorY;
+	
 	while (!glfwWindowShouldClose(window))
 	{
-		totalTime = glfwGetTime();
-		dt = glfwGetTime() - lastTime;
-		lastTime = glfwGetTime();
+		totalTime = (float)glfwGetTime();
+		dt = totalTime - lastTime;
+		lastTime = totalTime;
 
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -342,10 +357,10 @@ int main()
 		// Camera Movement
 		glfwGetCursorPos(window, &cursorX, &cursorY);
 
-		yaw += (cursorX - lastcursorX) * cameraSensitivity;
-		pitch += (lastcursorY - cursorY) * cameraSensitivity;
-		lastcursorX = cursorX;
-		lastcursorY = cursorY;
+		yaw += ((float)cursorX - lastcursorX) * cameraSensitivity;
+		pitch += (lastcursorY - (float)cursorY) * cameraSensitivity;
+		lastcursorX = (float)cursorX;
+		lastcursorY = (float)cursorY;
 
 		// Lock pitch
 		if (pitch > 89.9f)
@@ -399,19 +414,19 @@ int main()
 		{
 			if (shift_pressed)
 			{
-				if (vecLights.size())
-					vecLights[selectedLight]->param2.x = !vecLights[selectedLight]->param2.x;
+				if (world->vecLights.size())
+					world->vecLights[selectedLight]->param2.x = !world->vecLights[selectedLight]->param2.x;
 			}
 			else
 			{
-				if (vecGameObjects.size())
-					vecGameObjects[selectedObject]->visible = !vecGameObjects[selectedObject]->visible;
+				if (world->vecGameObjects.size())
+					world->vecGameObjects[selectedObject]->visible = !world->vecGameObjects[selectedObject]->visible;
 			}
 		}
 		if (pKeyboardManager->keyPressed(GLFW_KEY_B))
 		{
-			if (vecGameObjects.size())
-				vecGameObjects[selectedObject]->wireFrame = !vecGameObjects[selectedObject]->wireFrame;
+			if (world->vecGameObjects.size())
+				world->vecGameObjects[selectedObject]->wireFrame = !world->vecGameObjects[selectedObject]->wireFrame;
 		}
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
@@ -419,13 +434,13 @@ int main()
 			if (shift_pressed)
 			{
 				++selectedLight;
-				if (selectedLight >= vecLights.size())
+				if (selectedLight >= world->vecLights.size())
 					selectedLight = 0;
 			}
 			else
 			{
 				++selectedObject;
-				if (selectedObject >= vecGameObjects.size())
+				if (selectedObject >= world->vecGameObjects.size())
 					selectedObject = 0;
 			}
 		}
@@ -435,13 +450,13 @@ int main()
 			{
 				--selectedLight;
 				if (selectedLight < 0)
-					selectedLight = (int)vecLights.size() - 1;
+					selectedLight = (int)world->vecLights.size() - 1;
 			}
 			else
 			{
 				--selectedObject;
 				if (selectedObject < 0)
-					selectedObject = (int)vecGameObjects.size() - 1;
+					selectedObject = (int)world->vecGameObjects.size() - 1;
 			}
 		}
 
@@ -458,31 +473,31 @@ int main()
 
 		if (ctrl_pressed)
 		{
-			if (vecGameObjects.size())
+			if (world->vecGameObjects.size())
 			{
 				glm::vec3 velocity = dt * CAMERA_SPEED * glm::vec3(xMove, yMove, zMove);
 				glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
-				vecGameObjects[selectedObject]->translate(velocity);
-				vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
-				vecGameObjects[selectedObject]->rotate(rotation);
+				world->vecGameObjects[selectedObject]->translate(velocity);
+				world->vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
+				world->vecGameObjects[selectedObject]->rotate(rotation);
 			}
 		}
 		else if (shift_pressed)
 		{
-			if (vecLights.size())
+			if (world->vecLights.size())
 			{
 				float speed = 3.0f;
 				// Move light if shift pressed
-				vecLights[selectedLight]->position.x += xMove * speed * dt;
-				vecLights[selectedLight]->position.y += yMove * speed * dt;
-				vecLights[selectedLight]->position.z += zMove * speed * dt;
-				vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
+				world->vecLights[selectedLight]->position.x += xMove * speed * dt;
+				world->vecLights[selectedLight]->position.y += yMove * speed * dt;
+				world->vecLights[selectedLight]->position.z += zMove * speed * dt;
+				world->vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
 
-				vecLights[selectedLight]->updateShaderUniforms();
+				world->vecLights[selectedLight]->updateShaderUniforms();
 
-				debugSphere->position = vecLights[selectedLight]->position;
-				debugSphere->scale = 0.1f / vecLights[selectedLight]->atten.y;
-				debugSphere->color = vecLights[selectedLight]->diffuse;
+				debugSphere->position = world->vecLights[selectedLight]->position;
+				debugSphere->scale = 0.1f / world->vecLights[selectedLight]->atten.y;
+				debugSphere->color = world->vecLights[selectedLight]->diffuse;
 				// Draw light sphere if shift pressed
 				drawObject(debugSphere, program, pVAOManager);
 			}
@@ -504,27 +519,27 @@ int main()
 		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
 
 		// collisions and stuff
-		physicsUpdate(vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
+		physicsUpdate(world->vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
 
-		if (vecGameObjects.size() && vecLights.size())
+		if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(2) << "Camera: Eye: {" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
 				<< "Front: {" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} "
-				<< "Selected: [" << selectedObject << "] \"" << vecGameObjects[selectedObject]->name << "\" "
+				<< "Selected: [" << selectedObject << "] \"" << world->vecGameObjects[selectedObject]->name << "\" "
 				<< "Light: [" << selectedLight << "]";
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 		
 
-		for (unsigned i = 0; i != vecGameObjects.size(); ++i)
+		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
-			vecGameObjects[i]->update(dt);
+			world->vecGameObjects[i]->update(dt);
 
-			if (!vecGameObjects[i]->visible)
+			if (!world->vecGameObjects[i]->visible)
 				continue;
 
-			drawObject(vecGameObjects[i], program, pVAOManager);
+			drawObject(world->vecGameObjects[i], program, pVAOManager);
 		}
 
 		if (debug_mode)
@@ -540,10 +555,10 @@ int main()
 	glfwTerminate();
 
 	// Delete everything
-	for (auto g : vecGameObjects)
+	for (auto g : world->vecGameObjects)
 		delete g;
 
-	for (auto l : vecLights)
+	for (auto l : world->vecLights)
 		delete l;
 
 	for (auto m : mapMeshes)
@@ -556,7 +571,6 @@ int main()
 	delete pDebugRenderer;
 	
 	delete debugSphere;
-	delete sinwaveobj;
 	exit(EXIT_SUCCESS);
 }
 

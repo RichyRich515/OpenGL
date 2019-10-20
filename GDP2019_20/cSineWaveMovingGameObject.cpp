@@ -42,7 +42,7 @@ cSineWaveMovingGameObject::cSineWaveMovingGameObject(std::string name)
 	this->startingPos = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-cSineWaveMovingGameObject::cSineWaveMovingGameObject(Json::Value obj, std::map<std::string, cMesh*>& mapMeshes)
+cSineWaveMovingGameObject::cSineWaveMovingGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {
 	this->instatiateBaseVariables(obj, mapMeshes);
 	this->moving = true;
@@ -62,7 +62,7 @@ void cSineWaveMovingGameObject::update(float dt)
 	{
 		this->counter += dt;
 
-		this->position.x = this->startingPos.x + sin(this->counter);
+		this->position.x = this->startingPos.x + sin(this->counter) * 5;
 	}
 }
 
@@ -75,7 +75,25 @@ sMessage cSineWaveMovingGameObject::message(sMessage const& msg)
 	return sMessage();
 }
 
-void cSineWaveMovingGameObject::instatiateUniqueVariables(Json::Value obj)
+void cSineWaveMovingGameObject::instatiateUniqueVariables(Json::Value& obj)
 {
+	Json::Value uniques = obj["uniques"];
+	counter = uniques["counter"].asFloat();
+	for (unsigned j = 0; j < 3; ++j)
+	{
+		this->startingPos[j] = uniques["startingPos"][j].asFloat();
+	}
+	moving = uniques["moving"].asBool();
+}
 
+void cSineWaveMovingGameObject::serializeUniqueVariables(Json::Value& obj)
+{
+	Json::Value uniques = Json::objectValue;
+	uniques["counter"] = counter;
+	for (unsigned j = 0; j < 3; ++j)
+	{
+		uniques["startingPos"][j] = this->startingPos[j];
+	}
+	uniques["moving"] = moving;
+	obj["uniques"] = uniques;
 }

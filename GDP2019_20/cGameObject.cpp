@@ -1,4 +1,5 @@
 #include "cGameObject.hpp"
+#include <iostream>
 
 cGameObject::cGameObject()
 {
@@ -36,7 +37,7 @@ cGameObject::cGameObject(std::string name)
 	this->inverseMass = 0.0f;
 }
 
-cGameObject::cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes)
+cGameObject::cGameObject(Json::Value& obj, std::map<std::string, cMesh*> & mapMeshes)
 {
 	this->instatiateBaseVariables(obj, mapMeshes);
 }
@@ -54,7 +55,7 @@ cGameObject::~cGameObject()
 	// TODO: Capsule
 }
 
-void cGameObject::instatiateBaseVariables(Json::Value obj, std::map<std::string, cMesh*>& mapMeshes)
+void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {
 	this->name = obj["name"].asString();
 	this->type = obj["type"].asString();
@@ -117,7 +118,7 @@ void cGameObject::instatiateBaseVariables(Json::Value obj, std::map<std::string,
 	}
 }
 
-void cGameObject::instatiateUniqueVariables(Json::Value obj)
+void cGameObject::instatiateUniqueVariables(Json::Value& obj)
 {
 	// None for base game object
 }
@@ -177,9 +178,15 @@ Json::Value cGameObject::serializeJSONObject()
 		break;
 	}
 	obj["collisionObjectInfo"] = collisionObjectInfo;
+
+	serializeUniqueVariables(obj);
 	return obj;
 }
 
+void cGameObject::serializeUniqueVariables(Json::Value& obj)
+{
+	// nothing
+}
 
 void cGameObject::calculateCollisionMeshTransformed()
 {

@@ -32,8 +32,8 @@ public:
 
 	cGameObject();
 	cGameObject(std::string name);
-	cGameObject(Json::Value obj, std::map<std::string, cMesh*> & mapMeshes);
-	~cGameObject();
+	cGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
+	virtual ~cGameObject();
 
 	virtual void init();
 	virtual void update(float dt);
@@ -41,9 +41,11 @@ public:
 	virtual sMessage message(sMessage const& msg);
 
 	// Constructor will call this
-	virtual void instatiateBaseVariables(Json::Value obj, std::map<std::string, cMesh*>& mapMeshes);
-	virtual void instatiateUniqueVariables(Json::Value obj);
-	virtual Json::Value serializeJSONObject();
+	virtual void instatiateBaseVariables(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
+	virtual void instatiateUniqueVariables(Json::Value& obj);
+
+	Json::Value serializeJSONObject();
+	virtual void serializeUniqueVariables(Json::Value& obj);
 
 	// Move an object
 	void translate(glm::vec3 velocity);
