@@ -152,6 +152,7 @@
     <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
+    <ClCompile Include="cParticleEmitter.cpp" />
     <ClCompile Include="cPlanet.cpp" />
     <ClCompile Include="cPlinokBallGameObject.cpp" />
     <ClCompile Include="cRefuelShip.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
+    <ClInclude Include="cParticleEmitter.hpp" />
     <ClInclude Include="cPlanet.hpp" />
     <ClInclude Include="cPlinkoBallGameObject.hpp" />
     <ClInclude Include="cRefuelShip.hpp" />
@@ -202,6 +204,7 @@
     <ClInclude Include="iMessageable.hpp" />
     <ClInclude Include="iShip.hpp" />
     <ClInclude Include="iWeapon.hpp" />
+    <ClInclude Include="cParticle.hpp" />
     <ClInclude Include="Physics.hpp" />
     <ClInclude Include="cWorld.hpp" />
     <ClInclude Include="cSineWaveMovingGameObject.hpp" />

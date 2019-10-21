@@ -61,6 +61,9 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{a4da7a4e-8d3e-4517-b864-ad0380652284}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Particles">
+      <UniqueIdentifier>{78e1105d-a2cd-4c0a-ba0b-1d4c87ad5ed5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -149,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="cAsteroid.cpp">
       <Filter>SpaceGame</Filter>
+    </ClCompile>
+    <ClCompile Include="cParticleEmitter.cpp">
+      <Filter>Particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -247,6 +253,12 @@
     </ClInclude>
     <ClInclude Include="cAsteroid.hpp">
       <Filter>SpaceGame</Filter>
+    </ClInclude>
+    <ClInclude Include="cParticle.hpp">
+      <Filter>Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="cParticleEmitter.hpp">
+      <Filter>Particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

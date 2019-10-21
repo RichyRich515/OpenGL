@@ -39,6 +39,8 @@
 
 #include "cWorld.hpp"
 
+#include "cParticleEmitter.hpp"
+
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
@@ -333,6 +335,24 @@ int main()
 	//glEnable(GL_BLEND);		// Transparency
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Transparency
 
+	cParticleEmitter emitter1;
+	emitter1.init(glm::vec3(0.0f), glm::vec3(0.0f, -10.0f, 0.0f),
+		glm::vec3(-0.5f, 2.0f, -0.5f), glm::vec3(0.5f, 10.0f, 0.5f),
+		glm::vec3(0.0f), glm::vec3(0.0f),
+		0.5f, 2.0f,
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f),
+		5, 20, 
+		1000);
+
+	cParticleEmitter emitter2;
+	emitter2.init(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(-5.0f, -5.0f, -5.0f), glm::vec3(5.0f, 5.0f, 5.0f),
+		glm::vec3(0.0f), glm::vec3(0.0f),
+		0.5f, 1.0f,
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec4(0.0f),
+		500, 1000,
+		10000);
+
 	// timing
 	float totalTime;
 	float lastTime = 0;
@@ -531,6 +551,20 @@ int main()
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 		
+		emitter1.update(dt);
+		emitter2.update(dt);
+		std::vector<cParticle*> particles;
+		emitter1.getParticles(particles);
+		for (auto p : particles)
+		{
+			pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
+		}
+		emitter2.getParticles(particles);
+		for (auto p : particles)
+		{
+			pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
+		}
+
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
