@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cAsteroid.cpp" />
     <ClCompile Include="cBasicEngine.cpp" />
     <ClCompile Include="cBasicShip.cpp" />
     <ClCompile Include="cBasicWeapon.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cPlanet.cpp" />
     <ClCompile Include="cPlinokBallGameObject.cpp" />
+    <ClCompile Include="cRefuelShip.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cShipBuilder.cpp" />
@@ -171,6 +173,7 @@
     <ClCompile Include="src\json\jsoncpp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cAsteroid.hpp" />
     <ClInclude Include="cBasicEngine.hpp" />
     <ClInclude Include="cBasicShip.hpp" />
     <ClInclude Include="cBasicWeapon.hpp" />
@@ -179,6 +182,7 @@
     <ClInclude Include="cGameObjectFactory.hpp" />
     <ClInclude Include="cPlanet.hpp" />
     <ClInclude Include="cPlinkoBallGameObject.hpp" />
+    <ClInclude Include="cRefuelShip.hpp" />
     <ClInclude Include="cShipBuilder.hpp" />
     <ClInclude Include="cSpaceGameFactory.hpp" />
     <ClInclude Include="iEngine.hpp" />

@@ -5,6 +5,11 @@ cBasicShip* cShipBuilder::MakeBasicShip(Json::Value& obj, std::map<std::string, 
 	return new cBasicShip(obj, mapMeshes);
 }
 
+cBasicShip* cShipBuilder::MakeRefuelShip(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
+{
+	return new cRefuelShip(obj, mapMeshes);
+}
+
 iEngine* cShipBuilder::MakeBasicEngine(Json::Value& obj)
 {
 	iEngine* eng = new cBasicEngine();
@@ -14,5 +19,7 @@ iEngine* cShipBuilder::MakeBasicEngine(Json::Value& obj)
 
 iWeapon* cShipBuilder::MakeBasicWeapon(Json::Value& obj)
 {
-	return nullptr;
+	iWeapon* wep = new cBasicWeapon();
+	wep->deserialize(obj);
+	return wep;
 }

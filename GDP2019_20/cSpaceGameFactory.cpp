@@ -14,7 +14,18 @@ cGameObject* cSpaceGameFactory::createFromJSON(Json::Value& obj, std::map<std::s
 		ship->setWeapon(cShipBuilder::MakeBasicWeapon(obj["uniques"]["weapon"]));
 		return ship;
 	}
+	else if (type == "refuelShip")
+	{
+		cBasicShip* ship = cShipBuilder::MakeRefuelShip(obj, mapMeshes);
+		ship->setEngine(cShipBuilder::MakeBasicEngine(obj["uniques"]["engine"]));
+		ship->setWeapon(cShipBuilder::MakeBasicWeapon(obj["uniques"]["weapon"]));
+		return ship;
+	}
 	else if (type == "planet")
+	{
+		return new cPlanet(obj, mapMeshes);
+	}
+	else if (type == "asteroid")
 	{
 		return new cPlanet(obj, mapMeshes);
 	}

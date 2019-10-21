@@ -75,9 +75,9 @@ void cBasicShip::update(float dt)
 			msg = destination->message(msg);
 			this->message(msg);
 
-			// HACK: planets are one of the first 3 objects
+			// HACK: planets/asteroids are one of the first 5 objects
 			cWorld* world = cWorld::getWorld();
-			destination = world->vecGameObjects[rand() % 3];
+			destination = world->vecGameObjects[rand() % 5];
 		}
 	}
 
@@ -91,6 +91,11 @@ sMessage cBasicShip::message(sMessage const& msg)
 {
 	if (msg.name == "refuel")
 		this->_engine->increaseFuel(msg.data.f);
+	else if (msg.name == "Stranded?")
+	{
+		if (_engine->getFuel() <= 0.0f)
+			return sMessage("Yes");
+	}
 	return sMessage();
 }
 
@@ -101,7 +106,7 @@ void cBasicShip::instatiateUniqueVariables(Json::Value& obj)
 	this->_weapon = nullptr;
 	std::string destName = uniques["destination"].asString();
 
-	// HACK: planets are one of the first 3 objects
+	// HACK: planets/asteroids are one of the first 5 objects
 	cWorld* world = cWorld::getWorld();
 	// Find planet
 	auto itr = std::find_if(world->vecGameObjects.begin(), world->vecGameObjects.end(), 
@@ -115,12 +120,14 @@ void cBasicShip::instatiateUniqueVariables(Json::Value& obj)
 void cBasicShip::serializeUniqueVariables(Json::Value& obj)
 {
 	Json::Value uniques = Json::objectValue;
-	uniques["destination"] = this->destination->name;
+	if (this->destination != nullptr)
+		uniques["destination"] = this->destination->name;
+	else
+		uniques["destination"] = "";
 	uniques["engine"] = this->_engine->serialize();
 	uniques["weapon"] = this->_weapon->serialize();
 	
 	obj["uniques"] = uniques;
-
 }
 
 void cBasicShip::setEngine(iEngine* engine)

@@ -144,6 +144,12 @@
     <ClCompile Include="cShipBuilder.cpp">
       <Filter>SpaceGame\Ships</Filter>
     </ClCompile>
+    <ClCompile Include="cRefuelShip.cpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClCompile>
+    <ClCompile Include="cAsteroid.cpp">
+      <Filter>SpaceGame</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -235,6 +241,12 @@
     </ClInclude>
     <ClInclude Include="cPlinkoBallGameObject.hpp">
       <Filter>CustomObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="cRefuelShip.hpp">
+      <Filter>SpaceGame\Ships</Filter>
+    </ClInclude>
+    <ClInclude Include="cAsteroid.hpp">
+      <Filter>SpaceGame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

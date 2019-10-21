@@ -23,7 +23,7 @@ public:
 	virtual void setEngine(iEngine* engine) override;
 	virtual void setWeapon(iWeapon* weapon) override;
 
-private:
+protected:
 	iEngine* _engine;
 	iWeapon* _weapon;
 
