@@ -3,7 +3,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
-
+#include <glm/gtx/quaternion.hpp>
 #include <string>
 #include <map>
 #include <utility>
@@ -11,7 +11,6 @@
 #include <json/json.h>
 
 #include "cMesh.hpp"
-
 #include "iMessageable.hpp"
 
 enum class eCollisionShapeType
@@ -23,6 +22,8 @@ enum class eCollisionShapeType
 	CAPSULE,
 	PLANE,
 	MESH,
+	POINT_LIST,
+	STATIC_MESH_AABBS,
 	UNKNOWN
 };
 
@@ -37,7 +38,7 @@ public:
 
 	virtual void init();
 	virtual void update(float dt);
-
+	void physicsUpdate(float dt);
 	virtual sMessage message(sMessage const& msg);
 
 	// Constructor will call this
@@ -49,11 +50,13 @@ public:
 
 	// Move an object
 	void translate(glm::vec3 velocity);
-	void rotate(glm::vec3 rotation);
+	void rotate(glm::vec3 rotation, bool deg = false);
 
+	void updateMatricis();
 
 	std::string name;
 	std::string type;
+	std::string textureName;
 	std::string meshName;
 	cMesh* mesh;
 
@@ -61,11 +64,14 @@ public:
 	glm::mat4 inverseTransposeMatWorld;
 
 	glm::vec3 position;
-	glm::vec3 rotation;
+	//glm::vec3 rotation;
+	glm::quat qOrientation;
+
 	float scale;
 	glm::vec4 color;
 	glm::vec4 specular; // A IS SHINYNESS, 1 to 10000
 	bool wireFrame;
+	bool lighting;
 	bool visible;
 
 	glm::vec3 velocity;
@@ -80,6 +86,7 @@ public:
 
 	typedef std::pair<glm::vec3, glm::vec3> AABBminmax;
 	typedef std::pair<cMesh*, cMesh*> MeshPair;
+	typedef std::vector<glm::vec3> PointsList;
 
 	union uCollisionObjectInfo
 	{
@@ -88,5 +95,8 @@ public:
 		float height; // TODO: For capsule
 		glm::vec3 plane; // TODO: For plane
 		MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
+		PointsList* points;
 	} collisionObjectInfo;
+
+	
 };

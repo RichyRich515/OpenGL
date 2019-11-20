@@ -142,10 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cAsteroid.cpp" />
-    <ClCompile Include="cBasicEngine.cpp" />
-    <ClCompile Include="cBasicShip.cpp" />
-    <ClCompile Include="cBasicWeapon.cpp" />
+    <ClCompile Include="cAABB.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
@@ -153,14 +150,9 @@
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cParticleEmitter.cpp" />
-    <ClCompile Include="cPlanet.cpp" />
-    <ClCompile Include="cPlinokBallGameObject.cpp" />
-    <ClCompile Include="cRefuelShip.cpp" />
+    <ClCompile Include="cPelican.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
-    <ClCompile Include="cShipBuilder.cpp" />
-    <ClCompile Include="cSineWaveMovingGameObject.cpp" />
-    <ClCompile Include="cSpaceGameFactory.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="cWorld.cpp" />
     <ClCompile Include="DebugRenderer\cDebugRenderer.cpp" />
@@ -172,22 +164,17 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="src\json\jsoncpp.cpp" />
+    <ClCompile Include="Texture\C24BitBMPpixel.cpp" />
+    <ClCompile Include="Texture\cBasicTextureManager.cpp" />
+    <ClCompile Include="Texture\CTextureFromBMP.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cAsteroid.hpp" />
-    <ClInclude Include="cBasicEngine.hpp" />
-    <ClInclude Include="cBasicShip.hpp" />
-    <ClInclude Include="cBasicWeapon.hpp" />
+    <ClInclude Include="cAABB.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
     <ClInclude Include="cParticleEmitter.hpp" />
-    <ClInclude Include="cPlanet.hpp" />
-    <ClInclude Include="cPlinkoBallGameObject.hpp" />
-    <ClInclude Include="cRefuelShip.hpp" />
-    <ClInclude Include="cShipBuilder.hpp" />
-    <ClInclude Include="cSpaceGameFactory.hpp" />
-    <ClInclude Include="iEngine.hpp" />
+    <ClInclude Include="cPelican.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
@@ -202,20 +189,18 @@
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="cKeyboardManager.hpp" />
     <ClInclude Include="iMessageable.hpp" />
-    <ClInclude Include="iShip.hpp" />
-    <ClInclude Include="iWeapon.hpp" />
     <ClInclude Include="cParticle.hpp" />
     <ClInclude Include="Physics.hpp" />
     <ClInclude Include="cWorld.hpp" />
-    <ClInclude Include="cSineWaveMovingGameObject.hpp" />
+    <ClInclude Include="Texture\C24BitBMPpixel.h" />
+    <ClInclude Include="Texture\cBasicTextureManager.h" />
+    <ClInclude Include="Texture\CTextureFromBMP.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />
     <None Include="models.json" />
     <None Include="scene1.json" />
-    <None Include="scene2.json" />
-    <None Include="scene3.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

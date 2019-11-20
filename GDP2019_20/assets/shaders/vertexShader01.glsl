@@ -25,8 +25,9 @@ void main()
 
 	// Calculate vertex in world space
 	fVertWorldLocation = matModel * vec4(vertPosition.xyz, 1.0f);
+	fNormal.xyz = mat3(matModelInverseTranspose) * normalize(vNormal.xyz).xyz; // TODO: dont convert to mat3?
+	fNormal.w = 1.0;
 
 	fColour = vColour;
-	fNormal = matModelInverseTranspose * vNormal;
 	fUVx2 = vUVx2;
 }

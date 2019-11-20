@@ -22,13 +22,20 @@ private:
 public:
 	cParticleEmitter();
 
+	bool active;
+	bool spawnNew;
+
 	glm::vec3 position;
+	glm::vec3 eyePosition; // For Imposters
+
 	glm::vec3 particleAcceleration;
 	glm::vec3 particleInitialVelocityMin;
 	glm::vec3 particleInitialVelocityMax;
 
 	float particleLifeMin;
 	float particleLifeMax;
+	float startScale;
+	float endScale;
 	glm::vec3 positionOffsetMin;
 	glm::vec3 positionOffsetMax;
 	std::size_t newPerUpdateMin;
@@ -37,7 +44,8 @@ public:
 	glm::vec4 startColor;
 	glm::vec4 endColor;
 
-	// glm::vec3 orientation
+	//glm::quat startQOrientation;
+	//glm::quat endQOrientation;
 
 
 	void init(glm::vec3 pos, glm::vec3 particleAccel,
@@ -45,15 +53,17 @@ public:
 		glm::vec3 minDeltaPos, glm::vec3 maxDeltaPos,
 		float minLife, float maxLife,
 		glm::vec4 startCol, glm::vec4 endCol,
+		float startScale, float endScale,
 		std::size_t minNewParticlesPerUpdate, std::size_t maxNewParticlesPerUpdate,
 		std::size_t maxParticles);
 
 
 	void update(float dt);
-
+	
 	// For drawing
-	void getParticles(std::vector<cParticle*>& vecParticles);
+	void getParticles(std::vector<cParticle*>& vecParticles, glm::vec3 eyePosition = glm::vec3(0.0f, 0.0f, 0.0f), bool isImposter = false);
 private:
+	glm::quat m_calcImposterRotationFromEye(glm::vec3 particlePos);
 
 	bool createNewParticle();
 };

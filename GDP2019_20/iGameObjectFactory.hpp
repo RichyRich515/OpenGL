@@ -11,6 +11,6 @@ class iGameObjectFactory
 {
 public:
 	virtual cGameObject* createFromJSON(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes) = 0;
-	virtual cGameObject* createFromType(std::string type) = 0;
+	virtual cGameObject* createFromType(std::string type, std::map<std::string, cMesh*>& mapMeshes) = 0;
 	virtual std::string getTypeString() = 0;
 };

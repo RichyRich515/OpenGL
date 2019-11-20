@@ -48,14 +48,14 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 			mesh->vecVertices[i].x, mesh->vecVertices[i].y, mesh->vecVertices[i].z, 1.0f,
 			1.0f, 1.0f, 1.0f, 1.0f,
 			mesh->vecVertices[i].nx, mesh->vecVertices[i].ny, mesh->vecVertices[i].nz, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f };
+			mesh->vecVertices[i].u, mesh->vecVertices[i].v, 1.0f, 1.0f };
 
 	drawInfo.numberOfTriangles = mesh->vecTriangles.size();
 	drawInfo.numberOfIndices = mesh->vecTriangles.size() * 3;
 	drawInfo.pIndices = new unsigned[drawInfo.numberOfIndices];
 	for (unsigned i = 0, j = 0; i != mesh->vecTriangles.size(); ++i, j += 3)
 	{
-		drawInfo.pIndices[j] = mesh->vecTriangles[i].vert_index_1;
+		drawInfo.pIndices[j + 0] = mesh->vecTriangles[i].vert_index_1;
 		drawInfo.pIndices[j + 1] = mesh->vecTriangles[i].vert_index_2;
 		drawInfo.pIndices[j + 2] = mesh->vecTriangles[i].vert_index_3;
 	}
@@ -112,8 +112,6 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 
 	glDisableVertexAttribArray(vpos_location);
 	glDisableVertexAttribArray(vcol_location);
-	//glDisableVertexAttribArray(vnorm_location);
-	//glDisableVertexAttribArray(vUV_location);
 
 	this->m_map_ModelName_to_VAOID[drawInfo.meshName] = drawInfo;
 

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <set>
 
 #include "iMessageable.hpp"
+#include "iGameObjectFactory.hpp"
 #include "cGameObject.hpp"
 #include "cLight.hpp"
 
@@ -19,8 +21,20 @@ public:
 
 	std::vector<cGameObject*> vecGameObjects;
 	std::vector<cLight*> vecLights;
+
+	iGameObjectFactory* gameObjectFactory;
+
+	void deferredAddGameObject(cGameObject* go);
+	void deferredDeleteGameObject(cGameObject* go);
+
+
+	void doDeferredActions();
+
 private:
 	cWorld();
+	
+	std::set<cGameObject*> deferred_deletes;
+	std::set<cGameObject*> deferred_adds;
 
 	static cWorld _world;
 };

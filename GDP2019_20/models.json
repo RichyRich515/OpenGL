@@ -1,50 +1,22 @@
 [
 	{
 		"name": "terrain",
-		"location": "assets/models/terrain_xyzn.ply"
+		"location": "assets/models/mountains_xyzn_uv.ply"
 	},
 	{
-		"name": "plinko",
-		"location": "assets/models/plinko_xyzn.ply"
+		"name": "pelican",
+		"location": "assets/models/pelican_xyzn.ply"
 	},
 	{
 		"name": "pillar_of_autumn",
 		"location": "assets/models/pillar_of_autumn_xyzn.ply"
 	},
 	{
-		"name": "plinko_cover",
-		"location": "assets/models/plinko_cover_xyzn.ply"
-	},
-	{
-		"name": "temple",
-		"location": "assets/models/Japanese_Temple_xyzn.ply"
-	},
-	{
 		"name": "sphere",
 		"location": "assets/models/sphere_xyzn.ply"
 	},
 	{
-		"name": "cylinder",
-		"location": "assets/models/cylinder_xyzn.ply"
-	},
-	{
 		"name": "cube",
 		"location": "assets/models/cube_xyzn.ply"
-	},
-	{
-		"name": "bunny",
-		"location": "assets/models/bun_zipper_res4_xyzn.ply"
-	},
-	{
-		"name": "carrot",
-		"location": "assets/models/carrot_xyzn.ply"
-	},
-	{
-		"name": "fir_tree",
-		"location": "assets/models/Fir_Tree_xyzn.ply"
-	},
-	{
-		"name": "crystal",
-		"location": "assets/models/Crystal_xyzn.ply"
 	}
 ]

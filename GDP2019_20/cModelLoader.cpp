@@ -22,7 +22,12 @@ bool cModelLoader::loadModel(std::string filename, cMesh* mesh)
 	while (infile >> t && t != "vertex");
 	infile >> verts;
 	
-	while (infile >> t && t != "face");
+	bool UVs = false;
+	while (infile >> t && t != "face")
+	{
+		if (t == "s" || t == "t" || t == "u" || t == "v" || t == "texture_u" || t == "texture_v")
+			UVs = true;
+	}
 	infile >> faces;
 
 	while (infile >> t && t != "end_header");
@@ -34,6 +39,8 @@ bool cModelLoader::loadModel(std::string filename, cMesh* mesh)
 	{
 		infile >> mesh->vecVertices[i].x >> mesh->vecVertices[i].y >> mesh->vecVertices[i].z
 				>> mesh->vecVertices[i].nx >> mesh->vecVertices[i].ny >> mesh->vecVertices[i].nz;
+		if (UVs)
+			infile >> mesh->vecVertices[i].u >> mesh->vecVertices[i].v;
 	}
 
 	unsigned v; // Ignore the first number

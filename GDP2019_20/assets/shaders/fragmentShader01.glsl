@@ -1,5 +1,7 @@
 #version 420
 
+uniform vec4 eyeLocation;
+
 in vec4 fColour;
 in vec4 fVertWorldLocation;
 in vec4 fNormal;
@@ -9,10 +11,25 @@ uniform vec4 ambientColour;
 uniform vec4 diffuseColour;
 uniform vec4 specularColour;
 
-// Used to draw debug (or unlit) objects
-uniform bool bDoNotLight;		
 
-uniform vec4 eyeLocation;
+// x: delta Time
+// y: total Time 
+// z: do not light
+// w: has texture
+uniform vec4 params1;
+
+// x: is skybox 
+// y: 
+// z: 
+// w: 
+uniform vec4 params2;
+
+
+// Texture samplers
+uniform sampler2D textSamp00;
+uniform sampler2D textSamp01;
+
+uniform samplerCube skyboxSamp00;
 
 out vec4 pixelColour; // RGB A (0 to 1) 
 
@@ -38,22 +55,42 @@ const int DIRECTIONAL_LIGHT_TYPE = 2;
 const int NUMBEROFLIGHTS = 10;
 uniform sLight lights[NUMBEROFLIGHTS]; // 80 uniforms
 
-
 vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 vertexWorldPos, vec4 vertexSpecular);
 	 
 void main()  
 {
-	vec4 materialColour = diffuseColour;
-
-	if (bDoNotLight)
+	if (params1.z == 0.0) // do not light
 	{
-		pixelColour = materialColour;
+		pixelColour = diffuseColour;
+		pixelColour.a = 1.0;
+		return;
+	}
+	
+	if (params2.x != 0.0)
+	{
+		vec3 skyboxColor = texture(skyboxSamp00, -fNormal.xyz).rgb;
+		//pixelColour.rgb = fNormal.xyz;
+		pixelColour.rgb = skyboxColor;
+		pixelColour.a = 1.0;
 		return;
 	}
 
-	vec4 outColour = calculateLightContrib(materialColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
-	pixelColour = outColour;
-	pixelColour.rgb += materialColour.rgb * ambientColour.rgb;
+	vec4 outColour = calculateLightContrib(diffuseColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
+	if (params1.w != 0.0) // has texture
+	{
+		vec3 textCol = texture(textSamp00, fUVx2.st).rgb;
+		pixelColour.rgb = outColour.rgb * textCol + (textCol.rgb * ambientColour.rgb);
+	}
+	else // no texture
+	{
+		pixelColour.rgb = outColour.rgb + (diffuseColour.rgb * ambientColour.rgb);
+	}
+	pixelColour.a = diffuseColour.a;
+	//pixelColour.rgb *= textCol.rgb;
+
+	//pixelColour.rgb += textCol * ambientColour.rgb;
+	//pixelColour *= 0.00001;
+	//pixelColour.rgb = vec3(fUVx2.st, 1.0);
 }
 
 
@@ -83,7 +120,7 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 			vec3 lightContrib = lights[index].diffuse.rgb;
 			
 			// Get the dot product of the light and normalize
-			float dotProduct = dot(-lights[index].direction.xyz, normalize(norm.xyz)); // -1 to 1
+			float dotProduct = dot(-lights[index].direction.xyz, norm); // -1 to 1
 
 			dotProduct = max(0.0f, dotProduct); // 0 to 1
 		
@@ -99,6 +136,10 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 		// Contribution for this light
 		vec3 vLightToVertex = lights[index].position.xyz - vertexWorldPos.xyz;
 		float distanceToLight = length(vLightToVertex);	
+
+		if (distanceToLight > lights[index].atten.w)
+			continue; // beyond light max range
+
 		vec3 lightVector = normalize(vLightToVertex);
 		float dotProduct = dot(lightVector, vertexNormal.xyz);	 
 		
@@ -109,7 +150,7 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 		// Specular 
 		vec3 lightSpecularContrib = vec3(0.0f);
 		
-		vec3 reflectVector = reflect(-lightVector, normalize(norm.xyz));
+		vec3 reflectVector = reflect(-lightVector, norm);
 
 		// Get eye or view vector
 		// The location of the vertex in the world to your eye
@@ -132,7 +173,7 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 		lightSpecularContrib *= attenuation;
 
 		// But is it a spot light
-		if (intLightType == SPOT_LIGHT_TYPE)		// = 1
+		if (intLightType == SPOT_LIGHT_TYPE)
 		{
 			// Yes, it's a spotlight
 			// Calcualate light vector (light to vertex, in world)
@@ -173,10 +214,8 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 						
 		}// if ( intLightType == 1 )
 		
-		finalObjectColour.rgb += (vertexMaterialColour.rgb * lightDiffuseContrib.rgb)+ (vertexSpecular.rgb * lightSpecularContrib.rgb);
+		finalObjectColour.rgb += (vertexMaterialColour.rgb * lightDiffuseContrib.rgb) + (vertexSpecular.rgb * lightSpecularContrib.rgb);
 	} // For loop lights
-	
-	finalObjectColour.a = 1.0f;
-	
+
 	return finalObjectColour;
 }
