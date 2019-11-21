@@ -3,7 +3,7 @@
 #include "cGameObject.hpp"
 #include "cPelican.hpp"
 
-cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::string, cMesh*> & mapMeshes)
+cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {
 	std::string type = obj["type"].asString();
 	if (type == "basic")
@@ -23,6 +23,7 @@ cGameObject* cGameObjectFactory::createFromType(std::string type, std::map<std::
 	{
 		return new cGameObject();
 	}
+	return nullptr;
 }
 
 std::string cGameObjectFactory::getTypeString()

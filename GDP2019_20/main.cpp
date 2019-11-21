@@ -364,7 +364,7 @@ int main()
 		glm::vec3(-0.01f), glm::vec3(0.01f),
 		0.5f, 2.0f,
 		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.05f, 0.0f,
+		0.025f, 0.0f,
 		5, 20,
 		1000);
 
@@ -374,7 +374,7 @@ int main()
 		glm::vec3(-0.01f), glm::vec3(0.01f),
 		0.5f, 2.0f,
 		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.05f, 0.0f,
+		0.025f, 0.0f,
 		5, 20,
 		1000);
 
@@ -398,6 +398,9 @@ int main()
 	float totalTime;
 	float lastTime = 0;
 	float dt;
+
+	glm::vec3 cameraPosition = pelican->position + pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f);
+	glm::vec3 cameraUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -460,14 +463,17 @@ int main()
 
 		v = glm::mat4(1.0f);
 		glm::vec3 expectedPosition = pelican->position + (pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f));
-		glm::vec3 cameraPosition = glm::mix(cameraPosition, expectedPosition, dt * glm::distance(cameraPosition, expectedPosition) * 10.0f);
-		v = glm::lookAt(cameraPosition, pelican->position, pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f));
+		cameraPosition = expectedPosition; //glm::mix(cameraPosition, expectedPosition, dt * 25.0f);
+		glm::vec3 expectedUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
+		cameraUpRel = expectedUpRel;// glm::mix(cameraUpRel, expectedUpRel, dt * 25.0f);
+
+		v = glm::lookAt(cameraPosition, pelican->position + pelican->qOrientation * glm::vec3(0.0f, 0.0f, 1.0f), pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f));
 
 		world->vecLights[1]->position = glm::vec4(pelican->position + (pelican->qOrientation * glm::vec3(0.0f, -0.14f, 0.49f)), 1.0f);
 		world->vecLights[1]->updateShaderUniforms();
 
 		// FOV, aspect ratio, near clip, far clip
-		fov = glm::mix(fov, minfov + abs(pelican->velocity.length() / pelican->maxSpeed) * 10.0f, dt * 10.0f);
+		fov = 60.0f; //glm::mix(fov, minfov + abs(pelican->velocity.length() / pelican->maxSpeed) * 10.0f, dt * 10.0f);
 		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
