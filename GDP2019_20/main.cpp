@@ -178,7 +178,7 @@ void openSceneFromFile(std::string filename)
 		l->updateShaderUniforms();
 		delete l;
 	}
-		
+
 	world->vecLights.clear();
 
 	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
@@ -256,13 +256,13 @@ int main()
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
 
-	
+
 	cModelLoader* pModelLoader = new cModelLoader();
 	cVAOManager* pVAOManager = new cVAOManager();
 	cShaderManager* pShaderManager = new cShaderManager();
 	pKeyboardManager = new cKeyboardManager();
 	world = cWorld::getWorld();
-	
+
 	cDebugRenderer* pDebugRenderer = new cDebugRenderer();
 	pDebugRenderer->initialize();
 
@@ -324,21 +324,21 @@ int main()
 	pTextureManager->SetBasePath("assets/textures");
 
 	// TODO: load texture names from JSON
-	std::string textureName = "mountains_big.bmp";
+	std::string textureName = "mountains_big_2.bmp";
 	if (!pTextureManager->Create2DTextureFromBMPFile(textureName, true)) // NEED TO GENERATE MIP MAPS
 	{
-		std::cerr << "Failed to load texture " << textureName << "to GPU" << std::endl;
+		std::cerr << "Failed to load texture " << textureName << " to GPU" << std::endl;
 	}
 
 	std::string err;
 	if (!pTextureManager->CreateCubeTextureFromBMPFiles(
 		"skybox",
-		"iceflow_lf.bmp", 
-		"iceflow_rt.bmp", 
-		"iceflow_dn.bmp", 
+		"iceflow_lf.bmp",
+		"iceflow_rt.bmp",
+		"iceflow_dn.bmp",
 		"iceflow_up.bmp",
 		"iceflow_ft.bmp",
-		"iceflow_bk.bmp", 
+		"iceflow_bk.bmp",
 		true, err)) // NEED TO GENERATE MIP MAPS
 	{
 		std::cerr << "Failed to load cubemap to GPU: " << err << std::endl;
@@ -350,7 +350,7 @@ int main()
 	debugSphere->wireFrame = true;
 	debugSphere->lighting = true;
 
-	
+
 	openSceneFromFile("scene1.json");
 	// HACK:
 	cPelican* pelican = (cPelican*)world->vecGameObjects[1];
@@ -384,8 +384,9 @@ int main()
 	glm::mat4 v, p;
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
-	// FOV, aspect ratio, near clip, far clip
-	p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 1000.0f);
+	
+	float fov = 60.0f;
+	float minfov = 60.0f;
 
 	glViewport(0, 0, width, height);
 
@@ -397,7 +398,7 @@ int main()
 	float totalTime;
 	float lastTime = 0;
 	float dt;
-	
+
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = (float)glfwGetTime();
@@ -415,7 +416,7 @@ int main()
 			debug_mode = !debug_mode;
 		}
 
-		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D) ;
+		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
 		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
 		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 		int rollMove = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
@@ -428,7 +429,7 @@ int main()
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(2)
-						<< "{" << pelican->position.x << ", " << pelican->position.y << ", " << pelican->position.z << "}";
+				<< "{" << pelican->position.x << ", " << pelican->position.y << ", " << pelican->position.z << "}";
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
@@ -458,11 +459,16 @@ int main()
 		}
 
 		v = glm::mat4(1.0f);
-		glm::vec3 cameraPosition = pelican->position + (pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f));
+		glm::vec3 expectedPosition = pelican->position + (pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f));
+		glm::vec3 cameraPosition = glm::mix(cameraPosition, expectedPosition, dt * glm::distance(cameraPosition, expectedPosition) * 10.0f);
 		v = glm::lookAt(cameraPosition, pelican->position, pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f));
 
 		world->vecLights[1]->position = glm::vec4(pelican->position + (pelican->qOrientation * glm::vec3(0.0f, -0.14f, 0.49f)), 1.0f);
 		world->vecLights[1]->updateShaderUniforms();
+
+		// FOV, aspect ratio, near clip, far clip
+		fov = glm::mix(fov, minfov + abs(pelican->velocity.length() / pelican->maxSpeed) * 10.0f, dt * 10.0f);
+		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
@@ -595,7 +601,7 @@ int main()
 	delete pVAOManager;
 	delete pKeyboardManager;
 	delete pDebugRenderer;
-	
+
 	delete debugSphere;
 	exit(EXIT_SUCCESS);
 }
