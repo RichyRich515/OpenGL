@@ -21,7 +21,7 @@ drawDebugTri(0.0, 0.0, 0.0,
 -- print(tostring(id))
 
 v, x, y, z = getObjectPosition(id)
-print(tostring(z))
+-- print(tostring(z))
 if (v) then
 	v = setObjectPosition(id, x, y, z + (1 * dt))
 end
