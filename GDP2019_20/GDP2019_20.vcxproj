@@ -94,7 +94,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua5.3.5-static.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -106,7 +106,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua5.3.5-static.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua5.3.5-static.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,19 +138,16 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua5.3.5-static.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cAABB.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
     <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
-    <ClCompile Include="cParticleEmitter.cpp" />
-    <ClCompile Include="cPelican.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
@@ -161,20 +158,17 @@
     <ClCompile Include="DebugRenderer\cGLRenderStateHelper.cpp" />
     <ClCompile Include="DebugRenderer\COpenGLError.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Lua\cLuaBrain.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="physics.cpp" />
     <ClCompile Include="src\json\jsoncpp.cpp" />
     <ClCompile Include="Texture\C24BitBMPpixel.cpp" />
     <ClCompile Include="Texture\cBasicTextureManager.cpp" />
     <ClCompile Include="Texture\CTextureFromBMP.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cAABB.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
-    <ClInclude Include="cParticleEmitter.hpp" />
-    <ClInclude Include="cPelican.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
@@ -189,14 +183,14 @@
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="cKeyboardManager.hpp" />
     <ClInclude Include="iMessageable.hpp" />
-    <ClInclude Include="cParticle.hpp" />
-    <ClInclude Include="Physics.hpp" />
     <ClInclude Include="cWorld.hpp" />
+    <ClInclude Include="Lua\cLuaBrain.hpp" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />
     <None Include="models.json" />

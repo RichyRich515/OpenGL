@@ -1,7 +1,6 @@
 #include "cGameObjectFactory.hpp"
 
 #include "cGameObject.hpp"
-#include "cPelican.hpp"
 
 cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {
@@ -9,10 +8,6 @@ cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::
 	if (type == "basic")
 	{
 		return new cGameObject(obj, mapMeshes);
-	}
-	if (type == "pelican")
-	{
-		return new cPelican(obj, mapMeshes);
 	}
 	return nullptr;
 }

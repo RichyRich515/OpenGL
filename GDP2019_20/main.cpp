@@ -29,10 +29,7 @@
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 #include "cGameObject.hpp"
-#include "cPelican.hpp"
 #include "cLight.hpp"
-#include "Physics.hpp"
-#include "cAABB.hpp"
 #include "cKeyboardManager.hpp"
 
 #include "iGameObjectFactory.hpp"
@@ -42,8 +39,6 @@
 
 #include "cWorld.hpp"
 
-#include "cParticleEmitter.hpp"
-
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
@@ -51,16 +46,18 @@ static void error_callback(int error, const char* description)
 
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt);
 
+constexpr float MAX_DELTA_TIME = 0.017f;
+
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraEye = glm::vec3(0.0f, 28.0f, 10.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 float pitch = 0.0f; // X axis rotation ( up, down)
 float yaw = -90.0f; // Y axis rotation (left, right)
+float cameraSpeed = 25.0f;
 glm::vec3 cameraDirection = glm::normalize(cameraEye - cameraFront);
 glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 
-float CAMERA_SPEED = 25.0f;
 
 float cameraSensitivity = 0.1f;
 
@@ -112,6 +109,7 @@ void writeSceneToFile(std::string filename)
 
 	root["camera"]["pitch"] = pitch;
 	root["camera"]["yaw"] = yaw;
+	root["camera"]["cameraSpeed"] = cameraSpeed;
 
 	for (auto g : world->vecGameObjects)
 		root["gameObjects"].append(g->serializeJSONObject());
@@ -149,6 +147,7 @@ void openSceneFromFile(std::string filename)
 	cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 	pitch = camera["pitch"].asFloat();
 	yaw = camera["yaw"].asFloat();
+	cameraSpeed = camera["cameraSpeed"].asFloat();
 
 	Json::Value ambienceobj = world_node["ambience"];
 	for (unsigned i = 0; i < 4; ++i) // vec 4s
@@ -178,7 +177,6 @@ void openSceneFromFile(std::string filename)
 		l->updateShaderUniforms();
 		delete l;
 	}
-
 	world->vecLights.clear();
 
 	for (unsigned i = 0; i < lights.size() && i < MAX_LIGHTS; ++i)
@@ -186,14 +184,14 @@ void openSceneFromFile(std::string filename)
 		cLight* l = new cLight(i, lights[i], program);
 		world->vecLights.push_back(l);
 	}
-
-
-	for (unsigned i = 0; i < gameObjects.size(); ++i)
+	
+	int idCounter = 0;
+	for (unsigned i = 0; i < gameObjects.size(); ++i, ++idCounter)
 	{
 		cGameObject* go = pGameObjectFactory->createFromJSON(gameObjects[i], mapMeshes);
+		go->id = idCounter;
 		world->vecGameObjects.push_back(go);
 	}
-
 
 	for (auto go : world->vecGameObjects)
 		go->init();
@@ -202,8 +200,6 @@ void openSceneFromFile(std::string filename)
 }
 
 bool ctrl_pressed = false, shift_pressed = false;
-
-bool debug_mode = false;
 
 cKeyboardManager* pKeyboardManager = NULL;
 
@@ -265,6 +261,8 @@ int main()
 
 	cDebugRenderer* pDebugRenderer = new cDebugRenderer();
 	pDebugRenderer->initialize();
+	world->pDebugRenderer = pDebugRenderer;
+	world->debugMode = false;
 
 	// TODO: Constant strings
 	//		 Make a class for this??
@@ -287,9 +285,6 @@ int main()
 		}
 		mapMeshes[name] = m;
 	}
-
-	// TODO: this stuff
-	CalcAABBsForMesh(mapMeshes["terrain"], 100.0f, 10, 2, 10);
 
 	// make shader
 	cShaderManager::cShader vertexShader01;
@@ -320,64 +315,13 @@ int main()
 		}
 	}
 
-	pTextureManager = new cBasicTextureManager();
-	pTextureManager->SetBasePath("assets/textures");
-
-	// TODO: load texture names from JSON
-	std::string textureName = "mountains_big_2.bmp";
-	if (!pTextureManager->Create2DTextureFromBMPFile(textureName, true)) // NEED TO GENERATE MIP MAPS
-	{
-		std::cerr << "Failed to load texture " << textureName << " to GPU" << std::endl;
-	}
-
-	std::string err;
-	if (!pTextureManager->CreateCubeTextureFromBMPFiles(
-		"skybox",
-		"iceflow_lf.bmp",
-		"iceflow_rt.bmp",
-		"iceflow_dn.bmp",
-		"iceflow_up.bmp",
-		"iceflow_ft.bmp",
-		"iceflow_bk.bmp",
-		true, err)) // NEED TO GENERATE MIP MAPS
-	{
-		std::cerr << "Failed to load cubemap to GPU: " << err << std::endl;
-	}
-
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
 	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
 	debugSphere->lighting = true;
 
-
 	openSceneFromFile("scene1.json");
-	// HACK:
-	cPelican* pelican = (cPelican*)world->vecGameObjects[1];
-	world->vecLights[1]->updateShaderUniforms();
-
-
-
-	cParticleEmitter emitter1;
-	emitter1.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f), glm::vec3(0.0f),
-		glm::vec3(-0.01f), glm::vec3(0.01f),
-		0.5f, 2.0f,
-		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.025f, 0.0f,
-		5, 20,
-		1000);
-
-	cParticleEmitter emitter2;
-	emitter2.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f), glm::vec3(0.0f),
-		glm::vec3(-0.01f), glm::vec3(0.01f),
-		0.5f, 2.0f,
-		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.025f, 0.0f,
-		5, 20,
-		1000);
-
 
 	float ratio;
 	int width, height;
@@ -392,15 +336,19 @@ int main()
 
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
-	glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// timing
 	float totalTime;
 	float lastTime = 0;
 	float dt;
 
-	glm::vec3 cameraPosition = pelican->position + pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f);
-	glm::vec3 cameraUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
+	double cursorX = 0, cursorY = 0;
+	float lastcursorX = 0, lastcursorY = 0;
+
+	glfwGetCursorPos(window, &cursorX, &cursorY);
+	lastcursorX = (float)cursorX;
+	lastcursorY = (float)cursorY;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -408,165 +356,67 @@ int main()
 		dt = totalTime - lastTime;
 		lastTime = totalTime;
 
-		if (dt >= MAX_PHYSICS_DELTA_TIME)
-			dt = MAX_PHYSICS_DELTA_TIME;
+		if (dt >= MAX_DELTA_TIME)
+			dt = MAX_DELTA_TIME;
+
+		// Camera Movement
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+
+		yaw += ((float)cursorX - lastcursorX) * cameraSensitivity;
+		pitch += (lastcursorY - (float)cursorY) * cameraSensitivity;
+		lastcursorX = (float)cursorX;
+		lastcursorY = (float)cursorY;
+
+		// Lock pitch
+		if (pitch > 89.9f)
+			pitch = 89.9f;
+		else if (pitch < -89.9f)
+			pitch = -89.9f;
+
+		glm::vec3 front;
+		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front.y = sin(glm::radians(pitch));
+		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		cameraFront = glm::normalize(front);
 
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 		{
-			debug_mode = !debug_mode;
+			cWorld::debugMode = !cWorld::debugMode;
 		}
 
 		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
 		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
 		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-		int rollMove = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-		pelican->forwardAccel = zMove * 50.0f;
-		pelican->leftrightAccel = xMove * 2.0f; // X rot
-		pelican->updownAccel = -yMove * 2.0f; // Y rot
-		pelican->rollAccel = -rollMove * 2.0f; // Z rot
+
+		cameraEye += zMove * cameraSpeed * dt * cameraFront;
+		cameraEye += -xMove * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+		cameraEye += yMove * cameraSpeed * dt * cameraUp;
 
 		if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(2)
-				<< "{" << pelican->position.x << ", " << pelican->position.y << ", " << pelican->position.z << "}";
+				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
-			world->vecGameObjects[i]->update(dt);
+			world->vecGameObjects[i]->update(dt, totalTime);
 			world->vecGameObjects[i]->physicsUpdate(dt);
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
-		// collisions and stuff
-		physicsUpdate(world->vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
-
-		if (debug_mode)
-		{
-			pDebugRenderer->addTriangle(
-				pelican->position,
-				pelican->position + pelican->velocity,
-				pelican->position + glm::vec3(0.0f, pelican->velocity.y, 0.0f),
-				glm::vec3(1.0f, 1.0f, 0.0f));
-
-			pDebugRenderer->addTriangle(
-				pelican->position,
-				pelican->position + pelican->acceleration,
-				pelican->position + glm::vec3(0.0f, pelican->acceleration.y, 0.0f),
-				glm::vec3(0.0f, 1.0f, 1.0f));
-		}
-
-		v = glm::mat4(1.0f);
-		glm::vec3 expectedPosition = pelican->position + (pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f));
-		cameraPosition = expectedPosition; //glm::mix(cameraPosition, expectedPosition, dt * 25.0f);
-		glm::vec3 expectedUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
-		cameraUpRel = expectedUpRel;// glm::mix(cameraUpRel, expectedUpRel, dt * 25.0f);
-
-		v = glm::lookAt(cameraPosition, pelican->position + pelican->qOrientation * glm::vec3(0.0f, 0.0f, 1.0f), pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f));
-
-		world->vecLights[1]->position = glm::vec4(pelican->position + (pelican->qOrientation * glm::vec3(0.0f, -0.14f, 0.49f)), 1.0f);
-		world->vecLights[1]->updateShaderUniforms();
-
 		// FOV, aspect ratio, near clip, far clip
-		fov = 60.0f; //glm::mix(fov, minfov + abs(pelican->velocity.length() / pelican->maxSpeed) * 10.0f, dt * 10.0f);
 		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
-		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
+		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
-
-
-		// draw Skybox
-		{
-			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName("skybox");
-			if (texture_ul)
-			{
-				glActiveTexture(GL_TEXTURE10);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-				glUniform1i(glGetUniformLocation(program, "skyboxSamp00"), 10);
-			}
-			debugSphere->scale = 1.0f;
-			debugSphere->position = cameraPosition;
-			debugSphere->wireFrame = false;
-			//debugSphere->lighting = true;
-			debugSphere->color = glm::vec4(1.0f);
-			//debugSphere->visible = true;
-			//debugSphere->calculateCollisionMeshTransformed();
-			debugSphere->updateMatricis();
-			glUniformMatrix4fv(glGetUniformLocation(program, "matModel"), 1, GL_FALSE, glm::value_ptr(debugSphere->matWorld));
-			glUniformMatrix4fv(glGetUniformLocation(program, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(debugSphere->inverseTransposeMatWorld));
-			glUniform4f(glGetUniformLocation(program, "diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(glGetUniformLocation(program, "specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(glGetUniformLocation(program, "params1"), dt, totalTime, 1.0f, 0.0f);
-			glUniform4f(glGetUniformLocation(program, "params2"), 1.0f, 0.0f, 0.0f, 0.0f);
-
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_DEPTH);
-			glDisable(GL_DEPTH_TEST);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName(debugSphere->meshName, drawInfo))
-			{
-				glBindVertexArray(drawInfo.VAO_ID);
-				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
-			}
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_DEPTH);
-			glEnable(GL_DEPTH_TEST);
-		}
-
-		// HACK
-		emitter1.position = pelican->position + pelican->qOrientation * glm::vec3(0.12f, 0.15f, -0.5f);
-		emitter1.particleInitialVelocityMin = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 1.1f;
-		emitter1.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter1.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter1.particleAcceleration = glm::vec3(0.0f);
-		//emitter1.spawnNew = zMove;
-
-		emitter1.update(dt);
-		std::vector<cParticle*> particles;
-		emitter1.getParticles(particles);
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = false;
-		for (auto p : particles)
-		{
-			debugSphere->scale = p->scale;
-			debugSphere->position = p->position;
-			debugSphere->color = p->color;
-			debugSphere->updateMatricis();
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
-		}
-		emitter2.position = pelican->position + pelican->qOrientation * glm::vec3(-0.12f, 0.15f, -0.5f);
-		emitter2.particleInitialVelocityMin = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 1.1f;
-		emitter2.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter2.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter2.particleAcceleration = glm::vec3(0.0f);
-		//emitter1.spawnNew = zMove;
-
-		emitter2.update(dt);
-		emitter2.getParticles(particles);
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = false;
-		for (auto p : particles)
-		{
-			debugSphere->scale = p->scale;
-			debugSphere->position = p->position;
-			debugSphere->color = p->color;
-			debugSphere->updateMatricis();
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
-		}
-
-
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
@@ -575,7 +425,7 @@ int main()
 			drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
 		}
 
-		if (debug_mode)
+		if (cWorld::debugMode)
 		{
 			pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
@@ -599,9 +449,6 @@ int main()
 	for (auto m : mapMeshes)
 		delete m.second;
 
-	for (auto aabb : cAABB::g_mapAABBs_World)
-		delete aabb.second;
-
 	delete pShaderManager;
 	delete pModelLoader;
 	delete pVAOManager;
@@ -616,20 +463,11 @@ int main()
 // Draw an object
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt)
 {
-	// Tie texture
-	GLuint texture_ul = pTextureManager->getTextureIDFromName(go->textureName);
-	if (texture_ul)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_ul);
-		glUniform1i(glGetUniformLocation(shader, "textSamp00"), 0);
-	}
-
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
-	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, (float)texture_ul);
+	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, 0.0f);
 	glUniform4f(glGetUniformLocation(shader, "params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 	if (go->wireFrame)

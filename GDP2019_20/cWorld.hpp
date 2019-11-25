@@ -6,6 +6,7 @@
 #include "iMessageable.hpp"
 #include "iGameObjectFactory.hpp"
 #include "cGameObject.hpp"
+#include "DebugRenderer/cDebugRenderer.h"
 #include "cLight.hpp"
 
 // Singleton world object
@@ -29,6 +30,9 @@ public:
 
 
 	void doDeferredActions();
+
+	static cDebugRenderer* pDebugRenderer;
+	static bool debugMode;
 
 private:
 	cWorld();

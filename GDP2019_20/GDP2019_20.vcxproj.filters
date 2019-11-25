@@ -28,9 +28,6 @@
     <Filter Include="InputManager">
       <UniqueIdentifier>{0a60ee32-9a7c-4253-ad00-5b51845aebf1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{b361f73b-451c-4732-bd9e-ded9333fabb4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="World">
       <UniqueIdentifier>{b863bea5-4142-4ab1-a45f-487d1a9b7697}</UniqueIdentifier>
     </Filter>
@@ -49,11 +46,14 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{a4da7a4e-8d3e-4517-b864-ad0380652284}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Particles">
-      <UniqueIdentifier>{78e1105d-a2cd-4c0a-ba0b-1d4c87ad5ed5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Textures">
       <UniqueIdentifier>{0e13311e-48b8-4c56-9a3d-628f83fc0339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{688ac717-7c3c-4ff5-b754-4f503484cf13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Lua Scripts">
+      <UniqueIdentifier>{c5cdfddf-46fe-43b8-8b6f-13f19b8bbf57}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -102,9 +102,6 @@
     <ClCompile Include="cKeyboardManager.cpp">
       <Filter>InputManager</Filter>
     </ClCompile>
-    <ClCompile Include="physics.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="cWorld.cpp">
       <Filter>World</Filter>
     </ClCompile>
@@ -113,9 +110,6 @@
     </ClCompile>
     <ClCompile Include="cFactoryManager.cpp">
       <Filter>GameObjectFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="cParticleEmitter.cpp">
-      <Filter>Particles</Filter>
     </ClCompile>
     <ClCompile Include="Texture\C24BitBMPpixel.cpp">
       <Filter>Textures</Filter>
@@ -126,11 +120,8 @@
     <ClCompile Include="Texture\CTextureFromBMP.cpp">
       <Filter>Textures</Filter>
     </ClCompile>
-    <ClCompile Include="cAABB.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="cPelican.cpp">
-      <Filter>CustomObjects</Filter>
+    <ClCompile Include="Lua\cLuaBrain.cpp">
+      <Filter>Lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,9 +164,6 @@
     <ClInclude Include="cKeyboardManager.hpp">
       <Filter>InputManager</Filter>
     </ClInclude>
-    <ClInclude Include="Physics.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="iMessageable.hpp">
       <Filter>Messageable</Filter>
     </ClInclude>
@@ -191,12 +179,6 @@
     <ClInclude Include="cFactoryManager.hpp">
       <Filter>GameObjectFactory</Filter>
     </ClInclude>
-    <ClInclude Include="cParticle.hpp">
-      <Filter>Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="cParticleEmitter.hpp">
-      <Filter>Particles</Filter>
-    </ClInclude>
     <ClInclude Include="Texture\C24BitBMPpixel.h">
       <Filter>Textures</Filter>
     </ClInclude>
@@ -206,11 +188,8 @@
     <ClInclude Include="Texture\CTextureFromBMP.h">
       <Filter>Textures</Filter>
     </ClInclude>
-    <ClInclude Include="cAABB.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="cPelican.hpp">
-      <Filter>CustomObjects</Filter>
+    <ClInclude Include="Lua\cLuaBrain.hpp">
+      <Filter>Lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -225,6 +204,9 @@
     </None>
     <None Include="assets\shaders\vertexShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\LuaScripts\test.lua">
+      <Filter>Resource Files\Lua Scripts</Filter>
     </None>
   </ItemGroup>
 </Project>

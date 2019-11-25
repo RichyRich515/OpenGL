@@ -13,6 +13,8 @@
 #include "cMesh.hpp"
 #include "iMessageable.hpp"
 
+#include "Lua/cLuaBrain.hpp"
+
 enum class eCollisionShapeType
 {
 	NONE = 0,
@@ -37,7 +39,7 @@ public:
 	virtual ~cGameObject();
 
 	virtual void init();
-	virtual void update(float dt);
+	virtual void update(float dt, float tt);
 	void physicsUpdate(float dt);
 	virtual sMessage message(sMessage const& msg);
 
@@ -54,8 +56,11 @@ public:
 
 	void updateMatricis();
 
+	int id;
 	std::string name;
 	std::string type;
+	std::string scriptName;
+	cLuaBrain* pLuaScript;
 	std::string textureName;
 	std::string meshName;
 	cMesh* mesh;
@@ -98,5 +103,4 @@ public:
 		PointsList* points;
 	} collisionObjectInfo;
 
-	
 };

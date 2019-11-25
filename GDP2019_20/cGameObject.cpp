@@ -1,6 +1,7 @@
 #include "cGameObject.hpp"
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <iostream>
+#include <fstream>
 
 cGameObject::cGameObject()
 {
@@ -61,6 +62,12 @@ cGameObject::~cGameObject()
 	{
 		delete this->collisionObjectInfo.points;
 	}
+
+
+	if (pLuaScript)
+	{
+		delete pLuaScript;
+	}
 	// TODO: Capsule
 }
 
@@ -68,6 +75,9 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 {
 	this->name = obj["name"].asString();
 	this->type = obj["type"].asString();
+	this->scriptName = obj["script"].asString();
+	this->pLuaScript = new cLuaBrain();
+	this->pLuaScript->loadScript(scriptName, this);
 	this->textureName = obj["textureName"].asString();
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
@@ -289,13 +299,14 @@ void cGameObject::updateMatricis()
 }
 
 void cGameObject::init()
-{
+{	
 
 }
 
-void cGameObject::update(float dt)
+void cGameObject::update(float dt, float tt)
 {
-	
+	if (pLuaScript)
+		pLuaScript->Update(dt, tt);
 }
 
 void cGameObject::physicsUpdate(float dt)

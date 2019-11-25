@@ -4,10 +4,6 @@
 		"location": "assets/models/mountains_xyzn_uv.ply"
 	},
 	{
-		"name": "pelican",
-		"location": "assets/models/pelican_xyzn.ply"
-	},
-	{
 		"name": "pillar_of_autumn",
 		"location": "assets/models/pillar_of_autumn_xyzn.ply"
 	},

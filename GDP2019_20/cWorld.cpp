@@ -4,6 +4,9 @@
 
 cWorld cWorld::_world;
 
+bool cWorld::debugMode;
+cDebugRenderer* cWorld::pDebugRenderer;
+
 sMessage cWorld::message(sMessage const& msg)
 {
 	return sMessage();
