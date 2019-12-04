@@ -4,12 +4,24 @@
 		"location": "assets/models/AssaultCarrier_xyznuv.ply"
 	},
 	{
+		"name": "cruiser",
+		"location": "assets/models/cruiser_xyzn_uv.ply"
+	},
+	{
+		"name": "terrain",
+		"location": "assets/models/terrain_xyzn_uv.ply"
+	},
+	{
 		"name": "pelican",
 		"location": "assets/models/pelican_xyzn.ply"
 	},
 	{
 		"name": "pillar_of_autumn",
 		"location": "assets/models/pillar_of_autumn_xyzn.ply"
+	},
+	{
+		"name": "plane",
+		"location": "assets/models/plane_xyzn_uv.ply"
 	},
 	{
 		"name": "sphere",

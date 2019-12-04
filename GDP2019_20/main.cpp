@@ -43,6 +43,9 @@
 
 #include "cParticleEmitter.hpp"
 
+
+constexpr float MAX_DELTA_TIME = 0.017f;
+
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
@@ -327,9 +330,9 @@ int main()
 	// Textures
 	for (unsigned i = 0; i < textures["textures"].size(); ++i)
 	{
-		if (!pTextureManager->Create2DTextureFromBMPFile(textures["textures"][i]["file"].asString(), true)) // NEED TO GENERATE MIP MAPS
+		if (!pTextureManager->Create2DTextureFromBMPFile(textures["textures"][i].asString(), true)) // NEED TO GENERATE MIP MAPS
 		{
-			std::cerr << "Failed to load texture " << textures["textures"][i]["file"].asString() << " to GPU" << std::endl;
+			std::cerr << "Failed to load texture " << textures["textures"][i].asString() << " to GPU" << std::endl;
 		}
 	}
 
@@ -359,9 +362,6 @@ int main()
 
 
 	openSceneFromFile("scene1.json");
-	// HACK:
-	cPelican* pelican = (cPelican*)world->vecGameObjects[1];
-	world->vecLights[1]->updateShaderUniforms();
 
 
 
@@ -406,8 +406,8 @@ int main()
 	float lastTime = 0;
 	float dt;
 
-	glm::vec3 cameraPosition = pelican->position + pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f);
-	glm::vec3 cameraUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
+	double cursorX, cursorY;
+	float lastcursorX = 0, lastcursorY = 0;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -415,8 +415,28 @@ int main()
 		dt = totalTime - lastTime;
 		lastTime = totalTime;
 
-		if (dt >= MAX_PHYSICS_DELTA_TIME)
-			dt = MAX_PHYSICS_DELTA_TIME;
+		if (dt >= MAX_DELTA_TIME)
+			dt = MAX_DELTA_TIME;
+
+		// Camera Movement
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+
+		yaw += ((float)cursorX - lastcursorX) * cameraSensitivity;
+		pitch += (lastcursorY - (float)cursorY) * cameraSensitivity;
+		lastcursorX = (float)cursorX;
+		lastcursorY = (float)cursorY;
+
+		// Lock pitch
+		if (pitch > 89.9f)
+			pitch = 89.9f;
+		else if (pitch < -89.9f)
+			pitch = -89.9f;
+
+		glm::vec3 front;
+		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front.y = sin(glm::radians(pitch));
+		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		cameraFront = glm::normalize(front);
 
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -429,55 +449,29 @@ int main()
 		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
 		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
 		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-		int rollMove = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
+
+		cameraEye += zMove * CAMERA_SPEED * dt * cameraFront;
+		cameraEye += -xMove * CAMERA_SPEED * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+		cameraEye += yMove * CAMERA_SPEED * dt * cameraUp;
 
 		if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(2)
-				<< "{" << pelican->position.x << ", " << pelican->position.y << ", " << pelican->position.z << "}";
+				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt);
-			//world->vecGameObjects[i]->physicsUpdate(dt);
+			world->vecGameObjects[i]->physicsUpdate(dt);
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
-		// collisions and stuff
-		//physicsUpdate(world->vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
-
-		if (debug_mode)
-		{
-			pDebugRenderer->addTriangle(
-				pelican->position,
-				pelican->position + pelican->velocity,
-				pelican->position + glm::vec3(0.0f, pelican->velocity.y, 0.0f),
-				glm::vec3(1.0f, 1.0f, 0.0f));
-
-			pDebugRenderer->addTriangle(
-				pelican->position,
-				pelican->position + pelican->acceleration,
-				pelican->position + glm::vec3(0.0f, pelican->acceleration.y, 0.0f),
-				glm::vec3(0.0f, 1.0f, 1.0f));
-		}
-
-		v = glm::mat4(1.0f);
-		glm::vec3 expectedPosition = pelican->position + (pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f));
-		cameraPosition = expectedPosition; //glm::mix(cameraPosition, expectedPosition, dt * 25.0f);
-		glm::vec3 expectedUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
-		cameraUpRel = expectedUpRel;// glm::mix(cameraUpRel, expectedUpRel, dt * 25.0f);
-
-		v = glm::lookAt(cameraPosition, pelican->position + pelican->qOrientation * glm::vec3(0.0f, 0.0f, 1.0f), pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f));
-
-		world->vecLights[1]->position = glm::vec4(pelican->position + (pelican->qOrientation * glm::vec3(0.0f, -0.14f, 0.49f)), 1.0f);
-		world->vecLights[1]->updateShaderUniforms();
-
 		// FOV, aspect ratio, near clip, far clip
-		fov = 60.0f; //glm::mix(fov, minfov + abs(pelican->velocity.length() / pelican->maxSpeed) * 10.0f, dt * 10.0f);
 		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
@@ -495,7 +489,7 @@ int main()
 				glUniform1i(glGetUniformLocation(program, "skyboxSamp00"), 10);
 			}
 			debugSphere->scale = 1.0f;
-			debugSphere->position = cameraPosition;
+			debugSphere->position = cameraEye;
 			debugSphere->wireFrame = false;
 			//debugSphere->lighting = true;
 			debugSphere->color = glm::vec4(1.0f);
@@ -525,51 +519,6 @@ int main()
 			glEnable(GL_DEPTH);
 			glEnable(GL_DEPTH_TEST);
 		}
-
-		// HACK
-		emitter1.position = pelican->position + pelican->qOrientation * glm::vec3(0.12f, 0.15f, -0.5f);
-		emitter1.particleInitialVelocityMin = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 1.1f;
-		emitter1.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter1.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter1.particleAcceleration = glm::vec3(0.0f);
-		//emitter1.spawnNew = zMove;
-
-		emitter1.update(dt);
-		std::vector<cParticle*> particles;
-		emitter1.getParticles(particles);
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = false;
-		for (auto p : particles)
-		{
-			debugSphere->scale = p->scale;
-			debugSphere->position = p->position;
-			debugSphere->color = p->color;
-			debugSphere->updateMatricis();
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
-		}
-		emitter2.position = pelican->position + pelican->qOrientation * glm::vec3(-0.12f, 0.15f, -0.5f);
-		emitter2.particleInitialVelocityMin = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 1.1f;
-		emitter2.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter2.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter2.particleAcceleration = glm::vec3(0.0f);
-		//emitter1.spawnNew = zMove;
-
-		emitter2.update(dt);
-		emitter2.getParticles(particles);
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = false;
-		for (auto p : particles)
-		{
-			debugSphere->scale = p->scale;
-			debugSphere->position = p->position;
-			debugSphere->color = p->color;
-			debugSphere->updateMatricis();
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
-		}
-
-
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{

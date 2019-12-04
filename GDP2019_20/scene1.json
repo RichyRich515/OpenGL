@@ -22,8 +22,7 @@
 		"pitch" : -13.900211334228516,
 		"yaw" : 1612.7940673828125
 	},
-	"gameObjects" : 
-	[
+	"gameObjects": [
 		{
 			"acceleration": [
 				0.0,
@@ -39,12 +38,147 @@
 				1.0,
 				1.0
 			],
-			"inverseMass": 1.0,
-			"meshName": "AssaultCarrier",
-			"name": "carrier",
+			"inverseMass": 0.0,
+			"meshName": "carrier",
+			"name": "carrier1",
+			"position": [
+				-10.0,
+				0.0,
+				0.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale": 2.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
+			"color": [
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "cruiser",
+			"name": "cruiser1",
+			"position": [
+				10.0,
+				0.0,
+				0.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale": 0.75,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "cruiser_texture.bmp",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
+			"color": [
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "pillar_of_autumn",
+			"name": "pillar_of_autumn1",
 			"position": [
 				0.0,
 				0.0,
+				0.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale": 4.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
+			"color": [
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "terrain",
+			"name": "terrain",
+			"position": [
+				0.0,
+				-20.0,
 				0.0
 			],
 			"rotation": [
@@ -59,7 +193,52 @@
 				1.0,
 				10000.0
 			],
-			"textureName": "",
+			"textureName": "water1.bmp",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
+			"color": [
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "plane",
+			"name": "ocean",
+			"position": [
+				0.0,
+				-25.0,
+				0.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"scale": 1.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "water1.bmp",
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -118,7 +297,7 @@
 		{
 			"atten": [
 				0.0,
-				0.04,
+				0.06,
 				0.0,
 				10000.0
 			],
