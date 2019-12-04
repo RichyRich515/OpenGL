@@ -32,7 +32,6 @@
 #include "cPelican.hpp"
 #include "cLight.hpp"
 #include "Physics.hpp"
-#include "cAABB.hpp"
 #include "cKeyboardManager.hpp"
 
 #include "iGameObjectFactory.hpp"
@@ -288,9 +287,6 @@ int main()
 		mapMeshes[name] = m;
 	}
 
-	// TODO: this stuff
-	CalcAABBsForMesh(mapMeshes["terrain"], 100.0f, 10, 2, 10);
-
 	// make shader
 	cShaderManager::cShader vertexShader01;
 	vertexShader01.fileName = "assets/shaders/vertexShader01.glsl";
@@ -323,25 +319,36 @@ int main()
 	pTextureManager = new cBasicTextureManager();
 	pTextureManager->SetBasePath("assets/textures");
 
-	// TODO: load texture names from JSON
-	std::string textureName = "mountains_big_2.bmp";
-	if (!pTextureManager->Create2DTextureFromBMPFile(textureName, true)) // NEED TO GENERATE MIP MAPS
+	std::ifstream texturesjson("textures.json");
+	Json::Value textures;
+	texturesjson >> textures;
+	texturesjson.close();
+
+	// Textures
+	for (unsigned i = 0; i < textures["textures"].size(); ++i)
 	{
-		std::cerr << "Failed to load texture " << textureName << " to GPU" << std::endl;
+		if (!pTextureManager->Create2DTextureFromBMPFile(textures["textures"][i]["file"].asString(), true)) // NEED TO GENERATE MIP MAPS
+		{
+			std::cerr << "Failed to load texture " << textures["textures"][i]["file"].asString() << " to GPU" << std::endl;
+		}
 	}
 
-	std::string err;
-	if (!pTextureManager->CreateCubeTextureFromBMPFiles(
-		"skybox",
-		"iceflow_lf.bmp",
-		"iceflow_rt.bmp",
-		"iceflow_dn.bmp",
-		"iceflow_up.bmp",
-		"iceflow_ft.bmp",
-		"iceflow_bk.bmp",
-		true, err)) // NEED TO GENERATE MIP MAPS
+	// Skyboxes
+	for (unsigned i = 0; i < textures["textures"].size(); ++i)
 	{
-		std::cerr << "Failed to load cubemap to GPU: " << err << std::endl;
+		std::string err;
+		if (!pTextureManager->CreateCubeTextureFromBMPFiles(
+			textures["skyboxes"][i]["name"].asString(),
+			textures["skyboxes"][i]["file_left"].asString(),
+			textures["skyboxes"][i]["file_right"].asString(),
+			textures["skyboxes"][i]["file_down"].asString(),
+			textures["skyboxes"][i]["file_up"].asString(),
+			textures["skyboxes"][i]["file_front"].asString(),
+			textures["skyboxes"][i]["file_back"].asString(),
+			true, err)) // NEED TO GENERATE MIP MAPS
+		{
+			std::cerr << "Failed to load cubemap " << textures["skyboxes"][i]["name"].asString() << " to GPU: " << err << std::endl;
+		}
 	}
 
 	cGameObject* debugSphere = new cGameObject("debugsphere");
@@ -423,10 +430,6 @@ int main()
 		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
 		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 		int rollMove = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-		pelican->forwardAccel = zMove * 50.0f;
-		pelican->leftrightAccel = xMove * 2.0f; // X rot
-		pelican->updownAccel = -yMove * 2.0f; // Y rot
-		pelican->rollAccel = -rollMove * 2.0f; // Z rot
 
 		if (world->vecGameObjects.size() && world->vecLights.size())
 		{
@@ -439,12 +442,12 @@ int main()
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt);
-			world->vecGameObjects[i]->physicsUpdate(dt);
+			//world->vecGameObjects[i]->physicsUpdate(dt);
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
 		// collisions and stuff
-		physicsUpdate(world->vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
+		//physicsUpdate(world->vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
 
 		if (debug_mode)
 		{
@@ -484,7 +487,7 @@ int main()
 		// draw Skybox
 		{
 			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName("skybox");
+			GLuint texture_ul = pTextureManager->getTextureIDFromName("snowy_mountains");
 			if (texture_ul)
 			{
 				glActiveTexture(GL_TEXTURE10);
@@ -598,9 +601,6 @@ int main()
 
 	for (auto m : mapMeshes)
 		delete m.second;
-
-	for (auto aabb : cAABB::g_mapAABBs_World)
-		delete aabb.second;
 
 	delete pShaderManager;
 	delete pModelLoader;

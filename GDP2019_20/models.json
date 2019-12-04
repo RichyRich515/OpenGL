@@ -1,7 +1,7 @@
 [
 	{
-		"name": "terrain",
-		"location": "assets/models/mountains_xyzn_uv.ply"
+		"name": "carrier",
+		"location": "assets/models/AssaultCarrier_xyznuv.ply"
 	},
 	{
 		"name": "pelican",

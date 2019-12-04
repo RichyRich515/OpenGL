@@ -226,5 +226,8 @@
     <None Include="assets\shaders\vertexShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="textures.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -201,6 +201,7 @@
     <None Include="assets\shaders\vertexShader01.glsl" />
     <None Include="models.json" />
     <None Include="scene1.json" />
+    <None Include="textures.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

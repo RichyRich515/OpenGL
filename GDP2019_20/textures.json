@@ -1,0 +1,19 @@
+{
+	"location": "assets/textures",
+	"skyboxes": [
+		{
+			"name": "snowy_mountains",
+			"file_left": "iceflow_lf.bmp",
+			"file_right": "iceflow_rt.bmp",
+			"file_down": "iceflow_dn.bmp",
+			"file_up": "iceflow_up.bmp",
+			"file_front": "iceflow_ft.bmp",
+			"file_back": "iceflow_bk.bmp"
+		}
+	],
+	"textures": [
+		{
+			"file": "mountains_big_2.bmp"
+		}
+	]
+}

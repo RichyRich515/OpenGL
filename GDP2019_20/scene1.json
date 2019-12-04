@@ -31,75 +31,17 @@
 				0.0
 			],
 			"bounciness": 0.0,
-			"collisionObjectInfo": {
-				"mesh": "terrain"
-			},
-			"collisionShapeType": 8,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
 			"color": [
-				0.8,
-				0.8,
-				0.8,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "terrain",
-			"name": "terrain",
-			"position": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"rotation": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"scale": 1.0,
-			"specular": [
 				1.0,
 				1.0,
 				1.0,
-				1000.0
-			],
-			"textureName": "mountains_big_2.bmp",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": true,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {
-
-				"points": [
-					[ 0.0, -0.15, 0.5 ],
-					[ 0.383, 0.05, 0.2 ],
-					[ -0.383, 0.05, 0.2 ],
-					[ 0.0, -0.14, 0.0 ],
-					[ 0.0, 0.14, 0.0 ],
-					[ -0.195, 0.15, -0.5 ],
-					[ 0.195, 0.15, -0.5 ]
-				]
-			},
-			"collisionShapeType": 7,
-			"color": [
-				0.25,
-				0.3,
-				0.25,
 				1.0
 			],
 			"inverseMass": 1.0,
-			"meshName": "pelican",
-			"name": "pelican",
+			"meshName": "AssaultCarrier",
+			"name": "carrier",
 			"position": [
 				0.0,
 				0.0,
@@ -118,7 +60,7 @@
 				10000.0
 			],
 			"textureName": "",
-			"type": "pelican",
+			"type": "basic",
 			"velocity": [
 				0.0,
 				0.0,
