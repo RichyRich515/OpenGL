@@ -566,7 +566,7 @@ int main()
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt)
 {
 	// Tie texture
-	GLuint texture_ul = pTextureManager->getTextureIDFromName(go->textureName);
+	GLuint texture_ul = pTextureManager->getTextureIDFromName(go->textures[0].fileName);
 	if (texture_ul)
 	{
 		glActiveTexture(GL_TEXTURE0);

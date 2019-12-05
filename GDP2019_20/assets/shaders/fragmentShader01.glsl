@@ -15,7 +15,7 @@ uniform vec4 specularColour;
 // x: delta Time
 // y: total Time 
 // z: do not light
-// w: has texture
+// w:
 uniform vec4 params1;
 
 // x: is skybox 
@@ -24,10 +24,29 @@ uniform vec4 params1;
 // w: 
 uniform vec4 params2;
 
+// x: offsetX
+// y: offsetY
+// z: blend ratio
+// w: tiling
+
+uniform vec4 textparams00;
+uniform vec4 textparams01;
+uniform vec4 textparams02;
+uniform vec4 textparams03;
+uniform vec4 textparams04;
+uniform vec4 textparams05;
 
 // Texture samplers
 uniform sampler2D textSamp00;
 uniform sampler2D textSamp01;
+uniform sampler2D textSamp02;
+uniform sampler2D textSamp03;
+uniform sampler2D textSamp04;
+uniform sampler2D textSamp05;
+
+uniform vec4 heightparams;
+uniform sampler2D heightSamp01;
+
 
 uniform samplerCube skyboxSamp00;
 

@@ -110,11 +110,7 @@
 						"tiling": 1.0,
 						"blend": 1.0
 					}
-				],
-				"heightmap": {
-					"name": "",
-					"tiling": 1.0
-				}
+				]
 			},
 			"type": "basic",
 			"velocity": [
@@ -210,13 +206,9 @@
 					{
 						"name": "terrain_texture.bmp",
 						"tiling": 10.0,
-						"blend":  1.0
+						"blend": 1.0
 					}
-				],
-				"heightmap": {
-					"name": "",
-					"tiling": 1.0
-				}
+				]
 			},
 			"type": "basic",
 			"velocity": [
@@ -266,13 +258,13 @@
 				"textures": [
 					{
 						"name": "water1.bmp",
-						"tiling": 20.0,
+						"tiling": 40.0,
 						"blend": 1.0
 					}
 				],
 				"heightmap": {
 					"name": "water1_height.bmp",
-					"tiling": 20.0
+					"tiling": 40.0
 				}
 			},
 			"type": "basic",

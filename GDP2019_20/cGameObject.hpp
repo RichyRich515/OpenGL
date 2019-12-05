@@ -12,6 +12,9 @@
 
 #include "cMesh.hpp"
 #include "iMessageable.hpp"
+#include "cTexture.hpp"
+
+constexpr unsigned MAX_TEXTURES = 6;
 
 enum class eCollisionShapeType
 {
@@ -56,7 +59,7 @@ public:
 
 	std::string name;
 	std::string type;
-	std::string textureName;
+	cTexture textures[MAX_TEXTURES];
 	std::string meshName;
 	cMesh* mesh;
 
@@ -64,7 +67,6 @@ public:
 	glm::mat4 inverseTransposeMatWorld;
 
 	glm::vec3 position;
-	//glm::vec3 rotation;
 	glm::quat qOrientation;
 
 	float scale;
@@ -97,6 +99,4 @@ public:
 		MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
 		PointsList* points;
 	} collisionObjectInfo;
-
-	
 };

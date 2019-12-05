@@ -6,7 +6,6 @@ cGameObject::cGameObject()
 {
 	this->name = "";
 	this->meshName = "";
-	this->textureName = "";
 	this->type = "basic";
 	this->mesh = NULL;
 	this->position = glm::vec3(0);
@@ -26,7 +25,6 @@ cGameObject::cGameObject(std::string name)
 {
 	this->name = name;
 	this->meshName = "";
-	this->textureName = "";
 	this->type = "basic";
 	this->mesh = NULL;
 	this->position = glm::vec3(0);
@@ -68,7 +66,27 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 {
 	this->name = obj["name"].asString();
 	this->type = obj["type"].asString();
-	this->textureName = obj["textureName"].asString();
+
+	if (obj["texture"])
+	{
+		if (obj["texture"]["textures"])
+		{
+			unsigned tex_count = obj["texture"]["textures"].size();
+			if (tex_count <= MAX_TEXTURES)
+			{
+				for (unsigned i = 0; i < tex_count; ++i)
+				{
+					this->textures[i].fileName = obj["texture"]["textures"][i]["name"].asString();
+					this->textures[i].tiling = obj["texture"]["textures"][i]["tiling"].asFloat();
+					this->textures[i].blend = obj["texture"]["textures"][i]["blend"].asFloat();
+				}
+			}
+		}
+		if (obj["texture"]["heightmap"])
+		{
+
+		}
+	}
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
 	// Load vec3s
@@ -167,7 +185,7 @@ Json::Value cGameObject::serializeJSONObject()
 	Json::Value obj = Json::objectValue;
 	obj["name"] = this->name;
 	obj["type"] = this->type;
-	obj["textureName"] = this->textureName;
+	//obj["textureName"] = this->textureName;
 	obj["meshName"] = this->meshName;
 	// write vec3s
 	for (unsigned j = 0; j < 3; ++j)

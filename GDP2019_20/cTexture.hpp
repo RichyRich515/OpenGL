@@ -7,4 +7,5 @@ class cTexture
 public:
 	std::string fileName;
 	float tiling;
+	float blend;
 };
