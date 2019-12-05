@@ -192,6 +192,7 @@
     <ClInclude Include="cParticle.hpp" />
     <ClInclude Include="Physics.hpp" />
     <ClInclude Include="cWorld.hpp" />
+    <ClInclude Include="cTexture.hpp" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />

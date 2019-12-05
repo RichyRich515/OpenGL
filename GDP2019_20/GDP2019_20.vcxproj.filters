@@ -212,6 +212,9 @@
     <ClInclude Include="cPelican.hpp">
       <Filter>CustomObjects</Filter>
     </ClInclude>
+    <ClInclude Include="cTexture.hpp">
+      <Filter>Textures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="models.json">

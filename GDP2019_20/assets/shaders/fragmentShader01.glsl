@@ -78,7 +78,7 @@ void main()
 	vec4 outColour = calculateLightContrib(diffuseColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
 	if (params1.w != 0.0) // has texture
 	{
-		vec3 textCol = texture(textSamp00, fUVx2.st).rgb;
+		vec3 textCol = texture(textSamp00, fUVx2.st * 20).rgb;
 		pixelColour.rgb = outColour.rgb * textCol + (textCol.rgb * ambientColour.rgb);
 	}
 	else // no texture

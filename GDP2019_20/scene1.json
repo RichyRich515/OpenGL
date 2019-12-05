@@ -103,7 +103,19 @@
 				1.0,
 				10000.0
 			],
-			"textureName": "cruiser_texture.bmp",
+			"texture": {
+				"textures": [
+					{
+						"name": "cruiser_texture.bmp",
+						"tiling": 1.0,
+						"blend": 1.0
+					}
+				],
+				"heightmap": {
+					"name": "",
+					"tiling": 1.0
+				}
+			},
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -148,7 +160,7 @@
 				1.0,
 				10000.0
 			],
-			"textureName": "",
+			"texture": {},
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -193,7 +205,19 @@
 				1.0,
 				10000.0
 			],
-			"textureName": "water1.bmp",
+			"texture": {
+				"textures": [
+					{
+						"name": "terrain_texture.bmp",
+						"tiling": 10.0,
+						"blend":  1.0
+					}
+				],
+				"heightmap": {
+					"name": "",
+					"tiling": 1.0
+				}
+			},
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -223,7 +247,7 @@
 			"name": "ocean",
 			"position": [
 				0.0,
-				-25.0,
+				-21.0,
 				0.0
 			],
 			"rotation": [
@@ -231,14 +255,26 @@
 				0.0,
 				0.0
 			],
-			"scale": 1.0,
+			"scale": 2000.0,
 			"specular": [
 				1.0,
 				1.0,
 				1.0,
 				10000.0
 			],
-			"textureName": "water1.bmp",
+			"texture": {
+				"textures": [
+					{
+						"name": "water1.bmp",
+						"tiling": 20.0,
+						"blend": 1.0
+					}
+				],
+				"heightmap": {
+					"name": "water1_height.bmp",
+					"tiling": 20.0
+				}
+			},
 			"type": "basic",
 			"velocity": [
 				0.0,
