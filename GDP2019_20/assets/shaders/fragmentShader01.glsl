@@ -28,7 +28,6 @@ uniform vec4 params2;
 // y: offsetY
 // z: blend ratio
 // w: tiling
-
 uniform vec4 textparams00;
 uniform vec4 textparams01;
 uniform vec4 textparams02;
@@ -44,9 +43,7 @@ uniform sampler2D textSamp03;
 uniform sampler2D textSamp04;
 uniform sampler2D textSamp05;
 
-uniform vec4 heightparams;
-uniform sampler2D heightSamp01;
-
+uniform sampler2D heightSamp;
 
 uniform samplerCube skyboxSamp00;
 
@@ -95,21 +92,17 @@ void main()
 	}
 
 	vec4 outColour = calculateLightContrib(diffuseColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
-	if (params1.w != 0.0) // has texture
+	if (textparams00.w != 0.0) // has texture
 	{
-		vec3 textCol = texture(textSamp00, fUVx2.st * 20).rgb;
+		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
 		pixelColour.rgb = outColour.rgb * textCol + (textCol.rgb * ambientColour.rgb);
 	}
 	else // no texture
 	{
 		pixelColour.rgb = outColour.rgb + (diffuseColour.rgb * ambientColour.rgb);
 	}
-	pixelColour.a = diffuseColour.a;
-	//pixelColour.rgb *= textCol.rgb;
 
-	//pixelColour.rgb += textCol * ambientColour.rgb;
-	//pixelColour *= 0.00001;
-	//pixelColour.rgb = vec3(fUVx2.st, 1.0);
+	pixelColour.a = diffuseColour.a;
 }
 
 

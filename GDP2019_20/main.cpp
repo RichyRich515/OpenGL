@@ -337,7 +337,7 @@ int main()
 	}
 
 	// Skyboxes
-	for (unsigned i = 0; i < textures["textures"].size(); ++i)
+	for (unsigned i = 0; i < textures["skyboxes"].size(); ++i)
 	{
 		std::string err;
 		if (!pTextureManager->CreateCubeTextureFromBMPFiles(
@@ -391,7 +391,7 @@ int main()
 	glm::mat4 v, p;
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
-	
+
 	float fov = 60.0f;
 	float minfov = 60.0f;
 
@@ -399,6 +399,8 @@ int main()
 
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
 
 	// timing
@@ -462,6 +464,11 @@ int main()
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
+		world->vecGameObjects[4]->textures[0].xOffset = -totalTime / 20.0f;
+		world->vecGameObjects[4]->textures[0].yOffset = totalTime / 10.0f;
+
+		world->vecGameObjects[4]->heightmap.xOffset = -totalTime / 30.0f;
+		world->vecGameObjects[4]->heightmap.yOffset = totalTime / 20.0f;
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt);
@@ -502,6 +509,7 @@ int main()
 			glUniform4f(glGetUniformLocation(program, "specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
 			glUniform4f(glGetUniformLocation(program, "params1"), dt, totalTime, 1.0f, 0.0f);
 			glUniform4f(glGetUniformLocation(program, "params2"), 1.0f, 0.0f, 0.0f, 0.0f);
+			glUniform4f(glGetUniformLocation(program, "heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH);
@@ -569,9 +577,34 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	GLuint texture_ul = pTextureManager->getTextureIDFromName(go->textures[0].fileName);
 	if (texture_ul)
 	{
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, texture_ul);
 		glUniform1i(glGetUniformLocation(shader, "textSamp00"), 0);
+		glUniform4f(glGetUniformLocation(shader, "textparams00"),
+			go->textures[0].xOffset,
+			go->textures[0].yOffset,
+			go->textures[0].blend,
+			go->textures[0].tiling);
+	}
+	else
+	{
+		glUniform4f(glGetUniformLocation(shader, "textparams00"), 0.0f, 0.0f, 0.0f, 0.0f);
+	}
+	texture_ul = pTextureManager->getTextureIDFromName(go->heightmap.fileName);
+	if (texture_ul)
+	{
+		glActiveTexture(GL_TEXTURE0 + 40);
+		glBindTexture(GL_TEXTURE_2D, texture_ul);
+		glUniform1i(glGetUniformLocation(shader, "heightSamp"), 40);
+		glUniform4f(glGetUniformLocation(shader, "heightparams"),
+			go->heightmap.xOffset,
+			go->heightmap.yOffset,
+			go->heightmap.blend,
+			go->heightmap.tiling);
+	}
+	else
+	{
+		glUniform4f(glGetUniformLocation(shader, "heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));

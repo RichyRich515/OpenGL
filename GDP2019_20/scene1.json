@@ -1,26 +1,22 @@
 {
-	"camera" : 
-	{
-		"cameraEye" : 
-		[
+	"camera": {
+		"cameraEye": [
 			2.6228821277618408,
 			0.60312420129776001,
 			-0.45852220058441162
 		],
-		"cameraFront" : 
-		[
+		"cameraFront": [
 			-0.96304875612258911,
 			-0.24023164808750153,
 			0.12176211178302765
 		],
-		"cameraUp" : 
-		[
+		"cameraUp": [
 			0.0,
 			1.0,
 			0.0
 		],
-		"pitch" : -13.900211334228516,
-		"yaw" : 1612.7940673828125
+		"pitch": -13.900211334228516,
+		"yaw": 1612.7940673828125
 	},
 	"gameObjects": [
 		{
@@ -34,9 +30,9 @@
 			"collisionShapeType": 0,
 			"color": [
 				1.0,
+				0.0,
 				1.0,
-				1.0,
-				1.0
+				0.5
 			],
 			"inverseMass": 0.0,
 			"meshName": "carrier",
@@ -58,7 +54,6 @@
 				1.0,
 				10000.0
 			],
-			"textureName": "",
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -239,7 +234,7 @@
 			"name": "ocean",
 			"position": [
 				0.0,
-				-21.0,
+				-22.0,
 				0.0
 			],
 			"rotation": [
@@ -247,7 +242,7 @@
 				0.0,
 				0.0
 			],
-			"scale": 2000.0,
+			"scale": 7.0,
 			"specular": [
 				1.0,
 				1.0,
@@ -367,18 +362,15 @@
 			]
 		}
 	],
-	"world" : 
-	{
-		"ambience" : 
-		[
+	"world": {
+		"ambience": [
 			0.3,
 			0.3,
 			0.3,
 			1.0
 		],
-		"factoryType" : "Basic",
-		"gravity" : 
-		[
+		"factoryType": "Basic",
+		"gravity": [
 			0.0,
 			0.0,
 			0.0

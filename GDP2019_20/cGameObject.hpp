@@ -60,6 +60,8 @@ public:
 	std::string name;
 	std::string type;
 	cTexture textures[MAX_TEXTURES];
+	cTexture heightmap;
+
 	std::string meshName;
 	cMesh* mesh;
 
