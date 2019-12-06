@@ -103,6 +103,16 @@
 					{
 						"name": "cruiser_texture.bmp",
 						"tiling": 1.0,
+						"blend": 0.5
+					},
+					{
+						"name": "Energy1.bmp",
+						"tiling": 1.0,
+						"blend": 1.0
+					},
+					{
+						"name": "Energy2.bmp",
+						"tiling": 1.0,
 						"blend": 1.0
 					}
 				]
@@ -181,7 +191,7 @@
 			"name": "terrain",
 			"position": [
 				0.0,
-				-20.0,
+				-22.0,
 				0.0
 			],
 			"rotation": [
@@ -203,7 +213,12 @@
 						"tiling": 10.0,
 						"blend": 1.0
 					}
-				]
+				],
+				"heightmap": {
+					"name": "terrain_height.bmp",
+					"tiling": 1.0,
+					"scale": 10.0
+				}
 			},
 			"type": "basic",
 			"velocity": [
@@ -234,7 +249,7 @@
 			"name": "ocean",
 			"position": [
 				0.0,
-				-22.0,
+				-18.0,
 				0.0
 			],
 			"rotation": [
@@ -253,13 +268,14 @@
 				"textures": [
 					{
 						"name": "water1.bmp",
-						"tiling": 40.0,
+						"tiling": 60.0,
 						"blend": 1.0
 					}
 				],
 				"heightmap": {
 					"name": "water1_height.bmp",
-					"tiling": 40.0
+					"tiling": 40.0,
+					"scale": 0.25
 				}
 			},
 			"type": "basic",

@@ -86,6 +86,7 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 		{
 			this->heightmap.fileName = obj["texture"]["heightmap"]["name"].asString();
 			this->heightmap.tiling = obj["texture"]["heightmap"]["tiling"].asFloat();
+			this->heightmap.blend = obj["texture"]["heightmap"]["scale"].asFloat();
 		}
 	}
 	this->meshName = obj["meshName"].asString();

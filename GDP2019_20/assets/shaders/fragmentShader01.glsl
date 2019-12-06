@@ -91,15 +91,28 @@ void main()
 		return;
 	}
 
-	vec4 outColour = calculateLightContrib(diffuseColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
+	vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
 	if (textparams00.w != 0.0) // has texture
 	{
 		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
-		pixelColour.rgb = outColour.rgb * textCol + (textCol.rgb * ambientColour.rgb);
+		vec3 textured = (textCol + (textCol.rgb * ambientColour.rgb)) * textparams00.z;
+
+		if (textparams01.w != 0.0)
+		{
+			textCol = texture(textSamp01, fUVx2.st * textparams01.w + textparams01.xy).rgb;
+			textured += (textCol + (textCol.rgb * ambientColour.rgb)) * textparams01.z;
+
+			if (textparams02.w != 0.0)
+			{
+				textCol = texture(textSamp02, fUVx2.st * textparams02.w + textparams02.xy).rgb;
+				textured += (textCol + (textCol.rgb * ambientColour.rgb)) * textparams02.z;
+			}
+		}
+		pixelColour.rgb = textured * lightColoured.rgb;
 	}
 	else // no texture
 	{
-		pixelColour.rgb = outColour.rgb + (diffuseColour.rgb * ambientColour.rgb);
+		pixelColour.rgb = lightColoured.rgb + (diffuseColour.rgb * ambientColour.rgb);
 	}
 
 	pixelColour.a = diffuseColour.a;

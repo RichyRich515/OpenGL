@@ -13,8 +13,11 @@
 	],
 	"textures": [
 		"cruiser_texture.bmp",
+		"Energy1.bmp",
+		"Energy2.bmp",
 		"water1.bmp",
 		"water1_height.bmp",
-		"terrain_texture.bmp"
+		"terrain_texture.bmp",
+		"terrain_height.bmp"
 	]
 }

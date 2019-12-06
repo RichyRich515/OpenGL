@@ -17,7 +17,7 @@ out vec4 fUVx2;
 
 // x: offsetX
 // y: offsetY
-// z:
+// z: scale
 // w: tiling
 uniform vec4 heightparams;
 uniform sampler2D heightSamp;
@@ -33,7 +33,7 @@ void main()
 	if (heightparams.w != 0.0)
 	{
 		vec4 samp = texture(heightSamp, vUVx2.st * heightparams.w + heightparams.xy);
-		vertPosition.y += (samp.r + samp.g + samp.b - 0.5) / 5.0;
+		vertPosition.y += (samp.r + samp.g + samp.b) * heightparams.z;
 	}
 
     gl_Position = matMVP * vec4(vertPosition.xyz, 1.0f);

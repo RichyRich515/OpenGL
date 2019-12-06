@@ -464,11 +464,19 @@ int main()
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
+		world->vecGameObjects[1]->textures[1].xOffset = totalTime / 30.0f;
+		//world->vecGameObjects[1]->textures[1].yOffset = totalTime / 30.0f;
+
+		world->vecGameObjects[1]->textures[2].xOffset = totalTime / 20.0f;
+		//world->vecGameObjects[1]->textures[2].yOffset = totalTime / 30.0f;
+
 		world->vecGameObjects[4]->textures[0].xOffset = -totalTime / 20.0f;
 		world->vecGameObjects[4]->textures[0].yOffset = totalTime / 10.0f;
 
 		world->vecGameObjects[4]->heightmap.xOffset = -totalTime / 30.0f;
 		world->vecGameObjects[4]->heightmap.yOffset = totalTime / 20.0f;
+
+
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt);
@@ -573,7 +581,7 @@ int main()
 // Draw an object
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt)
 {
-	// Tie texture
+	// Tie textures
 	GLuint texture_ul = pTextureManager->getTextureIDFromName(go->textures[0].fileName);
 	if (texture_ul)
 	{
@@ -590,6 +598,40 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	{
 		glUniform4f(glGetUniformLocation(shader, "textparams00"), 0.0f, 0.0f, 0.0f, 0.0f);
 	}
+	texture_ul = pTextureManager->getTextureIDFromName(go->textures[1].fileName);
+	if (texture_ul)
+	{
+		glActiveTexture(GL_TEXTURE0 + 1);
+		glBindTexture(GL_TEXTURE_2D, texture_ul);
+		glUniform1i(glGetUniformLocation(shader, "textSamp01"), 0);
+		glUniform4f(glGetUniformLocation(shader, "textparams01"),
+			go->textures[1].xOffset,
+			go->textures[1].yOffset,
+			go->textures[1].blend,
+			go->textures[1].tiling);
+	}
+	else
+	{
+		glUniform4f(glGetUniformLocation(shader, "textparams01"), 0.0f, 0.0f, 0.0f, 0.0f);
+	}
+	texture_ul = pTextureManager->getTextureIDFromName(go->textures[2].fileName);
+	if (texture_ul)
+	{
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, texture_ul);
+		glUniform1i(glGetUniformLocation(shader, "textSamp02"), 0);
+		glUniform4f(glGetUniformLocation(shader, "textparams02"),
+			go->textures[2].xOffset,
+			go->textures[2].yOffset,
+			go->textures[2].blend,
+			go->textures[2].tiling);
+	}
+	else
+	{
+		glUniform4f(glGetUniformLocation(shader, "textparams02"), 0.0f, 0.0f, 0.0f, 0.0f);
+	}
+
+	// Height map
 	texture_ul = pTextureManager->getTextureIDFromName(go->heightmap.fileName);
 	if (texture_ul)
 	{
