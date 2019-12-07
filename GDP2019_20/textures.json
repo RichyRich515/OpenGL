@@ -13,10 +13,16 @@
 	],
 	"textures": [
 		"cruiser_texture.bmp",
+		"metal.bmp",
+		"scorpion_body.bmp",
 		"Energy1.bmp",
 		"Energy2.bmp",
+		"building1.bmp",
+		"building5.bmp",
+		"building6.bmp",
 		"water1.bmp",
 		"water1_height.bmp",
+		"water2.bmp",
 		"terrain_texture.bmp",
 		"terrain_height.bmp"
 	]

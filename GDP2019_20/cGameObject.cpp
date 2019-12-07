@@ -95,7 +95,6 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 	for (unsigned j = 0; j < 3; ++j)
 	{
 		this->position[j] = obj["position"][j].asFloat();
-		this->qOrientation[j] = obj["rotation"][j].asFloat();
 		this->velocity[j] = obj["velocity"][j].asFloat();
 		this->acceleration[j] = obj["acceleration"][j].asFloat();
 	}
@@ -103,6 +102,7 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 	for (unsigned j = 0; j < 4; ++j)
 	{
 		this->color[j] = obj["color"][j].asFloat();
+		this->qOrientation[j] = obj["rotation"][j].asFloat();
 		this->specular[j] = obj["specular"][j].asFloat();
 	}
 	this->scale = obj["scale"].asFloat();
@@ -187,13 +187,38 @@ Json::Value cGameObject::serializeJSONObject()
 	Json::Value obj = Json::objectValue;
 	obj["name"] = this->name;
 	obj["type"] = this->type;
-	//obj["textureName"] = this->textureName;
+
+	Json::Value text = Json::objectValue;
+	bool textured = false;
+	for (unsigned i = 0; i < MAX_TEXTURES; ++i)
+	{
+		if (!this->textures->fileName.empty())
+		{
+			Json::Value text_temp = Json::objectValue;
+			text_temp["name"] = this->textures[i].fileName;
+			text_temp["tiling"] = this->textures[i].tiling;
+			text_temp["blend"] = this->textures[i].blend;
+			text["textures"].append(text_temp);
+			textured = true;
+		}
+	}
+	if (!this->heightmap.fileName.empty())
+	{
+		text["heightmap"] = Json::objectValue;
+		text["heightmap"]["name"] = this->heightmap.fileName;
+		text["heightmap"]["tiling"] = this->heightmap.tiling;
+		text["heightmap"]["scale"] = this->heightmap.blend;
+		textured = true;
+	}
+
+	if (textured)
+		obj["texture"] = text;
+
 	obj["meshName"] = this->meshName;
 	// write vec3s
 	for (unsigned j = 0; j < 3; ++j)
 	{
 		obj["position"][j] = this->position[j];
-		obj["rotation"][j] = this->qOrientation[j];
 		obj["velocity"][j] = this->velocity[j];
 		obj["acceleration"][j] = this->acceleration[j];
 	}
@@ -201,6 +226,7 @@ Json::Value cGameObject::serializeJSONObject()
 	for (unsigned j = 0; j < 4; ++j)
 	{
 		obj["color"][j] = this->color[j];
+		obj["rotation"][j] = this->qOrientation[j];
 		obj["specular"][j] = this->specular[j];
 	}
 	obj["scale"] = this->scale;

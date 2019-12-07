@@ -11,7 +11,6 @@ uniform vec4 ambientColour;
 uniform vec4 diffuseColour;
 uniform vec4 specularColour;
 
-
 // x: delta Time
 // y: total Time 
 // z: do not light
@@ -68,8 +67,8 @@ const int POINT_LIGHT_TYPE = 0;
 const int SPOT_LIGHT_TYPE = 1;
 const int DIRECTIONAL_LIGHT_TYPE = 2;
 
-const int NUMBEROFLIGHTS = 10;
-uniform sLight lights[NUMBEROFLIGHTS]; // 80 uniforms
+const int NUMBEROFLIGHTS = 20;
+uniform sLight lights[NUMBEROFLIGHTS];
 
 vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 vertexWorldPos, vec4 vertexSpecular);
 	 
@@ -95,20 +94,24 @@ void main()
 	if (textparams00.w != 0.0) // has texture
 	{
 		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
-		vec3 textured = (textCol + (textCol.rgb * ambientColour.rgb)) * textparams00.z;
+		vec3 textured = (textCol + textCol.rgb) * textparams00.z;
 
 		if (textparams01.w != 0.0)
 		{
 			textCol = texture(textSamp01, fUVx2.st * textparams01.w + textparams01.xy).rgb;
-			textured += (textCol + (textCol.rgb * ambientColour.rgb)) * textparams01.z;
+			textured += (textCol + textCol.rgb) * textparams01.z;
 
 			if (textparams02.w != 0.0)
 			{
 				textCol = texture(textSamp02, fUVx2.st * textparams02.w + textparams02.xy).rgb;
-				textured += (textCol + (textCol.rgb * ambientColour.rgb)) * textparams02.z;
+				textured += (textCol + textCol.rgb) * textparams02.z;
 			}
 		}
-		pixelColour.rgb = textured * lightColoured.rgb;
+		vec3 lightTex = textured * lightColoured.rgb;
+		if (length(lightColoured.rgb) < length(ambientColour.rgb))
+			lightTex = textured * ambientColour.rgb;
+
+		pixelColour.rgb = lightTex;
 	}
 	else // no texture
 	{

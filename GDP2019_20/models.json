@@ -13,11 +13,15 @@
 	},
 	{
 		"name": "pelican",
-		"location": "assets/models/pelican_xyzn.ply"
+		"location": "assets/models/pelican_xyzn_uv.ply"
 	},
 	{
 		"name": "pillar_of_autumn",
-		"location": "assets/models/pillar_of_autumn_xyzn.ply"
+		"location": "assets/models/pillar_of_autumn_xyzn_uv.ply"
+	},
+	{
+		"name": "tank",
+		"location": "assets/models/scorpion_xyzn_uv.ply"
 	},
 	{
 		"name": "plane",
@@ -29,6 +33,6 @@
 	},
 	{
 		"name": "cube",
-		"location": "assets/models/cube_xyzn.ply"
+		"location": "assets/models/cube_xyzn_uv.ply"
 	}
 ]

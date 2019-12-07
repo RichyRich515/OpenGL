@@ -80,7 +80,7 @@ int selectedObject = 0;
 int selectedLight = 0;
 
 // Max lights from the shader
-constexpr unsigned MAX_LIGHTS = 10;
+constexpr unsigned MAX_LIGHTS = 20;
 
 cWorld* world = nullptr;
 
@@ -157,8 +157,7 @@ void openSceneFromFile(std::string filename)
 	{
 		ambience[i] = ambienceobj[i].asFloat();
 	}
-	glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
-
+	
 	if (pGameObjectFactory)
 		delete pGameObjectFactory;
 	pGameObjectFactory = cFactoryManager::getObjectFactory(world_node["factoryType"].asString());
@@ -275,7 +274,6 @@ int main()
 	Json::Value models;
 	modelsjson >> models;
 	modelsjson.close();
-
 	for (unsigned i = 0; i < models.size(); ++i)
 	{
 		std::string name = models[i]["name"].asString();
@@ -326,7 +324,6 @@ int main()
 	Json::Value textures;
 	texturesjson >> textures;
 	texturesjson.close();
-
 	// Textures
 	for (unsigned i = 0; i < textures["textures"].size(); ++i)
 	{
@@ -360,12 +357,9 @@ int main()
 	debugSphere->wireFrame = true;
 	debugSphere->lighting = true;
 
+	openSceneFromFile("scene2.json");
 
-	openSceneFromFile("scene1.json");
-
-
-
-	cParticleEmitter emitter1;
+	/*cParticleEmitter emitter1;
 	emitter1.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f), glm::vec3(0.0f),
 		glm::vec3(-0.01f), glm::vec3(0.01f),
@@ -383,7 +377,7 @@ int main()
 		glm::vec4(0.7f), glm::vec4(0.3f),
 		0.025f, 0.0f,
 		5, 20,
-		1000);
+		1000);*/
 
 
 	float ratio;
@@ -393,7 +387,6 @@ int main()
 	ratio = width / (float)height;
 
 	float fov = 60.0f;
-	float minfov = 60.0f;
 
 	glViewport(0, 0, width, height);
 
@@ -410,7 +403,7 @@ int main()
 
 	double cursorX, cursorY;
 	float lastcursorX = 0, lastcursorY = 0;
-
+	glfwSetCursorPos(window, 0, 0);
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = (float)glfwGetTime();
@@ -442,56 +435,6 @@ int main()
 
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-		{
-			debug_mode = !debug_mode;
-		}
-
-		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
-		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-
-		cameraEye += zMove * CAMERA_SPEED * dt * cameraFront;
-		cameraEye += -xMove * CAMERA_SPEED * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
-		cameraEye += yMove * CAMERA_SPEED * dt * cameraUp;
-
-		if (world->vecGameObjects.size() && world->vecLights.size())
-		{
-			std::ostringstream windowTitle;
-			windowTitle << std::fixed << std::setprecision(2)
-				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
-			glfwSetWindowTitle(window, windowTitle.str().c_str());
-		}
-
-		world->vecGameObjects[1]->textures[1].xOffset = totalTime / 30.0f;
-		//world->vecGameObjects[1]->textures[1].yOffset = totalTime / 30.0f;
-
-		world->vecGameObjects[1]->textures[2].xOffset = totalTime / 20.0f;
-		//world->vecGameObjects[1]->textures[2].yOffset = totalTime / 30.0f;
-
-		world->vecGameObjects[4]->textures[0].xOffset = -totalTime / 20.0f;
-		world->vecGameObjects[4]->textures[0].yOffset = totalTime / 10.0f;
-
-		world->vecGameObjects[4]->heightmap.xOffset = -totalTime / 30.0f;
-		world->vecGameObjects[4]->heightmap.yOffset = totalTime / 20.0f;
-
-
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		{
-			world->vecGameObjects[i]->update(dt);
-			world->vecGameObjects[i]->physicsUpdate(dt);
-			world->vecGameObjects[i]->updateMatricis();
-		}
-
-		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
-
-		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
-
 
 		// draw Skybox
 		{
@@ -535,6 +478,174 @@ int main()
 			glEnable(GL_DEPTH);
 			glEnable(GL_DEPTH_TEST);
 		}
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
+		{
+			debug_mode = !debug_mode;
+		}
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
+		{
+			std::ostringstream fileName;
+			fileName << "scene_" << time(NULL) << ".json";
+			writeSceneToFile(fileName.str());
+		}
+
+		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+
+		int xRot = pKeyboardManager->keyDown(GLFW_KEY_I) - pKeyboardManager->keyDown(GLFW_KEY_K);
+		int yRot = pKeyboardManager->keyDown(GLFW_KEY_U) - pKeyboardManager->keyDown(GLFW_KEY_O);
+		int zRot = pKeyboardManager->keyDown(GLFW_KEY_J) - pKeyboardManager->keyDown(GLFW_KEY_L);
+
+		int scaleFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_V))
+		{
+			if (shift_pressed)
+			{
+				if (world->vecLights.size())
+					world->vecLights[selectedLight]->param2.x = !world->vecLights[selectedLight]->param2.x;
+			}
+			else
+			{
+				if (world->vecGameObjects.size())
+					world->vecGameObjects[selectedObject]->visible = !world->vecGameObjects[selectedObject]->visible;
+			}
+		}
+		if (pKeyboardManager->keyPressed(GLFW_KEY_B))
+		{
+			if (world->vecGameObjects.size())
+				world->vecGameObjects[selectedObject]->wireFrame = !world->vecGameObjects[selectedObject]->wireFrame;
+		}
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
+		{
+			if (shift_pressed)
+			{
+				++selectedLight;
+				if (selectedLight >= world->vecLights.size())
+					selectedLight = 0;
+			}
+			else
+			{
+				++selectedObject;
+				if (selectedObject >= world->vecGameObjects.size())
+					selectedObject = 0;
+			}
+		}
+		else if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
+		{
+			if (shift_pressed)
+			{
+				--selectedLight;
+				if (selectedLight < 0)
+					selectedLight = (int)world->vecLights.size() - 1;
+			}
+			else
+			{
+				--selectedObject;
+				if (selectedObject < 0)
+					selectedObject = (int)world->vecGameObjects.size() - 1;
+			}
+		}
+
+		if (ctrl_pressed)
+		{
+			if (world->vecGameObjects.size())
+			{
+				glm::vec3 velocity = dt * 3.0f * glm::vec3(xMove, yMove, zMove);
+				glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
+				world->vecGameObjects[selectedObject]->translate(velocity);
+				world->vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
+				world->vecGameObjects[selectedObject]->rotate(rotation);
+			}
+		}
+		else if (shift_pressed)
+		{
+			if (world->vecLights.size())
+			{
+				float speed = 3.0f;
+				// Move light if shift pressed
+				world->vecLights[selectedLight]->position.x += xMove * speed * dt;
+				world->vecLights[selectedLight]->position.y += yMove * speed * dt;
+				world->vecLights[selectedLight]->position.z += zMove * speed * dt;
+				world->vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
+
+				world->vecLights[selectedLight]->updateShaderUniforms();
+
+				debugSphere->position = world->vecLights[selectedLight]->position;
+				debugSphere->scale = 1.0f;//0.1f / world->vecLights[selectedLight]->atten.y;
+				debugSphere->color = world->vecLights[selectedLight]->diffuse;
+				debugSphere->wireFrame = true;
+				debugSphere->visible = true;
+				debugSphere->lighting = false;
+				debugSphere->updateMatricis();
+				// Draw light sphere if shift pressed
+				drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			}
+		}
+		else
+		{
+			cameraEye += zMove * CAMERA_SPEED * dt * cameraFront;
+			cameraEye += -xMove * CAMERA_SPEED * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+			cameraEye += yMove * CAMERA_SPEED * dt * cameraUp;
+		}
+
+		
+
+		if (world->vecGameObjects.size() && world->vecLights.size())
+		{
+			std::ostringstream windowTitle;
+			windowTitle << std::fixed << std::setprecision(2)
+				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} "
+				<< "{" << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << "} ";
+
+			if (selectedObject < world->vecGameObjects.size())
+			{
+				windowTitle << "Obj[" << selectedObject << "]: \"" << world->vecGameObjects[selectedObject]->name << "\" ";
+			}
+			if (shift_pressed)
+			{
+				if (selectedLight < world->vecLights.size())
+				{
+					windowTitle << "Light[" << selectedLight << "]";
+				}
+			}
+			glfwSetWindowTitle(window, windowTitle.str().c_str());
+		}
+
+		world->vecGameObjects[0]->textures[1].xOffset = totalTime / 30.0f;
+		//world->vecGameObjects[1]->textures[1].yOffset = totalTime / 30.0f;
+
+		world->vecGameObjects[0]->textures[2].xOffset = totalTime / 20.0f;
+		//world->vecGameObjects[1]->textures[2].yOffset = totalTime / 30.0f;
+
+		// water
+		world->vecGameObjects[3]->textures[0].xOffset = -totalTime / 20.0f;
+		world->vecGameObjects[3]->textures[0].yOffset = totalTime / 10.0f;
+		world->vecGameObjects[3]->textures[1].xOffset = -totalTime / 35.0f;
+		world->vecGameObjects[3]->textures[1].yOffset = totalTime / 44.0f;
+		world->vecGameObjects[3]->heightmap.xOffset = -totalTime / 30.0f;
+		world->vecGameObjects[3]->heightmap.yOffset = totalTime / 20.0f;
+
+
+		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		{
+			world->vecGameObjects[i]->update(dt);
+			world->vecGameObjects[i]->physicsUpdate(dt);
+			world->vecGameObjects[i]->updateMatricis();
+		}
+
+		// FOV, aspect ratio, near clip, far clip
+		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
+
+		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
+		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
+		glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
