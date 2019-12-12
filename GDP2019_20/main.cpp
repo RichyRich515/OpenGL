@@ -358,29 +358,7 @@ int main()
 	debugSphere->wireFrame = true;
 	debugSphere->lighting = true;
 
-	openSceneFromFile("scene2.json");
-
-	//cParticleEmitter emitter1;
-	//emitter1.init(
-	//	glm::vec3(-174.49f, -5.06f, 7.40f), glm::vec3(0.0f, -5.0f, 0.0f),
-	//	glm::vec3(0.0f), glm::vec3(0.32f, 0.03f, 0.95f) * 2.0f,
-	//	glm::vec3(-0.01f), glm::vec3(0.01f),
-	//	0.01f, 0.25f,
-	//	glm::vec4(0.7f), glm::vec4(0.3f),
-	//	0.025f, 0.0f,
-	//	5, 20,
-	//	1000);
-	/*
-	cParticleEmitter emitter2;
-	emitter2.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f), glm::vec3(0.0f),
-		glm::vec3(-0.01f), glm::vec3(0.01f),
-		0.5f, 2.0f,
-		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.025f, 0.0f,
-		5, 20,
-		1000);*/
-
+	openSceneFromFile("scene1.json");
 
 	float ratio;
 	int width, height;
@@ -395,6 +373,7 @@ int main()
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
 	glEnable(GL_BLEND);
+	//glEnable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
 
@@ -407,13 +386,17 @@ int main()
 	float lastcursorX = 0, lastcursorY = 0;
 	glfwSetCursorPos(window, 0, 0);
 	
-	std::vector<cGameObject*> transparentObjects;
-	std::size_t len = world->vecGameObjects.size();
-	// Last three objects are transparent
-	transparentObjects.push_back(world->vecGameObjects[len - 1]);
-	transparentObjects.push_back(world->vecGameObjects[len - 2]);
-	transparentObjects.push_back(world->vecGameObjects[len - 3]);
+	//std::vector<cGameObject*> transparentObjects;
+	//std::size_t len = world->vecGameObjects.size();
+	//// Last three objects are transparent
+	//transparentObjects.push_back(world->vecGameObjects[len - 1]);
+	//transparentObjects.push_back(world->vecGameObjects[len - 2]);
+	//transparentObjects.push_back(world->vecGameObjects[len - 3]);
 
+	glm::vec2 waterOffset(0.0f);
+	bool day_time = true;
+	bool under_water = false;
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = (float)glfwGetTime();
@@ -446,10 +429,11 @@ int main()
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		// draw Skybox
 		{
 			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName("snowy_mountains");
+			GLuint texture_ul = pTextureManager->getTextureIDFromName(day_time || under_water ? "daytime" : "nighttime");
 			if (texture_ul)
 			{
 				glActiveTexture(GL_TEXTURE10);
@@ -496,11 +480,25 @@ int main()
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_V))
 		{
-			for (unsigned i = 3; i < world->vecLights.size(); ++i)
+			day_time = !day_time;
+			if (day_time)
 			{
-				world->vecLights[i]->param2.x = world->vecLights[i]->param2.x == 0.0f ? 1.0f : 0.0f;
-				world->vecLights[i]->updateShaderUniforms();
+				world->vecLights[0]->diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
 			}
+			else
+			{
+				world->vecLights[0]->diffuse = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+			}
+			world->vecLights[0]->updateShaderUniforms();
+		}
+
+		if (!day_time && cameraEye.y <= 29.0f)
+		{
+			under_water = true;
+		}
+		else
+		{
+			under_water = false;
 		}
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
@@ -633,20 +631,8 @@ int main()
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
-		world->vecGameObjects[0]->textures[1].xOffset = totalTime / 30.0f;
-		//world->vecGameObjects[1]->textures[1].yOffset = totalTime / 30.0f;
-
-		world->vecGameObjects[0]->textures[2].xOffset = totalTime / 20.0f;
-		//world->vecGameObjects[1]->textures[2].yOffset = totalTime / 30.0f;
-
-		// water
-		world->vecGameObjects[3]->textures[0].xOffset = -totalTime / 20.0f;
-		world->vecGameObjects[3]->textures[0].yOffset = totalTime / 10.0f;
-		world->vecGameObjects[3]->textures[1].xOffset = -totalTime / 35.0f;
-		world->vecGameObjects[3]->textures[1].yOffset = totalTime / 44.0f;
-		world->vecGameObjects[3]->heightmap.xOffset = -totalTime / 30.0f;
-		world->vecGameObjects[3]->heightmap.yOffset = totalTime / 20.0f;
-
+		waterOffset.s += 0.1f * dt;
+		waterOffset.t += 0.017f * dt;
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
@@ -655,9 +641,8 @@ int main()
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
-		
 		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 512.0f);
 		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
@@ -665,41 +650,13 @@ int main()
 		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
 		glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
+		glUniform2f(glGetUniformLocation(program, "waterOffset"), waterOffset.x, waterOffset.y);
+
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			if (!world->vecGameObjects[i]->visible)
 				continue;
-			if (world->vecGameObjects[i]->color.a != 1.0)
-				continue;
 			drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
-		}
-
-		/*emitter1.update(dt);
-		std::vector<cParticle*> particles;
-		emitter1.getParticles(particles);
-		debugSphere->visible = true;
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = true;
-		for (auto par : particles)
-		{
-			debugSphere->position = par->position;
-			debugSphere->color = par->color;
-			debugSphere->color.a = 1.0f;
-			debugSphere->scale = par->scale;
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-		}
-		*/
-		std::sort(transparentObjects.begin(), transparentObjects.end(), [](cGameObject* const& l, cGameObject* const& r) {
-			if (glm::distance(l->position, cameraEye) > glm::distance(r->position, cameraEye))
-				return true;
-			return false;
-			});
-
-		for (unsigned i = 0; i != transparentObjects.size(); ++i)
-		{
-			if (!transparentObjects[i]->visible)
-				continue;
-			drawObject(transparentObjects[i], program, pVAOManager, dt, totalTime);
 		}
 
 		if (debug_mode)
@@ -762,7 +719,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	{
 		glActiveTexture(GL_TEXTURE0 + 1);
 		glBindTexture(GL_TEXTURE_2D, texture_ul);
-		glUniform1i(glGetUniformLocation(shader, "textSamp01"), 0);
+		glUniform1i(glGetUniformLocation(shader, "textSamp01"), 1);
 		glUniform4f(glGetUniformLocation(shader, "textparams01"),
 			go->textures[1].xOffset,
 			go->textures[1].yOffset,
@@ -778,7 +735,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	{
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, texture_ul);
-		glUniform1i(glGetUniformLocation(shader, "textSamp02"), 0);
+		glUniform1i(glGetUniformLocation(shader, "textSamp02"), 2);
 		glUniform4f(glGetUniformLocation(shader, "textparams02"),
 			go->textures[2].xOffset,
 			go->textures[2].yOffset,
@@ -788,6 +745,22 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	else
 	{
 		glUniform4f(glGetUniformLocation(shader, "textparams02"), 0.0f, 0.0f, 0.0f, 0.0f);
+	}
+	texture_ul = pTextureManager->getTextureIDFromName(go->textures[3].fileName);
+	if (texture_ul)
+	{
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glBindTexture(GL_TEXTURE_2D, texture_ul);
+		glUniform1i(glGetUniformLocation(shader, "textSamp03"), 3);
+		glUniform4f(glGetUniformLocation(shader, "textparams03"),
+			go->textures[3].xOffset,
+			go->textures[3].yOffset,
+			go->textures[3].blend,
+			go->textures[3].tiling);
+	}
+	else
+	{
+		glUniform4f(glGetUniformLocation(shader, "textparams03"), 0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	// Height map
@@ -832,7 +805,11 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
 	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, (float)debug_mode);
-	glUniform4f(glGetUniformLocation(shader, "params2"), 0.0f, 0.0f, 0.0f, 0.0f);
+	glUniform4f(glGetUniformLocation(shader, "params2"), 
+		0.0f,
+		go->name == "terrain" ? 1.0f : 0.0f, 
+		go->name == "ocean" || go->name == "sand_floor" ? 1.0f : 0.0f, 
+		0.0f);
 
 	if (go->wireFrame)
 	{
@@ -842,7 +819,8 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	else
 	{
 		// glCullFace
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 

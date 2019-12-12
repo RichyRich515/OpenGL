@@ -229,7 +229,7 @@
     <None Include="textures.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="scene2.json">
+    <None Include="scene1.json">
       <Filter>Resource Files\Scenes</Filter>
     </None>
   </ItemGroup>

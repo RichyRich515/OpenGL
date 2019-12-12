@@ -1,38 +1,18 @@
 Richard Woods
-Graphics Project 2
+Graphics Final
+2019-12-12
 
-use Mouse to look around
-use WASD to move
-use Space to ascend
-use C to descend
+For question 1 & 2:
+Richard Woods
+082 + 105 + 099 + 104 + 097 + 114 + 100 + 087 + 111 + 111 + 100 + 115
+= 1225
+Seed: 122
 
-Press tilde/grave (~/`) to activate Normal as Color rendering 
-
-Press V to toggle the headlights on the tanks and the Laser Beam on the alien ship.
-
-Use < or > to select object (see Title bar of program for info)
-
-Press F1 to save to Scene file, appends UNIX timestamp to end of file name so you can make multiple saves
-
-Hold CTRL then use same controls as Camera to move selected Object around
-Hold SHIFT then use same controls as camera to mvoe selected Light around
+Only 1 solution, contains all question answers, and bonus questions
+Please see keybinds below
 
 
+WASD to move around,
+space/c to go up/down,
+mouse to move camera,
 
-
-- Varying transparencies on the Carriers above
-- Sorted by distance to camera
-- Multi texture
-	Water(blended two waters and heightmap), 
-	Cruiser (Blended shielding texture), 
-	Terrain (texture and heightmap), 
-	Carrier (discard map)
-
-- Lights
-	Spot light
-	Point lights
-	Directional light
-	Ambient lighting
-	
-trivial combining: blending textures
-Non-trivial combining: discard map, height map

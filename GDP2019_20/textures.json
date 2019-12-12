@@ -2,30 +2,28 @@
 	"location": "assets/textures",
 	"skyboxes": [
 		{
-			"name": "snowy_mountains",
-			"file_left": "iceflow_lf.bmp",
-			"file_right": "iceflow_rt.bmp",
-			"file_down": "iceflow_dn.bmp",
-			"file_up": "iceflow_up.bmp",
-			"file_front": "iceflow_ft.bmp",
-			"file_back": "iceflow_bk.bmp"
+			"name": "daytime",
+			"file_left": "TropicalSunnyDayLeft2048.bmp",
+			"file_right": "TropicalSunnyDayRight2048.bmp",
+			"file_down": "TropicalSunnyDayDown2048.bmp",
+			"file_up": "TropicalSunnyDayUp2048.bmp",
+			"file_front": "TropicalSunnyDayFront2048.bmp",
+			"file_back": "TropicalSunnyDayBack2048.bmp"
+		},
+		{
+			"name": "nighttime",
+			"file_left": "SpaceBox_right1_posX.bmp",
+			"file_right": "SpaceBox_left2_negX.bmp",
+			"file_down": "SpaceBox_top3_posY.bmp",
+			"file_up": "SpaceBox_bottom4_negY.bmp",
+			"file_front": "SpaceBox_front5_posZ.bmp",
+			"file_back": "SpaceBox_back6_negZ.bmp"
 		}
 	],
 	"textures": [
-		"cruiser_texture.bmp",
-		"metal.bmp",
-		"scorpion_body.bmp",
-		"Energy1.bmp",
-		"Energy2.bmp",
-		"cloak_field_discard.bmp",
-		"building1.bmp",
-		"building5.bmp",
-		"building6.bmp",
-		"lot_texture.bmp",
-		"water1.bmp",
-		"water1_height.bmp",
-		"water2.bmp",
+		"water_height.bmp",
 		"terrain_texture.bmp",
-		"terrain_height.bmp"
+		"sand.bmp",
+		"rocky.bmp"
 	]
 }

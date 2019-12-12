@@ -22,18 +22,19 @@ out vec4 fUVx2;
 uniform vec4 heightparams;
 uniform sampler2D heightSamp;
 
+uniform vec2 waterOffset;
+
 void main()
 {
 	vec4 vertPosition = vPosition;
 
 	mat4 matMVP = matProjection * matView * matModel;
 	
-
 	// Height map
 	if (heightparams.w != 0.0)
 	{
-		vec4 samp = texture(heightSamp, vUVx2.st * heightparams.w + heightparams.xy);
-		vertPosition.y += (samp.r + samp.g + samp.b) * heightparams.z;
+		vec4 samp = texture(heightSamp, vUVx2.st * heightparams.w + waterOffset);
+		vertPosition.y += ((samp.r - 1 + samp.g - 1) + samp.b) * heightparams.z;
 	}
 
     gl_Position = matMVP * vec4(vertPosition.xyz, 1.0f);
