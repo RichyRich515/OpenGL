@@ -3,15 +3,15 @@
 	{
 		"cameraEye" : 
 		[
-			-175.92771911621094,
-			-3.9800019264221191,
-			9.7268409729003906
+			-176.59881591796875,
+			-4.2120676040649414,
+			10.83029842376709
 		],
 		"cameraFront" : 
 		[
-			0.78107482194900513,
-			-0.26050519943237305,
-			-0.56750255823135376
+			0.64244043827056885,
+			-0.11493755131959915,
+			-0.75766724348068237
 		],
 		"cameraUp" : 
 		[
@@ -19,8 +19,8 @@
 			1.0,
 			0.0
 		],
-		"pitch" : -15.100041389465332,
-		"yaw" : 1043.9991455078125
+		"pitch" : -6.6000232696533203,
+		"yaw" : 2110.295166015625
 	},
 	"gameObjects" : 
 	[
@@ -83,21 +83,6 @@
 						"blend" : 1.0,
 						"name" : "Energy2.bmp",
 						"tiling" : 1.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
 					}
 				]
 			},
@@ -123,9 +108,9 @@
 			"collisionShapeType" : 0,
 			"color" : 
 			[
-				0.69999998807907104,
-				0.69999998807907104,
-				0.69999998807907104,
+				0.40000000596046448,
+				0.40000000596046448,
+				0.40000000596046448,
 				1.0
 			],
 			"inverseMass" : 0.0,
@@ -160,31 +145,6 @@
 						"blend" : 1.0,
 						"name" : "metal.bmp",
 						"tiling" : 8.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
 					}
 				]
 			},
@@ -253,31 +213,6 @@
 						"blend" : 1.0,
 						"name" : "terrain_texture.bmp",
 						"tiling" : 20.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
 					}
 				]
 			},
@@ -351,26 +286,254 @@
 						"blend" : 0.25,
 						"name" : "water2.bmp",
 						"tiling" : 120.0
-					},
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "tank",
+			"name" : "tank1",
+			"position" : 
+			[
+				-174.5860595703125,
+				-5.4118247032165527,
+				7.0342936515808105
+			],
+			"rotation" : 
+			[
+				-0.0011950933840125799,
+				0.12744487822055817,
+				0.0052613331936299801,
+				0.99182659387588501
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				50.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "scorpion_body.bmp",
+						"tiling" : 1.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "tank",
+			"name" : "tank2",
+			"position" : 
+			[
+				-172.74610900878906,
+				-5.4118247032165527,
+				7.2821431159973145
+			],
+			"rotation" : 
+			[
+				0.00096233602380380034,
+				-0.27143114805221558,
+				0.0053088348358869553,
+				0.96243733167648315
+			],
+			"scale" : 1.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				50.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "scorpion_body.bmp",
+						"tiling" : 1.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				0.5,
+				0.69999998807907104,
+				0.5,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "pelican",
+			"name" : "pelican1",
+			"position" : 
+			[
+				-175.16339111328125,
+				-3.3847930431365967,
+				6.7771511077880859
+			],
+			"rotation" : 
+			[
+				0.10730193555355072,
+				-0.18289417028427124,
+				0.12967939674854279,
+				0.98904037475585938
+			],
+			"scale" : 1.5,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "metal.bmp",
+						"tiling" : 2.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				0.5,
+				0.69999998807907104,
+				0.5,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "pelican",
+			"name" : "pelican2",
+			"position" : 
+			[
+				-172.47372436523438,
+				-3.5780014991760254,
+				7.4787859916687012
+			],
+			"rotation" : 
+			[
+				0.17422620952129364,
+				0.11862551420927048,
+				0.14540472626686096,
+				0.8743131160736084
+			],
+			"scale" : 1.5,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
+						"blend" : 1.0,
+						"name" : "metal.bmp",
+						"tiling" : 2.0
 					}
 				]
 			},
@@ -433,31 +596,6 @@
 						"blend" : 1.0,
 						"name" : "building1.bmp",
 						"tiling" : 4.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
 					}
 				]
 			},
@@ -520,292 +658,6 @@
 						"blend" : 1.0,
 						"name" : "building5.bmp",
 						"tiling" : 4.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					}
-				]
-			},
-			"type" : "basic",
-			"velocity" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible" : true,
-			"wireFrame" : false
-		},
-		{
-			"acceleration" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness" : 0.0,
-			"collisionObjectInfo" : {},
-			"collisionShapeType" : 0,
-			"color" : 
-			[
-				1.0,
-				1.0,
-				1.0,
-				1.0
-			],
-			"inverseMass" : 0.0,
-			"meshName" : "tank",
-			"name" : "tank1",
-			"position" : 
-			[
-				-172.48448181152344,
-				-5.4580693244934082,
-				7.8222436904907227
-			],
-			"rotation" : 
-			[
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"scale" : 1.0,
-			"specular" : 
-			[
-				1.0,
-				1.0,
-				1.0,
-				10000.0
-			],
-			"texture" : 
-			{
-				"textures" : 
-				[
-					{
-						"blend" : 1.0,
-						"name" : "scorpion_body.bmp",
-						"tiling" : 1.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					}
-				]
-			},
-			"type" : "basic",
-			"velocity" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible" : true,
-			"wireFrame" : false
-		},
-		{
-			"acceleration" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness" : 0.0,
-			"collisionObjectInfo" : {},
-			"collisionShapeType" : 0,
-			"color" : 
-			[
-				0.5,
-				0.69999998807907104,
-				0.5,
-				1.0
-			],
-			"inverseMass" : 0.0,
-			"meshName" : "pelican",
-			"name" : "pelican1",
-			"position" : 
-			[
-				-163.0,
-				10.0,
-				39.0
-			],
-			"rotation" : 
-			[
-				0.0,
-				1.0,
-				0.20000000298023224,
-				0.0
-			],
-			"scale" : 1.5,
-			"specular" : 
-			[
-				1.0,
-				1.0,
-				1.0,
-				10000.0
-			],
-			"texture" : 
-			{
-				"textures" : 
-				[
-					{
-						"blend" : 1.0,
-						"name" : "metal.bmp",
-						"tiling" : 2.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					}
-				]
-			},
-			"type" : "basic",
-			"velocity" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible" : true,
-			"wireFrame" : false
-		},
-		{
-			"acceleration" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness" : 0.0,
-			"collisionObjectInfo" : {},
-			"collisionShapeType" : 0,
-			"color" : 
-			[
-				0.5,
-				0.69999998807907104,
-				0.5,
-				1.0
-			],
-			"inverseMass" : 0.0,
-			"meshName" : "pelican",
-			"name" : "pelican2",
-			"position" : 
-			[
-				-159.0,
-				12.0,
-				38.0
-			],
-			"rotation" : 
-			[
-				0.10000000149011612,
-				0.89999997615814209,
-				0.10000000149011612,
-				0.0
-			],
-			"scale" : 1.5,
-			"specular" : 
-			[
-				1.0,
-				1.0,
-				1.0,
-				10000.0
-			],
-			"texture" : 
-			{
-				"textures" : 
-				[
-					{
-						"blend" : 1.0,
-						"name" : "metal.bmp",
-						"tiling" : 2.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
-					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
 					}
 				]
 			},
@@ -842,7 +694,7 @@
 			"position" : 
 			[
 				-158.0,
-				-0.5,
+				2.6180934906005859,
 				-11.0
 			],
 			"rotation" : 
@@ -868,31 +720,440 @@
 						"blend" : 1.0,
 						"name" : "building6.bmp",
 						"tiling" : 4.0
-					},
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				0.5,
+				0.5,
+				0.5,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "lot1",
+			"position" : 
+			[
+				-173.32797241210938,
+				-7.4155616760253906,
+				8.3718805313110352
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 2.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "lot_texture.bmp",
+						"tiling" : 4.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "building1",
+			"position" : 
+			[
+				-157.99423217773438,
+				-1.4465396404266357,
+				-5.510716438293457
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 2.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "building1.bmp",
+						"tiling" : 4.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "building2",
+			"position" : 
+			[
+				-165.10064697265625,
+				-3.2764852046966553,
+				-16.00825309753418
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 2.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "building5.bmp",
+						"tiling" : 4.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "building3",
+			"position" : 
+			[
+				-158.0,
+				-1.2370250225067139,
+				-11.0
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 2.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
-					},
+						"blend" : 1.0,
+						"name" : "building6.bmp",
+						"tiling" : 4.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "building1",
+			"position" : 
+			[
+				-180.00555419921875,
+				-3.1040687561035156,
+				1.9866707324981689
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 1.4499609470367432,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
 					{
-						"blend" : 0.0,
-						"name" : "",
-						"tiling" : 0.0
+						"blend" : 1.0,
+						"name" : "building1.bmp",
+						"tiling" : 4.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "building2",
+			"position" : 
+			[
+				-175.10459899902344,
+				-5.2046146392822266,
+				-6.0495481491088867
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 2.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
+					{
+						"blend" : 1.0,
+						"name" : "building5.bmp",
+						"tiling" : 4.0
+					}
+				]
+			},
+			"type" : "basic",
+			"velocity" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible" : true,
+			"wireFrame" : false
+		},
+		{
+			"acceleration" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness" : 0.0,
+			"collisionObjectInfo" : {},
+			"collisionShapeType" : 0,
+			"color" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"inverseMass" : 0.0,
+			"meshName" : "cube",
+			"name" : "building3",
+			"position" : 
+			[
+				-158.0,
+				6.5699276924133301,
+				-11.0
+			],
+			"rotation" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale" : 2.0,
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"texture" : 
+			{
+				"textures" : 
+				[
+					{
+						"blend" : 1.0,
+						"name" : "building6.bmp",
+						"tiling" : 4.0
 					}
 				]
 			},
@@ -947,6 +1208,15 @@
 				1.0,
 				10000.0
 			],
+			"texture" : 
+			{
+				"discardmap" : 
+				{
+					"cutoff" : 0.075000002980232239,
+					"name" : "cloak_field_discard.bmp",
+					"tiling" : 8.0
+				}
+			},
 			"type" : "basic",
 			"velocity" : 
 			[
@@ -972,7 +1242,7 @@
 				1.0,
 				0.0,
 				1.0,
-				0.25
+				0.15000000596046448
 			],
 			"inverseMass" : 0.0,
 			"meshName" : "carrier",
@@ -998,6 +1268,15 @@
 				1.0,
 				10000.0
 			],
+			"texture" : 
+			{
+				"discardmap" : 
+				{
+					"cutoff" : 0.075000002980232239,
+					"name" : "cloak_field_discard.bmp",
+					"tiling" : 8.0
+				}
+			},
 			"type" : "basic",
 			"velocity" : 
 			[
@@ -1023,7 +1302,7 @@
 				1.0,
 				0.0,
 				1.0,
-				0.25
+				0.44999998807907104
 			],
 			"inverseMass" : 0.0,
 			"meshName" : "carrier",
@@ -1049,6 +1328,15 @@
 				1.0,
 				10000.0
 			],
+			"texture" : 
+			{
+				"discardmap" : 
+				{
+					"cutoff" : 0.075000002980232239,
+					"name" : "cloak_field_discard.bmp",
+					"tiling" : 8.0
+				}
+			},
 			"type" : "basic",
 			"velocity" : 
 			[
@@ -1270,8 +1558,8 @@
 			"atten" : 
 			[
 				0.0,
-				0.79654026031494141,
 				0.0,
+				3.9046719074249268,
 				10000.0
 			],
 			"diffuse" : 
@@ -1304,17 +1592,68 @@
 			],
 			"position" : 
 			[
-				-172.493896484375,
-				-4.8518056869506836,
-				8.4570932388305664,
+				-174.42977905273438,
+				-5.0990543365478516,
+				7.6580281257629395,
 				0.0
 			],
 			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			]
+		},
+		{
+			"atten" : 
+			[
+				0.0,
+				0.0,
+				3.9046719074249268,
+				10000.0
+			],
+			"diffuse" : 
+			[
+				1.0,
+				0.80000001192092896,
+				0.30000001192092896,
+				1.0
+			],
+			"direction" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"param1" : 
 			[
 				0.0,
 				0.0,
 				0.0,
 				0.0
+			],
+			"param2" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position" : 
+			[
+				-173.0916748046875,
+				-5.0990543365478516,
+				7.7598743438720703,
+				0.0
+			],
+			"specular" : 
+			[
+				1.0,
+				1.0,
+				1.0,
+				1.0
 			]
 		}
 	],

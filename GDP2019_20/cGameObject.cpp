@@ -88,6 +88,12 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 			this->heightmap.tiling = obj["texture"]["heightmap"]["tiling"].asFloat();
 			this->heightmap.blend = obj["texture"]["heightmap"]["scale"].asFloat();
 		}
+		if (obj["texture"]["discardmap"])
+		{
+			this->discardmap.fileName = obj["texture"]["discardmap"]["name"].asString();
+			this->discardmap.tiling = obj["texture"]["discardmap"]["tiling"].asFloat();
+			this->discardmap.blend = obj["texture"]["discardmap"]["cutoff"].asFloat();
+		}
 	}
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
@@ -192,7 +198,7 @@ Json::Value cGameObject::serializeJSONObject()
 	bool textured = false;
 	for (unsigned i = 0; i < MAX_TEXTURES; ++i)
 	{
-		if (!this->textures->fileName.empty())
+		if (this->textures[i].fileName.length())
 		{
 			Json::Value text_temp = Json::objectValue;
 			text_temp["name"] = this->textures[i].fileName;
@@ -202,12 +208,20 @@ Json::Value cGameObject::serializeJSONObject()
 			textured = true;
 		}
 	}
-	if (!this->heightmap.fileName.empty())
+	if (this->heightmap.fileName.length())
 	{
 		text["heightmap"] = Json::objectValue;
 		text["heightmap"]["name"] = this->heightmap.fileName;
 		text["heightmap"]["tiling"] = this->heightmap.tiling;
 		text["heightmap"]["scale"] = this->heightmap.blend;
+		textured = true;
+	}
+	if (this->discardmap.fileName.length())
+	{
+		text["discardmap"] = Json::objectValue;
+		text["discardmap"]["name"] = this->discardmap.fileName;
+		text["discardmap"]["tiling"] = this->discardmap.tiling;
+		text["discardmap"]["cutoff"] = this->discardmap.blend;
 		textured = true;
 	}
 

@@ -61,6 +61,7 @@ public:
 	std::string type;
 	cTexture textures[MAX_TEXTURES];
 	cTexture heightmap;
+	cTexture discardmap;
 
 	std::string meshName;
 	cMesh* mesh;

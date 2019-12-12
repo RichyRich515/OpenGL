@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
@@ -359,16 +360,17 @@ int main()
 
 	openSceneFromFile("scene2.json");
 
-	/*cParticleEmitter emitter1;
-	emitter1.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f), glm::vec3(0.0f),
-		glm::vec3(-0.01f), glm::vec3(0.01f),
-		0.5f, 2.0f,
-		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.025f, 0.0f,
-		5, 20,
-		1000);
-
+	//cParticleEmitter emitter1;
+	//emitter1.init(
+	//	glm::vec3(-174.49f, -5.06f, 7.40f), glm::vec3(0.0f, -5.0f, 0.0f),
+	//	glm::vec3(0.0f), glm::vec3(0.32f, 0.03f, 0.95f) * 2.0f,
+	//	glm::vec3(-0.01f), glm::vec3(0.01f),
+	//	0.01f, 0.25f,
+	//	glm::vec4(0.7f), glm::vec4(0.3f),
+	//	0.025f, 0.0f,
+	//	5, 20,
+	//	1000);
+	/*
 	cParticleEmitter emitter2;
 	emitter2.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f), glm::vec3(0.0f),
@@ -404,6 +406,14 @@ int main()
 	double cursorX, cursorY;
 	float lastcursorX = 0, lastcursorY = 0;
 	glfwSetCursorPos(window, 0, 0);
+	
+	std::vector<cGameObject*> transparentObjects;
+	std::size_t len = world->vecGameObjects.size();
+	// Last three objects are transparent
+	transparentObjects.push_back(world->vecGameObjects[len - 1]);
+	transparentObjects.push_back(world->vecGameObjects[len - 2]);
+	transparentObjects.push_back(world->vecGameObjects[len - 3]);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = (float)glfwGetTime();
@@ -482,6 +492,15 @@ int main()
 		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 		{
 			debug_mode = !debug_mode;
+		}
+
+		if (pKeyboardManager->keyPressed(GLFW_KEY_V))
+		{
+			for (unsigned i = 3; i < world->vecLights.size(); ++i)
+			{
+				world->vecLights[i]->param2.x = world->vecLights[i]->param2.x == 0.0f ? 1.0f : 0.0f;
+				world->vecLights[i]->updateShaderUniforms();
+			}
 		}
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
@@ -593,8 +612,6 @@ int main()
 			cameraEye += yMove * CAMERA_SPEED * dt * cameraUp;
 		}
 
-		
-
 		if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
@@ -638,6 +655,7 @@ int main()
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
+		
 		// FOV, aspect ratio, near clip, far clip
 		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
@@ -651,7 +669,37 @@ int main()
 		{
 			if (!world->vecGameObjects[i]->visible)
 				continue;
+			if (world->vecGameObjects[i]->color.a != 1.0)
+				continue;
 			drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
+		}
+
+		/*emitter1.update(dt);
+		std::vector<cParticle*> particles;
+		emitter1.getParticles(particles);
+		debugSphere->visible = true;
+		debugSphere->wireFrame = false;
+		debugSphere->lighting = true;
+		for (auto par : particles)
+		{
+			debugSphere->position = par->position;
+			debugSphere->color = par->color;
+			debugSphere->color.a = 1.0f;
+			debugSphere->scale = par->scale;
+			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+		}
+		*/
+		std::sort(transparentObjects.begin(), transparentObjects.end(), [](cGameObject* const& l, cGameObject* const& r) {
+			if (glm::distance(l->position, cameraEye) > glm::distance(r->position, cameraEye))
+				return true;
+			return false;
+			});
+
+		for (unsigned i = 0; i != transparentObjects.size(); ++i)
+		{
+			if (!transparentObjects[i]->visible)
+				continue;
+			drawObject(transparentObjects[i], program, pVAOManager, dt, totalTime);
 		}
 
 		if (debug_mode)
@@ -760,11 +808,30 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 		glUniform4f(glGetUniformLocation(shader, "heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
+	// discard map
+	texture_ul = pTextureManager->getTextureIDFromName(go->discardmap.fileName);
+	if (texture_ul)
+	{
+		glActiveTexture(GL_TEXTURE0 + 50);
+		glBindTexture(GL_TEXTURE_2D, texture_ul);
+		glUniform1i(glGetUniformLocation(shader, "discardSamp"), 50);
+		glUniform4f(glGetUniformLocation(shader, "discardparams"),
+			go->discardmap.xOffset,
+			go->discardmap.yOffset,
+			go->discardmap.blend,
+			go->discardmap.tiling);
+	}
+	else
+	{
+		glUniform4f(glGetUniformLocation(shader, "discardparams"), 0.0f, 0.0f, 0.0f, 0.0f);
+	}
+
+
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
-	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, (float)texture_ul);
+	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, (float)debug_mode);
 	glUniform4f(glGetUniformLocation(shader, "params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 	if (go->wireFrame)

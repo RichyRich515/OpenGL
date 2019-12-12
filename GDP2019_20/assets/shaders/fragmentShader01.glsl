@@ -14,7 +14,7 @@ uniform vec4 specularColour;
 // x: delta Time
 // y: total Time 
 // z: do not light
-// w:
+// w: show normals only
 uniform vec4 params1;
 
 // x: is skybox 
@@ -43,6 +43,13 @@ uniform sampler2D textSamp04;
 uniform sampler2D textSamp05;
 
 uniform sampler2D heightSamp;
+
+// x: offsetX
+// y: offsetY
+// z: cutoff
+// w: tiling
+uniform vec4 discardparams;
+uniform sampler2D discardSamp;
 
 uniform samplerCube skyboxSamp00;
 
@@ -74,6 +81,14 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 	 
 void main()  
 {
+	vec3 norm = normalize(fNormal.xyz);
+	if (params1.w != 0.0) // normals as color
+	{
+		pixelColour.rgb = norm;
+		pixelColour.a = 1.0;
+		return;
+	}
+
 	if (params1.z == 0.0) // do not light
 	{
 		pixelColour = diffuseColour;
@@ -81,17 +96,23 @@ void main()
 		return;
 	}
 	
-	if (params2.x != 0.0)
+	if (params2.x != 0.0) // Skybox
 	{
-		vec3 skyboxColor = texture(skyboxSamp00, -fNormal.xyz).rgb;
-		//pixelColour.rgb = fNormal.xyz;
+		vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
 		pixelColour.rgb = skyboxColor;
 		pixelColour.a = 1.0;
 		return;
 	}
 
-	vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, fNormal.xyz, fVertWorldLocation.xyz, specularColour);
-	if (textparams00.w != 0.0) // has texture
+	if (discardparams.w != 0) // discard mode
+	{
+		vec3 disc = texture(discardSamp, fUVx2.st * discardparams.w + discardparams.xy).rgb;
+		if (disc.r < discardparams.z)
+			discard;
+	}
+
+	vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, norm, fVertWorldLocation.xyz, specularColour);
+	if (textparams00.w != 0.0) // texture
 	{
 		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
 		vec3 textured = (textCol + textCol.rgb) * textparams00.z;
@@ -122,9 +143,8 @@ void main()
 }
 
 
-vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 vertexWorldPos, vec4 vertexSpecular)
+vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 norm, vec3 vertexWorldPos, vec4 vertexSpecular)
 {
-	vec3 norm = normalize(vertexNormal);
 	
 	vec4 finalObjectColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	
@@ -169,7 +189,7 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 			continue; // beyond light max range
 
 		vec3 lightVector = normalize(vLightToVertex);
-		float dotProduct = dot(lightVector, vertexNormal.xyz);	 
+		float dotProduct = dot(lightVector, norm);	 
 		
 		dotProduct = max(0.0f, dotProduct);	
 		
@@ -187,7 +207,6 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 		// To simplify, we are NOT using the light specular value, just the object’s.
 		float objectSpecularPower = vertexSpecular.w; 
 		
-		// lightSpecularContrib = pow(max(0.0f, dot(eyeVector, reflectVector)), objectSpecularPower) * vertexSpecular.rgb;	//* lights[lightIndex].Specular.rgb
 		lightSpecularContrib = pow(max(0.0f, dot(eyeVector, reflectVector)), objectSpecularPower) * lights[index].specular.rgb;
 		
 		// Attenuation

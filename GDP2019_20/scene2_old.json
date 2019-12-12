@@ -1,22 +1,26 @@
 {
-	"camera": {
-		"cameraEye": [
-			-160,
-			15.0,
-			90.0
+	"camera" : 
+	{
+		"cameraEye" : 
+		[
+			-175.92771911621094,
+			-3.9800019264221191,
+			9.7268409729003906
 		],
-		"cameraFront": [
-			0.0,
-			0.0,
-			-1.0
+		"cameraFront" : 
+		[
+			0.78107482194900513,
+			-0.26050519943237305,
+			-0.56750255823135376
 		],
-		"cameraUp": [
+		"cameraUp" : 
+		[
 			0.0,
 			1.0,
 			0.0
 		],
-		"pitch": 0.0,
-		"yaw": -90.0
+		"pitch" : -15.100041389465332,
+		"yaw" : 1043.9991455078125
 	},
 	"gameObjects": [
 		{
@@ -45,7 +49,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 0.75,
 			"specular": [
@@ -57,19 +62,19 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 0.5,
 						"name": "cruiser_texture.bmp",
-						"tiling": 1.0,
-						"blend": 0.5
+						"tiling": 1.0
 					},
 					{
+						"blend": 1.0,
 						"name": "Energy1.bmp",
-						"tiling": 1.0,
-						"blend": 1.0
+						"tiling": 1.0
 					},
 					{
+						"blend": 1.0,
 						"name": "Energy2.bmp",
-						"tiling": 1.0,
-						"blend": 1.0
+						"tiling": 1.0
 					}
 				]
 			},
@@ -92,9 +97,9 @@
 			"collisionObjectInfo": {},
 			"collisionShapeType": 0,
 			"color": [
-				0.7,
-				0.7,
-				0.7,
+				0.4,
+				0.4,
+				0.4,
 				1.0
 			],
 			"inverseMass": 0.0,
@@ -106,9 +111,10 @@
 				20.0
 			],
 			"rotation": [
-				0.2,
+				0.20000000298023224,
 				1.0,
-				0.1
+				0.10000000149011612,
+				0.0
 			],
 			"scale": 8.0,
 			"specular": [
@@ -120,9 +126,9 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "metal.bmp",
-						"tiling": 8.0,
-						"blend": 1.0
+						"tiling": 8.0
 					}
 				]
 			},
@@ -161,7 +167,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 1.0,
 			"specular": [
@@ -171,18 +178,18 @@
 				10000.0
 			],
 			"texture": {
-				"textures": [
-					{
-						"name": "terrain_texture.bmp",
-						"tiling": 20.0,
-						"blend": 1.0
-					}
-				],
 				"heightmap": {
 					"name": "terrain_height.bmp",
-					"tiling": 1.0,
-					"scale": 10.0
-				}
+					"scale": 10.0,
+					"tiling": 1.0
+				},
+				"textures": [
+					{
+						"blend": 1.0,
+						"name": "terrain_texture.bmp",
+						"tiling": 20.0
+					}
+				]
 			},
 			"type": "basic",
 			"velocity": [
@@ -219,7 +226,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 7.0,
 			"specular": [
@@ -229,23 +237,23 @@
 				10000.0
 			],
 			"texture": {
-				"textures": [
-					{
-						"name": "water1.bmp",
-						"tiling": 60.0,
-						"blend": 0.75
-					},
-					{
-						"name": "water2.bmp",
-						"tiling": 120.0,
-						"blend": 0.25
-					}
-				],
 				"heightmap": {
 					"name": "water1_height.bmp",
-					"tiling": 40.0,
-					"scale": 0.25
-				}
+					"scale": 0.25,
+					"tiling": 40.0
+				},
+				"textures": [
+					{
+						"blend": 0.75,
+						"name": "water1.bmp",
+						"tiling": 60.0
+					},
+					{
+						"blend": 0.25,
+						"name": "water2.bmp",
+						"tiling": 120.0
+					}
+				]
 			},
 			"type": "basic",
 			"velocity": [
@@ -282,7 +290,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 2.0,
 			"specular": [
@@ -294,9 +303,9 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "building1.bmp",
-						"tiling": 4.0,
-						"blend": 1.0
+						"tiling": 4.0
 					}
 				]
 			},
@@ -335,7 +344,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 2.0,
 			"specular": [
@@ -347,9 +357,9 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "building5.bmp",
-						"tiling": 4.0,
-						"blend": 1.0
+						"tiling": 4.0
 					}
 				]
 			},
@@ -381,28 +391,29 @@
 			"meshName": "tank",
 			"name": "tank1",
 			"position": [
-				-160.0,
-				10.0,
-				40.0
+				-174.5860595703125,
+				-5.4118247032165527,
+				7.0342936515808105
 			],
 			"rotation": [
-				0.0,
-				0.0,
-				0.0
+				-0.0011950933840125799,
+				0.12744487822055817,
+				0.0052613331936299801,
+				0.99182659387588501
 			],
 			"scale": 1.0,
 			"specular": [
 				1.0,
 				1.0,
 				1.0,
-				10000.0
+				50.0
 			],
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "scorpion_body.bmp",
-						"tiling": 1.0,
-						"blend": 1.0
+						"tiling": 1.0
 					}
 				]
 			},
@@ -426,7 +437,7 @@
 			"collisionShapeType": 0,
 			"color": [
 				0.5,
-				0.7,
+				0.69999998807907104,
 				0.5,
 				1.0
 			],
@@ -441,7 +452,8 @@
 			"rotation": [
 				0.0,
 				1.0,
-				0.2
+				0.20000000298023224,
+				0.0
 			],
 			"scale": 1.5,
 			"specular": [
@@ -453,9 +465,9 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "metal.bmp",
-						"tiling": 2.0,
-						"blend": 1.0
+						"tiling": 2.0
 					}
 				]
 			},
@@ -479,7 +491,7 @@
 			"collisionShapeType": 0,
 			"color": [
 				0.5,
-				0.7,
+				0.69999998807907104,
 				0.5,
 				1.0
 			],
@@ -492,9 +504,10 @@
 				38.0
 			],
 			"rotation": [
-				0.1,
-				0.9,
-				0.1
+				0.10000000149011612,
+				0.89999997615814209,
+				0.10000000149011612,
+				0.0
 			],
 			"scale": 1.5,
 			"specular": [
@@ -506,9 +519,9 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "metal.bmp",
-						"tiling": 2.0,
-						"blend": 1.0
+						"tiling": 2.0
 					}
 				]
 			},
@@ -547,7 +560,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 2.0,
 			"specular": [
@@ -559,9 +573,9 @@
 			"texture": {
 				"textures": [
 					{
+						"blend": 1.0,
 						"name": "building6.bmp",
-						"tiling": 4.0,
-						"blend": 1.0
+						"tiling": 4.0
 					}
 				]
 			},
@@ -584,23 +598,24 @@
 			"collisionObjectInfo": {},
 			"collisionShapeType": 0,
 			"color": [
-				1.0,
-				0.0,
-				1.0,
-				0.15
+				0.5,
+				0.5,
+				0.5,
+				1.0
 			],
 			"inverseMass": 0.0,
-			"meshName": "carrier",
-			"name": "carrier1",
+			"meshName": "cube",
+			"name": "lot1",
 			"position": [
-				-140.0,
-				35.0,
-				0.0
+				-173.32797241210938,
+				-7.4155616760253906,
+				8.3718805313110352
 			],
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 2.0,
 			"specular": [
@@ -609,6 +624,15 @@
 				1.0,
 				10000.0
 			],
+			"texture": {
+				"textures": [
+					{
+						"blend": 1.0,
+						"name": "lot_texture.bmp",
+						"tiling": 4.0
+					}
+				]
+			},
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -635,16 +659,17 @@
 			],
 			"inverseMass": 0.0,
 			"meshName": "carrier",
-			"name": "carrier2",
+			"name": "carrier1",
 			"position": [
-				-125.0,
-				38,
-				-15.0
+				-140.0,
+				35.0,
+				0.0
 			],
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 2.0,
 			"specular": [
@@ -654,6 +679,65 @@
 				10000.0
 			],
 			"type": "basic",
+			"texture": {
+				"discardmap": {
+					"name": "cloak_field_discard.bmp",
+					"cutoff": 0.075,
+					"tiling": 8.0
+				}
+			},
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
+			"color": [
+				1.0,
+				0.0,
+				1.0,
+				0.15
+			],
+			"inverseMass": 0.0,
+			"meshName": "carrier",
+			"name": "carrier2",
+			"position": [
+				-125.0,
+				38.0,
+				-15.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale": 2.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"type": "basic",
+			"texture": {
+				"discardmap": {
+					"name": "cloak_field_discard.bmp",
+					"cutoff": 0.075,
+					"tiling": 8.0
+				}
+			},
 			"velocity": [
 				0.0,
 				0.0,
@@ -682,13 +766,14 @@
 			"name": "carrier3",
 			"position": [
 				-155.0,
-				44,
+				44.0,
 				-30.0
 			],
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 2.0,
 			"specular": [
@@ -698,6 +783,13 @@
 				10000.0
 			],
 			"type": "basic",
+			"texture": {
+				"discardmap": {
+					"name": "cloak_field_discard.bmp",
+					"cutoff": 0.075,
+					"tiling": 8.0
+				}
+			},
 			"velocity": [
 				0.0,
 				0.0,
@@ -707,45 +799,53 @@
 			"wireFrame": false
 		}
 	],
-	"lights": [
+	"lights" : 
+	[
 		{
-			"atten": [
+			"atten" : 
+			[
 				0.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"diffuse": [
-				0.9,
-				0.9,
-				0.9,
+			"diffuse" : 
+			[
+				0.89999997615814209,
+				0.89999997615814209,
+				0.89999997615814209,
 				1.0
 			],
-			"direction": [
+			"direction" : 
+			[
 				1.0,
 				-1.0,
 				-0.5,
 				1.0
 			],
-			"param1": [
+			"param1" : 
+			[
 				2.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"param2": [
+			"param2" : 
+			[
 				1.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"position": [
+			"position" : 
+			[
 				0.0,
 				0.0,
 				0.0,
 				1.0
 			],
-			"specular": [
+			"specular" : 
+			[
 				0.0,
 				0.0,
 				0.0,
@@ -753,43 +853,50 @@
 			]
 		},
 		{
-			"atten": [
+			"atten" : 
+			[
 				0.0,
 				0.0,
-				0.24,
+				0.23999999463558197,
 				5.0
 			],
-			"diffuse": [
-				0.4,
-				0.4,
+			"diffuse" : 
+			[
+				0.40000000596046448,
+				0.40000000596046448,
 				1.0,
 				1.0
 			],
-			"direction": [
+			"direction" : 
+			[
 				0.0,
 				0.0,
 				0.0,
 				1.0
 			],
-			"param1": [
+			"param1" : 
+			[
 				0.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"param2": [
+			"param2" : 
+			[
 				1.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"position": [
+			"position" : 
+			[
 				-160.5,
 				20.5,
 				24.5,
 				0.0
 			],
-			"specular": [
+			"specular" : 
+			[
 				0.0,
 				0.0,
 				0.0,
@@ -797,43 +904,50 @@
 			]
 		},
 		{
-			"atten": [
+			"atten" : 
+			[
 				0.0,
 				0.0,
-				0.24,
+				0.23999999463558197,
 				10000.0
 			],
-			"diffuse": [
-				0.4,
-				0.4,
+			"diffuse" : 
+			[
+				0.40000000596046448,
+				0.40000000596046448,
 				1.0,
 				1.0
 			],
-			"direction": [
+			"direction" : 
+			[
 				0.0,
 				0.0,
 				0.0,
 				1.0
 			],
-			"param1": [
+			"param1" : 
+			[
 				0.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"param2": [
+			"param2" : 
+			[
 				1.0,
 				0.0,
 				0.0,
 				0.0
 			],
-			"position": [
-				-159.89,
-				21.74,
-				24.8,
+			"position" : 
+			[
+				-159.88999938964844,
+				21.739999771118164,
+				24.799999237060547,
 				0.0
 			],
-			"specular": [
+			"specular" : 
+			[
 				0.0,
 				0.0,
 				0.0,
@@ -841,30 +955,81 @@
 			]
 		},
 		{
-			"atten": [
+			"atten" : 
+			[
 				0.0,
-				0.06,
+				0.059999998658895493,
 				0.0,
 				10000.0
 			],
-			"diffuse": [
+			"diffuse" : 
+			[
 				1.0,
-				0.3,
+				0.30000001192092896,
 				1.0,
 				1.0
 			],
-			"direction": [
-				0.01,
+			"direction" : 
+			[
+				0.0099999997764825821,
 				-1.0,
 				0.0,
 				1.0
 			],
-			"param1": [
+			"param1" : 
+			[
 				1.0,
 				10.0,
 				15.0,
 				0.0
 			],
+			"param2" : 
+			[
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position" : 
+			[
+				-179.80000305175781,
+				9.1999998092651367,
+				3.4000000953674316,
+				0.0
+			],
+			"specular" : 
+			[
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"atten": [
+				0.0,
+				3.9046719074249268,
+				0.0,
+				10000.0
+			],
+			"diffuse": [
+				1.0,
+				0.80000001192092896,
+				0.30000001192092896,
+				1.0
+			],
+			"direction": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"param1": [
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			],
 			"param2": [
 				1.0,
 				0.0,
@@ -872,29 +1037,31 @@
 				0.0
 			],
 			"position": [
-				-179.8,
-				9.2,
-				3.4,
+				-174.32951354980469,
+				-5.0990543365478516,
+				7.6560139656066895,
 				0.0
 			],
 			"specular": [
-				0.0,
-				0.0,
-				0.0,
-				0.0
+				1.0,
+				1.0,
+				1.0,
+				1.0
 			]
 		}
-		
 	],
-	"world": {
-		"ambience": [
-			0.2,
-			0.2,
-			0.2,
+	"world" : 
+	{
+		"ambience" : 
+		[
+			0.20000000298023224,
+			0.20000000298023224,
+			0.20000000298023224,
 			1.0
 		],
-		"factoryType": "Basic",
-		"gravity": [
+		"factoryType" : "Basic",
+		"gravity" : 
+		[
 			0.0,
 			0.0,
 			0.0

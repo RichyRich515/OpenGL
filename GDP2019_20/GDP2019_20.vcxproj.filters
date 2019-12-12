@@ -220,9 +220,6 @@
     <None Include="models.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="scene1.json">
-      <Filter>Resource Files\Scenes</Filter>
-    </None>
     <None Include="assets\shaders\fragmentShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -231,6 +228,9 @@
     </None>
     <None Include="textures.json">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="scene2.json">
+      <Filter>Resource Files\Scenes</Filter>
     </None>
   </ItemGroup>
 </Project>

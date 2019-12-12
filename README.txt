@@ -1,29 +1,38 @@
 Richard Woods
-Physics Project 2
-Pelican Flight simulator
+Graphics Project 2
 
-W/A move forward/backwards
-S/D rotate left/right
-Q/E spin left/right
+use Mouse to look around
+use WASD to move
+use Space to ascend
+use C to descend
+
+Press tilde/grave (~/`) to activate Normal as Color rendering 
+
+Press V to toggle the headlights on the tanks and the Laser Beam on the alien ship.
+
+Use < or > to select object (see Title bar of program for info)
+
+Press F1 to save to Scene file, appends UNIX timestamp to end of file name so you can make multiple saves
+
+Hold CTRL then use same controls as Camera to move selected Object around
+Hold SHIFT then use same controls as camera to mvoe selected Light around
 
 
-Large environment 
-	~558'000 verts
-	~1'105'000 faces
 
-Ship controller by player
-	~8'000 verts
-	~8'000 faces
 
-AABB narrow phase collision detection
+- Varying transparencies on the Carriers above
+- Sorted by distance to camera
+- Multi texture
+	Water(blended two waters and heightmap), 
+	Cruiser (Blended shielding texture), 
+	Terrain (texture and heightmap), 
+	Carrier (discard map)
 
-tests multiple points at key locations on the ship
-	front, 
-	wing tips,
-	back wing tips
-
-Collision point shown with red sphere at point of collision on terrain
-
-Bonus: Full range of movement, all three rotations and forward/backward movement along any angle of rotation. Just like an airplane
-Bonus: Light on front of ship
-
+- Lights
+	Spot light
+	Point lights
+	Directional light
+	Ambient lighting
+	
+trivial combining: blending textures
+Non-trivial combining: discard map, height map
