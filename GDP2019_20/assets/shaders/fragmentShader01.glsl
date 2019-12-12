@@ -42,6 +42,7 @@ uniform sampler2D textSamp03;
 uniform sampler2D textSamp04;
 uniform sampler2D textSamp05;
 
+uniform vec4 heightparams;
 uniform sampler2D heightSamp;
 
 // x: offsetX
@@ -52,6 +53,9 @@ uniform vec4 discardparams;
 uniform sampler2D discardSamp;
 
 uniform samplerCube skyboxSamp00;
+uniform samplerCube skyboxSamp01;
+
+uniform bool daytime;
 
 uniform vec2 waterOffset;
 
@@ -101,8 +105,26 @@ void main()
 	
 	if (params2.x != 0.0) // Skybox
 	{
-		vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
-		pixelColour.rgb = skyboxColor;
+		if (daytime || fVertWorldLocation.y <= 27.5f)
+		{
+			vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
+			pixelColour.rgb = skyboxColor;
+		}
+		else
+		{
+			if (fVertWorldLocation.y <= 32.5f)
+			{
+				vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
+				vec3 skyboxColor2 = texture(skyboxSamp01, -norm).rgb;
+				float ratio = (fVertWorldLocation.y - 27.5f) / 5.0f;
+				pixelColour.rgb = mix(skyboxColor, skyboxColor2, ratio);
+			}
+			else
+			{
+				vec3 skyboxColor = texture(skyboxSamp01, -norm).rgb;
+				pixelColour.rgb = skyboxColor;
+			}
+		}
 		pixelColour.a = 1.0;
 		return;
 	}
@@ -163,10 +185,16 @@ void main()
 		return;
 	}
 	
-	vec2 textparams00xy = textparams00.xy ;
+	vec2 textparams00xy = textparams00.xy;
+	vec4 specular = specularColour;
 	if (params2.z != 0.0)
 	{
 		textparams00xy += waterOffset;
+		if (heightparams.w != 0.0)
+		{
+			vec3 samp = texture(heightSamp, fUVx2.st * heightparams.w + heightparams.xy + waterOffset).rgb;
+			specular.a += -((samp.r + samp.g ) + samp.b) * 300.0;
+		}
 	}
 
 
@@ -177,7 +205,7 @@ void main()
 			discard;
 	}
 
-	vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, norm, fVertWorldLocation.xyz, specularColour);
+	vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, norm, fVertWorldLocation.xyz, specular);
 	if (textparams00.w != 0.0) // texture
 	{
 		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00xy).rgb;

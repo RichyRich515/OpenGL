@@ -16,3 +16,12 @@ WASD to move around,
 space/c to go up/down,
 mouse to move camera,
 
+
+For the Specular Bonus question:
+It can be hard to see the effect unless you turn up the attentuation on the 2nd light in the lights array
+Do this by modifying the value in the scene1.json (Line 603)
+
+OR (recommend this way)
+
+During runtime hold SHIFT key and press period key (On the window title it should read "Light[1]")
+then with SHIFT still held down press F/R to change attentuation

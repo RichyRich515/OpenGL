@@ -395,7 +395,6 @@ int main()
 
 	glm::vec2 waterOffset(0.0f);
 	bool day_time = true;
-	bool under_water = false;
 	
 	while (!glfwWindowShouldClose(window))
 	{
@@ -433,20 +432,26 @@ int main()
 		// draw Skybox
 		{
 			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName(day_time || under_water ? "daytime" : "nighttime");
+			GLuint texture_ul = pTextureManager->getTextureIDFromName("daytime");
 			if (texture_ul)
 			{
 				glActiveTexture(GL_TEXTURE10);
 				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
 				glUniform1i(glGetUniformLocation(program, "skyboxSamp00"), 10);
 			}
-			debugSphere->scale = 1.0f;
-			debugSphere->position = cameraEye;
+			texture_ul = pTextureManager->getTextureIDFromName("nighttime");
+			if (texture_ul)
+			{
+				glActiveTexture(GL_TEXTURE11);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
+				glUniform1i(glGetUniformLocation(program, "skyboxSamp01"), 11);
+			}
+			debugSphere->scale = 800.0f;
+			debugSphere->position = glm::vec3(0.0f, 100.0f, 0.0f);
 			debugSphere->wireFrame = false;
 			//debugSphere->lighting = true;
 			debugSphere->color = glm::vec4(1.0f);
-			//debugSphere->visible = true;
-			//debugSphere->calculateCollisionMeshTransformed();
+			debugSphere->visible = true;
 			debugSphere->updateMatricis();
 			glUniformMatrix4fv(glGetUniformLocation(program, "matModel"), 1, GL_FALSE, glm::value_ptr(debugSphere->matWorld));
 			glUniformMatrix4fv(glGetUniformLocation(program, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(debugSphere->inverseTransposeMatWorld));
@@ -455,7 +460,7 @@ int main()
 			glUniform4f(glGetUniformLocation(program, "params1"), dt, totalTime, 1.0f, 0.0f);
 			glUniform4f(glGetUniformLocation(program, "params2"), 1.0f, 0.0f, 0.0f, 0.0f);
 			glUniform4f(glGetUniformLocation(program, "heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-
+			glUniform1i(glGetUniformLocation(program, "daytime"), day_time);
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH);
 			glDisable(GL_DEPTH_TEST);
@@ -490,15 +495,6 @@ int main()
 				world->vecLights[0]->diffuse = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
 			}
 			world->vecLights[0]->updateShaderUniforms();
-		}
-
-		if (!day_time && cameraEye.y <= 29.0f)
-		{
-			under_water = true;
-		}
-		else
-		{
-			under_water = false;
 		}
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
@@ -642,7 +638,7 @@ int main()
 		}
 
 		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 512.0f);
+		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 800.0f);
 		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
