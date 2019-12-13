@@ -64,10 +64,11 @@ cGameObject::~cGameObject()
 	}
 
 
-	if (pLuaScript)
-	{
-		delete pLuaScript;
-	}
+	if (pScript_init)
+		delete pScript_init;
+	if (pScript_update)
+		delete pScript_update;
+
 	// TODO: Capsule
 }
 
@@ -75,9 +76,19 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 {
 	this->name = obj["name"].asString();
 	this->type = obj["type"].asString();
-	this->scriptName = obj["script"].asString();
-	this->pLuaScript = new cLuaBrain();
-	this->pLuaScript->loadScript(scriptName, this);
+	if (obj["script_init"])
+	{
+		this->script_init_name = obj["script_init"].asString();
+		this->pScript_init = new cLuaBrain();
+		this->pScript_init->loadScript(this->script_init_name, this);
+	}
+	if (obj["script_update"])
+	{
+		this->script_update_name = obj["script_update"].asString();
+		this->pScript_update = new cLuaBrain();
+		this->pScript_update->loadScript(this->script_update_name, this);
+	}
+	
 	this->textureName = obj["textureName"].asString();
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
@@ -85,7 +96,6 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 	for (unsigned j = 0; j < 3; ++j)
 	{
 		this->position[j] = obj["position"][j].asFloat();
-		this->qOrientation[j] = obj["rotation"][j].asFloat();
 		this->velocity[j] = obj["velocity"][j].asFloat();
 		this->acceleration[j] = obj["acceleration"][j].asFloat();
 	}
@@ -94,6 +104,7 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 	{
 		this->color[j] = obj["color"][j].asFloat();
 		this->specular[j] = obj["specular"][j].asFloat();
+		this->qOrientation[j] = obj["rotation"][j].asFloat();
 	}
 	this->scale = obj["scale"].asFloat();
 	this->wireFrame = obj["wireFrame"].asBool();
@@ -183,7 +194,6 @@ Json::Value cGameObject::serializeJSONObject()
 	for (unsigned j = 0; j < 3; ++j)
 	{
 		obj["position"][j] = this->position[j];
-		obj["rotation"][j] = this->qOrientation[j];
 		obj["velocity"][j] = this->velocity[j];
 		obj["acceleration"][j] = this->acceleration[j];
 	}
@@ -191,6 +201,7 @@ Json::Value cGameObject::serializeJSONObject()
 	for (unsigned j = 0; j < 4; ++j)
 	{
 		obj["color"][j] = this->color[j];
+		obj["rotation"][j] = this->qOrientation[j];
 		obj["specular"][j] = this->specular[j];
 	}
 	obj["scale"] = this->scale;
@@ -300,13 +311,24 @@ void cGameObject::updateMatricis()
 
 void cGameObject::init()
 {	
-
+	if (pScript_init)
+		pScript_init->Update(0.0f, 0.0f);
+	if (command)
+		command->init(0.0f, 0.0f);
 }
 
 void cGameObject::update(float dt, float tt)
 {
-	if (pLuaScript)
-		pLuaScript->Update(dt, tt);
+	if (pScript_update)
+		pScript_update->Update(dt, tt);
+
+	if (command)
+	{
+		if (!command->isDone())
+		{
+			command->update(dt, tt);
+		}
+	}
 }
 
 void cGameObject::physicsUpdate(float dt)

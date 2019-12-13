@@ -41,12 +41,38 @@ public:
 	// called "setObjectState" in lua
 	static int l_SetObjectPosition(lua_State* L);
 
-	// Passes object ID
-	// Returns valid (true or false)
+	// Returns true if success
+	// - object ID
 	// - position (xyz)
 	// - velocity (xyz)
 	// called "getObjectState" in lua
 	static int l_GetObjectPosition(lua_State* L);
+
+	// object ID
+	// command ID
+	// returns true if success
+	// "setObjectCommand" in lua
+	static int l_SetObjectCommand(lua_State* L);
+
+	// "parent" command ID
+	// command ID
+	// returns true if success
+	// "setParallelCommand" in lua
+	static int l_SetParallelCommand(lua_State* L);
+
+	// object ID
+	// duration
+	// destination
+	// returns command ID
+	// "createCommand_MoveToTimed" in lua
+	static int l_CreateCommand_MoveToTimed(lua_State* L);
+
+	// object ID
+	// duration
+	// end rotation XYZ degrees
+	// returns command ID
+	// "createCommand_MoveToTimed" in lua
+	static int l_CreateCommand_RotateToTimed(lua_State* L);
 
 	// - Start (X, Y, Z)
 	// - End (X, Y, Z)

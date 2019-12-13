@@ -55,6 +55,9 @@
     <Filter Include="Resource Files\Lua Scripts">
       <UniqueIdentifier>{c5cdfddf-46fe-43b8-8b6f-13f19b8bbf57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Commands">
+      <UniqueIdentifier>{843bb41f-abfd-4298-88de-a812ae2b4c4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="Lua\cLuaBrain.cpp">
       <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="cCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +197,9 @@
     <ClInclude Include="Lua\cLuaBrain.hpp">
       <Filter>Lua</Filter>
     </ClInclude>
+    <ClInclude Include="cCommand.hpp">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="models.json">
@@ -206,6 +215,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="assets\LuaScripts\test.lua">
+      <Filter>Resource Files\Lua Scripts</Filter>
+    </None>
+    <None Include="assets\LuaScripts\init.lua">
       <Filter>Resource Files\Lua Scripts</Filter>
     </None>
   </ItemGroup>

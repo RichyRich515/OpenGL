@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cCommand.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
+    <ClInclude Include="cCommand.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
@@ -190,6 +192,7 @@
     <ClInclude Include="Texture\CTextureFromBMP.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\LuaScripts\init.lua" />
     <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />

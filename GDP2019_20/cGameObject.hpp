@@ -15,6 +15,8 @@
 
 #include "Lua/cLuaBrain.hpp"
 
+#include "cCommand.hpp"
+
 enum class eCollisionShapeType
 {
 	NONE = 0,
@@ -59,8 +61,13 @@ public:
 	int id;
 	std::string name;
 	std::string type;
-	std::string scriptName;
-	cLuaBrain* pLuaScript;
+	std::string script_init_name;
+	std::string script_update_name;
+	cLuaBrain* pScript_init;
+	cLuaBrain* pScript_update;
+
+	iCommand* command;
+
 	std::string textureName;
 	std::string meshName;
 	cMesh* mesh;
@@ -69,7 +76,6 @@ public:
 	glm::mat4 inverseTransposeMatWorld;
 
 	glm::vec3 position;
-	//glm::vec3 rotation;
 	glm::quat qOrientation;
 
 	float scale;
