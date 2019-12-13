@@ -84,6 +84,11 @@ void main()
 	else // no texture
 	{
 		pixelColour.rgb = outColour.rgb + (diffuseColour.rgb * ambientColour.rgb);
+//		if (length(pixelColour.rgb) < length(ambientColour.rgb))
+//		{
+//			pixelColour.rgb = diffuseColour.rgb * (ambientColour.rgb + outColour.rgb;
+//		}
+
 	}
 	pixelColour.a = diffuseColour.a;
 	//pixelColour.rgb *= textCol.rgb;

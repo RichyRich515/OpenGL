@@ -30,7 +30,7 @@ public:
 	void Update(float deltaTime, float totalTime);
 
 	// - Name (sring)
-	static int l_GetObjectByName(lua_State* L);
+	static int l_GetObjectID(lua_State* L);
 
 	// Called by Lua
 	// Passes object ID, new velocity, etc.
@@ -57,8 +57,32 @@ public:
 	// "parent" command ID
 	// command ID
 	// returns true if success
-	// "setParallelCommand" in lua
-	static int l_SetParallelCommand(lua_State* L);
+	// "addParallelCommand" in lua
+	static int l_AddParallelCommand(lua_State* L);
+
+	// "parent" command ID
+	// command ID
+	// returns true if success
+	// "addSerialCommand" in lua
+	static int l_AddSerialCommand(lua_State* L);
+
+	// object ID
+	// position XYZ
+	// returns command ID
+	// "createCommand_SetPosition" in lua
+	static int l_CreateCommand_SetPosition(lua_State* L);
+
+	// object ID
+	// visible
+	// returns command ID
+	// "createCommand_SetPosition" in lua
+	static int l_CreateCommand_SetVisible(lua_State* L);
+
+	// object ID
+	// duration
+	// returns command ID
+	// "createCommand_Wait" in lua
+	static int l_CreateCommand_Wait(lua_State* L);
 
 	// object ID
 	// duration

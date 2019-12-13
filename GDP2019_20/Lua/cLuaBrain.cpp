@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include "../DebugRenderer/cDebugRenderer.h"
 #include "../cWorld.hpp"
@@ -19,6 +20,9 @@ cLuaBrain::cLuaBrain()
 
 	luaL_openlibs(this->m_pLuaState); /* Lua 5.3.3 */
 
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_GetObjectID);
+	lua_setglobal(this->m_pLuaState, "getObjectID");
+
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_SetObjectPosition);
 	lua_setglobal(this->m_pLuaState, "setObjectPosition");
 
@@ -30,14 +34,27 @@ cLuaBrain::cLuaBrain()
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_SetObjectCommand);
 	lua_setglobal(this->m_pLuaState, "setObjectCommand");
 
-	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_SetParallelCommand);
-	lua_setglobal(this->m_pLuaState, "setParallelCommand");
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_AddParallelCommand);
+	lua_setglobal(this->m_pLuaState, "addParallelCommand");
+
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_AddSerialCommand);
+	lua_setglobal(this->m_pLuaState, "addSerialCommand");
+
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_SetVisible);
+	lua_setglobal(this->m_pLuaState, "createCommand_SetVisible");
+
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_SetPosition);
+	lua_setglobal(this->m_pLuaState, "createCommand_SetPosition");
+
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_Wait);
+	lua_setglobal(this->m_pLuaState, "createCommand_Wait");
 
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_MoveToTimed);
 	lua_setglobal(this->m_pLuaState, "createCommand_MoveToTimed");
 
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_RotateToTimed);
 	lua_setglobal(this->m_pLuaState, "createCommand_RotateToTimed");
+
 
 	// Debug rendering
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_DrawDebugLine);
@@ -127,13 +144,24 @@ void cLuaBrain::Update(float deltaTime, float totalTime)
 	}
 }
 
-
-int cLuaBrain::l_GetObjectByName(lua_State* L)
+int cLuaBrain::l_GetObjectID(lua_State* L)
 {
-	// TODO:
-	return 0;
-}
+	std::string name = lua_tostring(L, 1);
 
+	cWorld* world = cWorld::getWorld();
+	std::vector<cGameObject*>::iterator itr = std::find_if(world->vecGameObjects.begin(), world->vecGameObjects.end(), 
+		[name](cGameObject* o) { return name == o->name; });
+
+	if (itr != world->vecGameObjects.end())
+	{
+		lua_pushnumber(L, (long long)(*itr));
+	}
+	else
+	{
+		lua_pushnumber(L, 0);
+	}
+	return 1;
+}
 
 int cLuaBrain::l_SetObjectPosition(lua_State* L)
 {
@@ -148,9 +176,9 @@ int cLuaBrain::l_SetObjectPosition(lua_State* L)
 
 	// Object ID is valid
 	// Get the values that lua pushed and update object
-	go->position.x = (float)lua_tonumber(L, 2);	/* get argument */
-	go->position.y = (float)lua_tonumber(L, 3);	/* get argument */
-	go->position.z = (float)lua_tonumber(L, 4);	/* get argument */
+	go->position.x = (float)lua_tonumber(L, 2);
+	go->position.y = (float)lua_tonumber(L, 3);
+	go->position.z = (float)lua_tonumber(L, 4);
 
 	lua_pushboolean(L, true); // index is OK
 
@@ -195,7 +223,7 @@ int cLuaBrain::l_SetObjectCommand(lua_State* L)
 	return 1;
 }
 
-int cLuaBrain::l_SetParallelCommand(lua_State* L)
+int cLuaBrain::l_AddParallelCommand(lua_State* L)
 {
 	iCommand* pcmd = (iCommand*)(long long)(lua_tonumber(L, 1));
 	if (pcmd == nullptr)
@@ -216,6 +244,78 @@ int cLuaBrain::l_SetParallelCommand(lua_State* L)
 	// valid
 	lua_pushboolean(L, true);
 	return 1;
+}
+
+int cLuaBrain::l_AddSerialCommand(lua_State* L)
+{
+	iCommand* pcmd = (iCommand*)(long long)(lua_tonumber(L, 1));
+	if (pcmd == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	iCommand* ccmd = (iCommand*)(long long)(lua_tonumber(L, 2));
+	if (ccmd == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	pcmd->addSerial(ccmd);
+
+
+	// valid
+	lua_pushboolean(L, true);
+	return 1;
+}
+
+int cLuaBrain::l_CreateCommand_SetPosition(lua_State* L)
+{
+	cGameObject* go = (cGameObject*)(long long)(lua_tonumber(L, 1));
+
+	if (go == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	cCommand_SetPosition* command = new cCommand_SetPosition(go,
+		glm::vec3(		// destination
+			(float)lua_tonumber(L, 2),
+			(float)lua_tonumber(L, 3),
+			(float)lua_tonumber(L, 4)
+		));
+	lua_pushnumber(L, (long long)command);
+	return 1;
+}
+
+int cLuaBrain::l_CreateCommand_SetVisible(lua_State* L)
+{
+	cGameObject* go = (cGameObject*)(long long)(lua_tonumber(L, 1));
+	if (go == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	cCommand_SetVisible* command = new cCommand_SetVisible(go, lua_toboolean(L, 2));
+	lua_pushnumber(L, (long long)command);
+	return 1;
+}
+
+int cLuaBrain::l_CreateCommand_Wait(lua_State* L)
+{
+	cGameObject* go = (cGameObject*)(long long)(lua_tonumber(L, 1));
+
+	if (go == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	cCommand_Wait* command = new cCommand_Wait(go, (float)lua_tonumber(L, 2));
+	lua_pushnumber(L, (long long)command);
+	return 1; // There was 1 thing on the stack
 }
 
 

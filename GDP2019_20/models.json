@@ -1,11 +1,15 @@
 [
 	{
 		"name": "terrain",
-		"location": "assets/models/terrain_xyzn.ply"
+		"location": "assets/models/terrain_xyzn_uv.ply"
 	},
 	{
-		"name": "pillar_of_autumn",
-		"location": "assets/models/pillar_of_autumn_xyzn.ply"
+		"name": "factory",
+		"location": "assets/models/Small_Factory_3d_model_xyz_n.ply"
+	},
+	{
+		"name": "pirate",
+		"location": "assets/models/Sky_Pirate_Decimated_Cannons_Combined_xyz_n.ply"
 	},
 	{
 		"name": "sphere",
