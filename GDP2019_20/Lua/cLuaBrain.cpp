@@ -338,7 +338,9 @@ int cLuaBrain::l_CreateCommand_MoveToTimed(lua_State* L)
 			(float)lua_tonumber(L, 3), 
 			(float)lua_tonumber(L, 4), 
 			(float)lua_tonumber(L, 5)
-		)
+		),
+		lua_toboolean(L, 6), // ease in
+		lua_toboolean(L, 7) // ease out
 	);
 
 	lua_pushnumber(L, (long long)command);
@@ -366,7 +368,9 @@ int cLuaBrain::l_CreateCommand_RotateToTimed(lua_State* L)
 			glm::radians((float)lua_tonumber(L, 3)),
 			glm::radians((float)lua_tonumber(L, 4)),
 			glm::radians((float)lua_tonumber(L, 5))
-		)
+		),
+		lua_toboolean(L, 6), // ease in
+		lua_toboolean(L, 7) // ease out
 	);
 
 	lua_pushnumber(L, (long long)command);

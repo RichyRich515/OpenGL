@@ -63,37 +63,59 @@ void iCommand::init(float dt, float tt)
 }
 
 
-cCommand_MoveToTimed::cCommand_MoveToTimed(cGameObject* go, float duration, glm::vec3 destination)
+cCommand_MoveToTimed::cCommand_MoveToTimed(cGameObject* go, float duration, glm::vec3 destination, bool easeIn, bool easeOut)
 {
 	this->go = go;
-	this->duration = duration;
+	this->duration = 0.0f;
+	this->max_duration = duration;
+	this->startposition = glm::vec3(0.0f);
 	this->destination = destination;
-	this->velocity = glm::vec3(0.0f);
+	this->full_translation = glm::vec3(0.0f);
+	this->easeIn = easeIn;
+	this->easeOut = easeOut;
 }
 void cCommand_MoveToTimed::my_init(float dt, float tt)
 {
-	this->velocity = glm::normalize(destination - this->go->position);
-	this->velocity *= glm::distance(this->go->position, destination) / duration;
+	this->startposition = go->position;
+	this->full_translation = this->destination - this->startposition;
 }
 bool cCommand_MoveToTimed::my_update(float dt, float tt)
 {
-	if (this->duration > 0.0f)
-		this->duration -= dt;
+	if (this->duration < this->max_duration)
+		this->duration += dt;
 	else
 		return true;
-		
-	this->go->position += this->velocity * dt;
+
+	if (this->duration > this->max_duration)
+		this->duration = this->max_duration;
+
+	// Parametric blend https://stackoverflow.com/a/25730573
+	float t = this->duration / this->max_duration;
+	float t2 = t * t;
+	glm::vec3 offset;
+	if ((easeIn && t <= 0.5f) || (easeOut && t > 0.5f))
+	{
+		offset = this->full_translation * (t2 / (2.0f * (t2 - t) + 1.0f));
+	}
+	else
+	{
+		offset = this->full_translation * t;
+	}
+	// todo: maybe use a lerp here instead? might be faster
+	this->go->position = this->startposition + offset;
 	return false;
 }
 
 
-cCommand_RotateToTimed::cCommand_RotateToTimed(cGameObject* go, float duration, glm::vec3 rotation)
+cCommand_RotateToTimed::cCommand_RotateToTimed(cGameObject* go, float duration, glm::vec3 rotation, bool easeIn, bool easeOut)
 {
 	this->go = go;
 	this->duration = 0.0f;
-	this->duration_max = duration;
+	this->max_duration = duration;
 	this->startOrientation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
 	this->endOrientation = glm::quat(rotation);
+	this->easeIn = easeIn;
+	this->easeOut = easeOut;
 }
 void cCommand_RotateToTimed::my_init(float dt, float tt)
 {
@@ -101,13 +123,24 @@ void cCommand_RotateToTimed::my_init(float dt, float tt)
 }
 bool cCommand_RotateToTimed::my_update(float dt, float tt)
 {
-	if(this->duration < duration_max)
+	if(this->duration < max_duration)
 		this->duration += dt;
 	else
 		return true;
-	if (this->duration > this->duration_max)
-		this->duration = this->duration_max;
-	this->go->qOrientation = glm::slerp(this->startOrientation, this->endOrientation, duration / duration_max);
+	if (this->duration > this->max_duration)
+		this->duration = this->max_duration;
+
+	// Parametric blend https://stackoverflow.com/a/25730573
+	float t = this->duration / this->max_duration;
+	float t2 = t * t;
+	
+	float amt = t;
+	if ((easeIn && t <= 0.5f) || (easeOut && t > 0.5f))
+	{
+		amt = (t2 / (2.0f * (t2 - t) + 1.0f));
+	}
+
+	this->go->qOrientation = glm::slerp(this->startOrientation, this->endOrientation, amt);
 	return false;
 }
 

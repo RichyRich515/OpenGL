@@ -72,16 +72,16 @@ public:
 };
 
 
-
 class cCommand_MoveToTimed : public iCommand
 {
 protected:
 	float duration;
+	float max_duration;
 	glm::vec3 destination;
-
-	glm::vec3 velocity; // calculated on init
+	glm::vec3 startposition;
+	glm::vec3 full_translation;
 public:
-	cCommand_MoveToTimed(cGameObject* go, float duration, glm::vec3 destination);
+	cCommand_MoveToTimed(cGameObject* go, float duration, glm::vec3 destination, bool easeIn = false, bool easeOut = false);
 
 	virtual void my_init(float dt, float tt);
 	virtual bool my_update(float dt, float tt);
@@ -92,11 +92,13 @@ class cCommand_RotateToTimed : public iCommand
 {
 protected:
 	float duration;
-	float duration_max;
+	float max_duration;
 	glm::quat startOrientation;
 	glm::quat endOrientation;
+
+	
 public:
-	cCommand_RotateToTimed(cGameObject* go, float duration, glm::vec3 rotation);
+	cCommand_RotateToTimed(cGameObject* go, float duration, glm::vec3 rotation, bool easeIn = false, bool easeOut = false);
 
 	virtual void my_init(float dt, float tt);
 	virtual bool my_update(float dt, float tt);

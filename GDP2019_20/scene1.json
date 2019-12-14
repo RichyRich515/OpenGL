@@ -1,9 +1,9 @@
 {
 	"camera": {
 		"cameraEye": [
-			-256.0,
-			160.0,
-			256.0
+			-20.0,
+			30.0,
+			-20.0
 		],
 		"cameraFront": [
 			0.0,
@@ -15,9 +15,9 @@
 			1.0,
 			0.0
 		],
-		"cameraSpeed": 50.0,
+		"cameraSpeed": 20.0,
 		"pitch": 0.0,
-		"yaw": -45.0
+		"yaw": 45.0
 	},
 	"gameObjects": [
 		{
@@ -30,9 +30,9 @@
 			"collisionObjectInfo": {},
 			"collisionShapeType": 0,
 			"color": [
-				0.5,
-				0.5,
-				0.5,
+				0.6,
+				0.6,
+				0.6,
 				1.0
 			],
 			"inverseMass": 0.0,
@@ -76,166 +76,28 @@
 			"collisionObjectInfo": {},
 			"collisionShapeType": 0,
 			"color": [
-				0.8,
-				0.8,
-				0.8,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "factory",
-			"name": "factory",
-			"position": [
-				133.0,
-				170.0,
-				-67.5
-			],
-			"rotation": [
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"scale": 15.0,
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": true,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				0.8,
-				1.0,
-				0.8,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "pirate",
-			"name": "defender",
-			"position": [
-				129.0,
-				190.0,
-				-55.5
-			],
-			"rotation": [
-				0.0,
-				1.0,
-				0.0,
-				0.0
-			],
-			"scale": 0.75,
-			"script_update": "test.lua",
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": true,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				1.0,
-				0.8,
-				1.0,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "pirate",
-			"name": "attacker",
-			"position": [
-				-230.0,
-				160.0,
-				-230.0
-			],
-			"rotation": [
-				0.0,
 				0.5,
-				0.0,
-				0.86603
-			],
-			"scale": 0.75,
-			"script_update": "test.lua",
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": true,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				0.8,
-				1.0,
-				0.8,
+				0.5,
+				0.5,
 				1.0
 			],
 			"inverseMass": 0.0,
-			"meshName": "sphere",
-			"name": "camera",
+			"meshName": "pillar_of_autumn",
+			"name": "pillar_of_autumn",
 			"position": [
-				-256.0,
-				160.0,
-				256.0
+				0.0,
+				30.0,
+				0.0
 			],
 			"rotation": [
 				0.0,
-				0.92388,
 				0.0,
-				0.38268
+				0.0,
+				1.0
 			],
 			"scale": 1.0,
+			"script_init": "init.lua",
+			"script_update": "test.lua",
 			"specular": [
 				1.0,
 				1.0,
@@ -249,191 +111,7 @@
 				0.0,
 				0.0
 			],
-			"visible": false,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				0.6,
-				0.6,
-				0.6,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "sphere",
-			"name": "cannonball1",
-			"position": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"rotation": [
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"scale": 0.5,
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": false,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				0.6,
-				0.6,
-				0.6,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "sphere",
-			"name": "cannonball2",
-			"position": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"rotation": [
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"scale": 0.5,
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": false,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				0.6,
-				0.6,
-				0.6,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "sphere",
-			"name": "cannonball3",
-			"position": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"rotation": [
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"scale": 0.5,
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": false,
-			"wireFrame": false
-		},
-		{
-			"acceleration": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"bounciness": 0.0,
-			"collisionObjectInfo": {},
-			"collisionShapeType": 0,
-			"color": [
-				0.6,
-				0.6,
-				0.6,
-				1.0
-			],
-			"inverseMass": 0.0,
-			"meshName": "sphere",
-			"name": "cannonball4",
-			"position": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"rotation": [
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"scale": 0.5,
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				1000.0
-			],
-			"textureName": "",
-			"type": "basic",
-			"velocity": [
-				0.0,
-				0.0,
-				0.0
-			],
-			"visible": false,
+			"visible": true,
 			"wireFrame": false
 		}
 	],

@@ -69,6 +69,8 @@ cGameObject::~cGameObject()
 	if (pScript_update)
 		delete pScript_update;
 
+	if (this->command)
+		delete this->command;
 	// TODO: Capsule
 }
 

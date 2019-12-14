@@ -1,11 +1,12 @@
-command = createCommand_MoveToTimed(id, 5.0, 0.0, 0.0, 10.0)
-command2 = createCommand_MoveToTimed(id, 10.0, 5.0, 0.0, 0.0)
-command3 = createCommand_MoveToTimed(id, 15.0, 0.0, 15.0, 0.0)
+v, x, y, z = getObjectPosition(id);
 
-command4 = createCommand_RotateToTimed(id, 5.0, 0.0, 90.0, 0.0)
+--move1 = createCommand_MoveToTimed(id, 10.0, 0.0, y, 1.0, true, true)
+rotate1 = createCommand_RotateToTimed(id, 10.0, 0.0, 90.0, 0.0, true, true)
 
-setParallelCommand(command, command2)
-setParallelCommand(command, command3)
-setParallelCommand(command, command4)
+--addParallelCommand(move1, rotate1)
 
-setObjectCommand(id, command)
+rotate2 = createCommand_RotateToTimed(id, 20.0, 0.0, -90.0, 0.0, true, true)
+
+addSerialCommand(rotate1, rotate2)
+
+setObjectCommand(id, rotate1)

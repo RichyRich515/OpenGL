@@ -43,102 +43,6 @@ static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
-
-int animation_stage = 0;
-bool animating = false;
-
-cGameObject* defender;
-cGameObject* attacker;
-cGameObject* cameraObj;
-
-void check_done()
-{
-	if (defender->command)
-	{
-		if (!defender->command->isDone())
-		{
-			animating = true;
-			return;
-		}
-	}
-	if (attacker->command)
-	{
-		if (!attacker->command->isDone())
-		{
-			animating = true;
-			return;
-		}
-	}
-	if (cameraObj->command)
-	{
-		if (!cameraObj->command->isDone())
-		{
-			animating = true;
-			return;
-		}	
-	}
-
-	animation_stage = 0;
-	animating = false;
-}
-
-void setup_stage(int stage)
-{
-	std::cout << "Loading stage " << stage << std::endl;
-	if (defender->pScript_init)
-	{
-		delete defender->pScript_init;
-		defender->pScript_init = nullptr;
-	}
-	if (attacker->pScript_init)
-	{
-		delete attacker->pScript_init;
-		attacker->pScript_init = nullptr;
-	}
-	if (cameraObj->pScript_init)
-	{
-		delete cameraObj->pScript_init;
-		cameraObj->pScript_init = nullptr;
-	}
-
-	if (defender->command)
-	{
-		delete defender->command;
-		defender->command = nullptr;
-	}
-	if (attacker->command)
-	{
-		delete attacker->command;
-		attacker->command = nullptr;
-	}
-	if (cameraObj->command)
-	{
-		delete cameraObj->command;
-		cameraObj->command = nullptr;
-	}
-
-	std::string defender_file_name = "defender_stage" + std::to_string(stage) + ".lua";
-	std::string attacker_file_name = "attacker_stage" + std::to_string(stage) + ".lua";
-	std::string camera_file_name = "camera_stage" + std::to_string(stage) + ".lua";
-
-	defender->pScript_init = new cLuaBrain();
-	defender->script_init_name = defender_file_name;
-	defender->pScript_init->loadScript(defender_file_name, defender);
-	defender->init();
-
-	attacker->pScript_init = new cLuaBrain();
-	attacker->script_init_name = attacker_file_name;
-	attacker->pScript_init->loadScript(attacker_file_name, attacker);
-	attacker->init();
-
-	cameraObj->pScript_init = new cLuaBrain();
-	cameraObj->script_init_name = camera_file_name;
-	cameraObj->pScript_init->loadScript(camera_file_name, cameraObj);
-	cameraObj->init();
-
-	animating = true;
-}
-
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt);
 
 constexpr float MAX_DELTA_TIME = 0.017f;
@@ -441,14 +345,7 @@ int main()
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = (float)cursorX;
-	lastcursorY = (float)cursorY;
 
-	defender = world->vecGameObjects[2];
-	attacker = world->vecGameObjects[3];
-	cameraObj = world->vecGameObjects[4];
-
-	cameraEye = cameraObj->position;
-	cameraFront = cameraObj->qOrientation * glm::vec3(0.0f, 0.0f, 1.0f);
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = (float)glfwGetTime();
@@ -477,49 +374,20 @@ int main()
 		else if (pitch < -89.9f)
 			pitch = -89.9f;
 
-		if (pKeyboardManager->keyPressed('3'))
-			animation_stage = 3;
-		else if (pKeyboardManager->keyPressed('4'))
-			animation_stage = 4;
-		else if (pKeyboardManager->keyPressed('5'))
-			animation_stage = 5;
-		else if (pKeyboardManager->keyPressed('6'))
-			animation_stage = 6;
-		else if (pKeyboardManager->keyPressed('7'))
-			animation_stage = 7;
-
-		if (!animating)
-		{
-			if (animation_stage >= 3 && animation_stage <= 7)
-				setup_stage(animation_stage);
-		}
-		else
-		{
-			if (!ctrl_pressed && !shift_pressed)
-			{
-				cameraEye = cameraObj->position;
-				cameraFront = cameraObj->qOrientation * glm::vec3(0.0f, 0.0f, 1.0f);
-			}
-			check_done();
-		}
-
 		// debugging camera
-		if (ctrl_pressed || shift_pressed)
-		{
-			glm::vec3 front;
-			front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-			front.y = sin(glm::radians(pitch));
-			front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-			cameraFront = glm::normalize(front);
+		glm::vec3 front;
+		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front.y = sin(glm::radians(pitch));
+		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		cameraFront = glm::normalize(front);
 
-			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
-			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 
-			cameraEye += zMove * cameraSpeed * dt * cameraFront;
-			cameraEye += -xMove * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
-			cameraEye += yMove * cameraSpeed * dt * cameraUp;
-		}
+		cameraEye += zMove * cameraSpeed * dt * cameraFront;
+		cameraEye += -xMove * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+		cameraEye += yMove * cameraSpeed * dt * cameraUp;
 
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -533,8 +401,7 @@ int main()
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(2) << std::boolalpha
-				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "} animation_stage: " << animation_stage
-				<< " animating: " << animating;
+				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
