@@ -76,9 +76,9 @@
 			"collisionObjectInfo": {},
 			"collisionShapeType": 0,
 			"color": [
-				0.5,
-				0.5,
-				0.5,
+				0.8,
+				0.8,
+				1.0,
 				1.0
 			],
 			"inverseMass": 0.0,
@@ -97,6 +97,54 @@
 			],
 			"scale": 1.0,
 			"script_init": "init.lua",
+			"script_update": "test.lua",
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				1000.0
+			],
+			"textureName": "",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": {},
+			"collisionShapeType": 0,
+			"color": [
+				0.8,
+				1.0,
+				0.8,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "pelican",
+			"name": "pelican",
+			"position": [
+				-5.0,
+				25.0,
+				-10.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale": 0.5,
+			"script_init": "init_pelican.lua",
 			"script_update": "test.lua",
 			"specular": [
 				1.0,

@@ -220,5 +220,11 @@
     <None Include="assets\LuaScripts\init.lua">
       <Filter>Resource Files\Lua Scripts</Filter>
     </None>
+    <None Include="assets\LuaScripts\init_pelican.lua">
+      <Filter>Resource Files\Lua Scripts</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\README.txt" />
   </ItemGroup>
 </Project>

@@ -88,6 +88,41 @@ public:
 };
 
 
+class cCommand_FollowTimed : public iCommand
+{
+protected:
+	float duration;
+	cGameObject* target;
+	glm::vec3 offset;
+	bool relativeToOrientation;
+	float speed;
+	float minDistance;
+	float maxDistance;
+	float diffMinAndMax;
+public:
+	cCommand_FollowTimed(cGameObject* go, cGameObject* target, float duration, float speed, float minDistance, float maxDistance, glm::vec3 offset, bool realtiveToOrientation = false);
+
+	virtual void my_init(float dt, float tt);
+	virtual bool my_update(float dt, float tt);
+};
+
+
+class cCommand_MoveCurveTimed : public iCommand
+{
+protected:
+	float duration;
+	float max_duration;
+	glm::vec3 start;
+	glm::vec3 end;
+	glm::vec3 point;
+public:
+	cCommand_MoveCurveTimed(cGameObject* go, float duration, glm::vec3 end, glm::vec3 point, bool easeIn = false, bool easeOut = false);
+
+	virtual void my_init(float dt, float tt);
+	virtual bool my_update(float dt, float tt);
+};
+
+
 class cCommand_RotateToTimed : public iCommand
 {
 protected:
@@ -96,7 +131,6 @@ protected:
 	glm::quat startOrientation;
 	glm::quat endOrientation;
 
-	
 public:
 	cCommand_RotateToTimed(cGameObject* go, float duration, glm::vec3 rotation, bool easeIn = false, bool easeOut = false);
 

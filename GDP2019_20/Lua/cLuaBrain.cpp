@@ -52,8 +52,14 @@ cLuaBrain::cLuaBrain()
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_MoveToTimed);
 	lua_setglobal(this->m_pLuaState, "createCommand_MoveToTimed");
 
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_MoveCurveTimed);
+	lua_setglobal(this->m_pLuaState, "createCommand_MoveCurveTimed");
+
 	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_RotateToTimed);
 	lua_setglobal(this->m_pLuaState, "createCommand_RotateToTimed");
+
+	lua_pushcfunction(this->m_pLuaState, cLuaBrain::l_CreateCommand_FollowTimed);
+	lua_setglobal(this->m_pLuaState, "createCommand_FollowTimed");
 
 
 	// Debug rendering
@@ -341,6 +347,71 @@ int cLuaBrain::l_CreateCommand_MoveToTimed(lua_State* L)
 		),
 		lua_toboolean(L, 6), // ease in
 		lua_toboolean(L, 7) // ease out
+	);
+
+	lua_pushnumber(L, (long long)command);
+
+	return 1; // There was 1 thing on the stack
+}
+
+int cLuaBrain::l_CreateCommand_MoveCurveTimed(lua_State* L)
+{
+	cGameObject* go = (cGameObject*)(long long)(lua_tonumber(L, 1));
+
+	if (go == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	cCommand_MoveCurveTimed* command = new cCommand_MoveCurveTimed(
+		go, // game object
+		(float)lua_tonumber(L, 2), // duration
+		glm::vec3(		// destination
+			(float)lua_tonumber(L, 3),
+			(float)lua_tonumber(L, 4),
+			(float)lua_tonumber(L, 5)
+		),
+		glm::vec3(
+			(float)lua_tonumber(L, 6),
+			(float)lua_tonumber(L, 7),
+			(float)lua_tonumber(L, 8)
+		),
+		lua_toboolean(L, 9), // ease in
+		lua_toboolean(L, 10) // ease out
+	);
+
+	lua_pushnumber(L, (long long)command);
+
+	return 1; // There was 1 thing on the stack
+}
+
+int cLuaBrain::l_CreateCommand_FollowTimed(lua_State* L)
+{
+	cGameObject* go = (cGameObject*)(long long)(lua_tonumber(L, 1));
+	if (go == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	cGameObject* target = (cGameObject*)(long long)(lua_tonumber(L, 2));
+	if (target == nullptr)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	cCommand_FollowTimed* command = new cCommand_FollowTimed(
+		go, // game object
+		target, // game object
+		(float)lua_tonumber(L, 3), // duration
+		(float)lua_tonumber(L, 4), // speed
+		(float)lua_tonumber(L, 5), // min dist
+		(float)lua_tonumber(L, 6), // max disy
+		glm::vec3( // offset
+			(float)lua_tonumber(L, 7),
+			(float)lua_tonumber(L, 8),
+			(float)lua_tonumber(L, 9)
+		),
+		lua_toboolean(L, 10) // relativeToOrientation
 	);
 
 	lua_pushnumber(L, (long long)command);

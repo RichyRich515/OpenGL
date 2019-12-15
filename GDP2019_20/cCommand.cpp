@@ -101,8 +101,14 @@ bool cCommand_MoveToTimed::my_update(float dt, float tt)
 	{
 		offset = this->full_translation * t;
 	}
-	// todo: maybe use a lerp here instead? might be faster
 	this->go->position = this->startposition + offset;
+
+	cWorld* world = cWorld::getWorld();
+	if (world->debugMode)
+	{
+		world->pDebugRenderer->addLine(startposition, destination, glm::vec3(1.0f, 1.0f, 0.0f), 0.0f);
+	}
+
 	return false;
 }
 
@@ -138,6 +144,13 @@ bool cCommand_RotateToTimed::my_update(float dt, float tt)
 	if ((easeIn && t <= 0.5f) || (easeOut && t > 0.5f))
 	{
 		amt = (t2 / (2.0f * (t2 - t) + 1.0f));
+	}
+
+	cWorld* world = cWorld::getWorld();
+	if (world->debugMode)
+	{
+		world->pDebugRenderer->addLine(this->go->position, this->go->position + this->startOrientation * glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.5f, 0.0f), 0.0f);
+		world->pDebugRenderer->addLine(this->go->position, this->go->position + this->endOrientation * glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.5f, 1.0f), 0.0f);
 	}
 
 	this->go->qOrientation = glm::slerp(this->startOrientation, this->endOrientation, amt);
@@ -187,4 +200,108 @@ void cCommand_SetVisible::my_init(float dt, float tt)
 bool cCommand_SetVisible::my_update(float dt, float tt)
 {
 	return true;
+}
+
+glm::vec3 getPoint(glm::vec3 p1, glm::vec3 p2, float t)
+{
+	glm::vec3 diff = p2 - p1;
+	return p1 + (diff * t);
+}
+cCommand_MoveCurveTimed::cCommand_MoveCurveTimed(cGameObject* go, float duration, glm::vec3 end, glm::vec3 point, bool easeIn, bool easeOut)
+{
+	this->go = go;
+	this->duration = 0.0f;
+	this->max_duration = duration;
+	this->start = glm::vec3(0.0f);
+	this->end = end;
+	this->point = point;
+	this->easeIn = easeIn;
+	this->easeOut = easeOut;
+}
+void cCommand_MoveCurveTimed::my_init(float dt, float tt)
+{
+	this->start = this->go->position;
+}
+bool cCommand_MoveCurveTimed::my_update(float dt, float tt)
+{
+	if (this->duration < this->max_duration)
+		this->duration += dt;
+	else
+		return true;
+
+	if (this->duration > this->max_duration)
+		this->duration = this->max_duration;
+
+	// Parametric blend https://stackoverflow.com/a/25730573
+	float t = this->duration / this->max_duration;
+	float t2 = t * t;
+	if ((easeIn && t <= 0.5f) || (easeOut && t > 0.5f))
+	{
+		t = (t2 / (2.0f * (t2 - t) + 1.0f));
+	}
+
+	// BONUS: MATHEMATICAL CURVE!!
+	glm::vec3 pa = getPoint(this->start, this->point, t);
+	glm::vec3 pb = getPoint(this->point, this->end, t);
+
+	this->go->position = getPoint(pa, pb, t);
+
+	cWorld* world = cWorld::getWorld();
+	if (world->debugMode)
+	{
+		world->pDebugRenderer->addLine(start, end, glm::vec3(1.0f, 1.0f, 0.0f), 0.0f);
+		world->pDebugRenderer->addLine(start, point, glm::vec3(0.0f, 1.0f, 1.0f), 0.0f);
+		world->pDebugRenderer->addLine(point, end, glm::vec3(1.0f, 0.0f, 1.0f), 0.0f);
+	}
+
+	return false;
+}
+
+
+cCommand_FollowTimed::cCommand_FollowTimed(cGameObject* go, cGameObject* target, float duration, float speed, float minDistance, float maxDistance, glm::vec3 offset, bool realtiveToOrientation)
+{
+	this->go = go;
+	this->target = target;
+	this->duration = duration;
+	this->speed = speed;
+	this->minDistance = minDistance;
+	this->maxDistance = maxDistance;
+	this->offset = offset;
+	this->relativeToOrientation = relativeToOrientation;
+}
+void cCommand_FollowTimed::my_init(float dt, float tt)
+{
+	this->diffMinAndMax = this->maxDistance - this->minDistance;
+}
+bool cCommand_FollowTimed::my_update(float dt, float tt)
+{
+	if (this->duration > 0.0f)
+		this->duration -= dt;
+	else
+		return true;
+
+	// Adapted from Feeney's follow cam code
+
+	glm::vec3 idealPos = this->target->position + this->offset;
+	glm::vec3 direction = glm::normalize(idealPos - this->go->position);
+	float distanceToIdeal = glm::distance(this->go->position, idealPos);
+
+	// Set to maximum speed by default;
+	glm::vec3 vel = direction * this->speed;
+
+	
+	if (distanceToIdeal < this->minDistance)
+	{
+		// too close stop moving
+		vel = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+	else if (!(distanceToIdeal > this->maxDistance)) 
+	{
+		// inbetween min and max range
+		vel *= glm::smoothstep(0.0f, 1.0f, (distanceToIdeal - this->minDistance) / diffMinAndMax);
+	}
+
+	this->go->position += vel * dt;
+
+	return false;
 }

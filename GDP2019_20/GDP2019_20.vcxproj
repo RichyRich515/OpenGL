@@ -193,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\LuaScripts\init.lua" />
+    <None Include="assets\LuaScripts\init_pelican.lua" />
     <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />

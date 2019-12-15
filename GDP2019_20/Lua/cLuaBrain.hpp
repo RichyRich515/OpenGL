@@ -93,6 +93,20 @@ public:
 
 	// object ID
 	// duration
+	// destination
+	// returns command ID
+	// "createCommand_MoveCurveTimed" in lua
+	static int l_CreateCommand_MoveCurveTimed(lua_State* L);
+
+	// object ID
+	// duration
+	// end rotation XYZ degrees
+	// returns command ID
+	// "createCommand_FollowTimed" in lua
+	static int l_CreateCommand_FollowTimed(lua_State* L);
+
+	// object ID
+	// duration
 	// end rotation XYZ degrees
 	// returns command ID
 	// "createCommand_MoveToTimed" in lua
