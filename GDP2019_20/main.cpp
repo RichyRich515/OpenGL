@@ -29,7 +29,6 @@
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 #include "cGameObject.hpp"
-#include "cPelican.hpp"
 #include "cLight.hpp"
 #include "Physics.hpp"
 #include "cAABB.hpp"
@@ -60,17 +59,14 @@ float yaw = -90.0f; // Y axis rotation (left, right)
 glm::vec3 cameraDirection = glm::normalize(cameraEye - cameraFront);
 glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 
-float CAMERA_SPEED = 25.0f;
+float CAMERA_SPEED = 200.0f;
 
 float cameraSensitivity = 0.1f;
 
-// TODO: Get this outta global space
 GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
 
-
-// factory for any game object
 iGameObjectFactory* pGameObjectFactory;
 cBasicTextureManager* pTextureManager;
 
@@ -233,6 +229,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main()
 {
 	// 19x3x19
+	srand(time(NULL));
 	GLFWwindow* window;
 
 	glfwSetErrorCallback(error_callback);
@@ -288,9 +285,6 @@ int main()
 		mapMeshes[name] = m;
 	}
 
-	// TODO: this stuff
-	CalcAABBsForMesh(mapMeshes["terrain"], 100.0f, 10, 2, 10);
-
 	// make shader
 	cShaderManager::cShader vertexShader01;
 	vertexShader01.fileName = "assets/shaders/vertexShader01.glsl";
@@ -323,8 +317,7 @@ int main()
 	pTextureManager = new cBasicTextureManager();
 	pTextureManager->SetBasePath("assets/textures");
 
-	// TODO: load texture names from JSON
-	std::string textureName = "mountains_big_2.bmp";
+	std::string textureName = "X-Wing-Texture.bmp";
 	if (!pTextureManager->Create2DTextureFromBMPFile(textureName, true)) // NEED TO GENERATE MIP MAPS
 	{
 		std::cerr << "Failed to load texture " << textureName << " to GPU" << std::endl;
@@ -333,12 +326,12 @@ int main()
 	std::string err;
 	if (!pTextureManager->CreateCubeTextureFromBMPFiles(
 		"skybox",
-		"iceflow_lf.bmp",
-		"iceflow_rt.bmp",
-		"iceflow_dn.bmp",
-		"iceflow_up.bmp",
-		"iceflow_ft.bmp",
-		"iceflow_bk.bmp",
+		"SpaceBox_right1_posX.bmp",
+		"SpaceBox_left2_negX.bmp",
+		"SpaceBox_top3_posY.bmp",
+		"SpaceBox_bottom4_negY.bmp",
+		"SpaceBox_front5_posZ.bmp",
+		"SpaceBox_back6_negZ.bmp",
 		true, err)) // NEED TO GENERATE MIP MAPS
 	{
 		std::cerr << "Failed to load cubemap to GPU: " << err << std::endl;
@@ -352,39 +345,19 @@ int main()
 
 
 	openSceneFromFile("scene1.json");
-	// HACK:
-	cPelican* pelican = (cPelican*)world->vecGameObjects[1];
-	world->vecLights[1]->updateShaderUniforms();
 
 
-
-	cParticleEmitter emitter1;
-	emitter1.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f), glm::vec3(0.0f),
-		glm::vec3(-0.01f), glm::vec3(0.01f),
-		0.5f, 2.0f,
-		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.025f, 0.0f,
-		5, 20,
-		1000);
-
-	cParticleEmitter emitter2;
-	emitter2.init(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f), glm::vec3(0.0f),
-		glm::vec3(-0.01f), glm::vec3(0.01f),
-		0.5f, 2.0f,
-		glm::vec4(0.7f), glm::vec4(0.3f),
-		0.025f, 0.0f,
-		5, 20,
-		1000);
-
+	double cursorX, cursorY;
+	float lastcursorX = 0, lastcursorY = 0;
+	glfwSetCursorPos(window, 0, 0);
 
 	float ratio;
 	int width, height;
 	glm::mat4 v, p;
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
-	
+	p = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 4000.0f);
+
 	float fov = 60.0f;
 	float minfov = 60.0f;
 
@@ -392,15 +365,44 @@ int main()
 
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
-	glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// timing
 	float totalTime;
 	float lastTime = 0;
 	float dt;
 
-	glm::vec3 cameraPosition = pelican->position + pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f);
-	glm::vec3 cameraUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
+	int attack_state = 0;
+
+	cGameObject* destroyer = world->vecGameObjects[0];
+	cGameObject* xwing = world->vecGameObjects[1];
+	cGameObject* bullet = world->vecGameObjects[2];
+	cGameObject* LH = world->vecGameObjects[3];
+	cGameObject* RH = world->vecGameObjects[4];
+
+	bullet->visible = false;
+
+	glm::vec3 attack_start = glm::vec3(-400.0f, 200.0f, 0.0f);
+	glm::vec3 attack_end = glm::vec3(400.0f, -200.0f, 0.0f);
+	glm::vec3 attack_difference = attack_end - attack_start;
+	glm::vec3 attack_direction = glm::normalize(attack_difference);
+
+	float attack_length = glm::length(attack_difference);
+	float attack_step = 4.0f;
+	std::vector<glm::vec3> attack_points;
+
+	float xwing_speed = 800.0f;
+	float traveled = 0.0f;
+	float bullet_traveled = 0.0f;
+	float bullet_to_travel = 0.0f;
+
+	int LH_health = 100;
+	int RH_health = 100;
+
+	float dead_offset = 0.0f;
+	glUniform1f(glGetUniformLocation(program, "offset"), dead_offset);
+
+	constexpr float MIN_DISTANCE_CHECK_PHYSICS = 1600.0f;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -411,29 +413,301 @@ int main()
 		if (dt >= MAX_PHYSICS_DELTA_TIME)
 			dt = MAX_PHYSICS_DELTA_TIME;
 
+		if (!attack_state)
+		{
+			// Camera Movement
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+
+			yaw += ((float)cursorX - lastcursorX) * cameraSensitivity;
+			pitch += (lastcursorY - (float)cursorY) * cameraSensitivity;
+			lastcursorX = (float)cursorX;
+			lastcursorY = (float)cursorY;
+
+			// Lock pitch
+			if (pitch > 89.9f)
+				pitch = 89.9f;
+			else if (pitch < -89.9f)
+				pitch = -89.9f;
+
+			glm::vec3 front;
+			front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+			front.y = sin(glm::radians(pitch));
+			front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+			cameraFront = glm::normalize(front);
+
+			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+
+			cameraEye += zMove * CAMERA_SPEED * dt * cameraFront;
+			cameraEye += -xMove * CAMERA_SPEED * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+			cameraEye += yMove * CAMERA_SPEED * dt * cameraUp;
+		}
+		else
+		{
+			if (attack_state == 1)
+			{
+				glm::vec3 translation = attack_direction * xwing_speed * dt;
+				traveled += glm::length(translation);
+				xwing->position += translation;
+				cameraEye = xwing->position + xwing->qOrientation * glm::vec3(0.0f, 4.0f, 80.0f);
+				cameraFront = attack_direction;
+
+				if (glm::distance(glm::vec3(0.0f), xwing->position) <= MIN_DISTANCE_CHECK_PHYSICS)
+				{
+					cMesh* mesh = destroyer->collisionObjectInfo.meshes->first;
+					sClosestTriInfo info = findClosestTriToPoint(mesh, xwing->position);
+
+					if (debug_mode)
+					{
+						pDebugRenderer->addTriangle(
+							glm::vec3(
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].x,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].y,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].z),
+							glm::vec3(
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].x,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].y,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].z),
+							glm::vec3(
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].x,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].y,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].z),
+							glm::vec3(1.0f, 0.0f, 0.0f), 0);
+
+						pDebugRenderer->addLine(xwing->position, info.point, glm::vec3(0.0f, 1.0f, 0.0f), 0);
+					}
+					if (info.distance <= xwing->collisionObjectInfo.radius)
+					{
+						attack_state = 2;
+						xwing->qOrientation = glm::quatLookAt(-attack_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+						bullet->position = xwing->position;
+						bullet->visible = true;
+						traveled = attack_length - traveled; // backtrack
+
+						bullet_traveled = 0.0f;
+						bullet_to_travel = attack_length - traveled;
+					}
+
+				}
+			}
+			else if (attack_state == 2)
+			{
+				glm::vec3 translation = -attack_direction * xwing_speed * dt;
+				traveled += glm::length(translation);
+				xwing->position += translation;
+				cameraEye = xwing->position + xwing->qOrientation * glm::vec3(0.0f, 4.0f, -80.0f);
+				cameraFront = attack_direction;
+			}
+
+			if (traveled > attack_length)
+			{
+				attack_state = 0;
+			}
+		}
+
+		if (bullet->visible)
+		{
+			glm::vec3 translation = attack_direction * xwing_speed * dt;
+			bullet_traveled += glm::length(translation);
+			bullet->position += translation;
+
+			if (bullet_traveled > bullet_to_travel)
+			{
+				// missed
+				bullet->visible = false;
+			}
+			else if (glm::distance(glm::vec3(0.0f), bullet->position) < MIN_DISTANCE_CHECK_PHYSICS)
+			{
+				bool hit = false;
+				cMesh* mesh = destroyer->collisionObjectInfo.meshes->first;
+
+				if (LH_health)
+				{
+					float d = glm::distance(bullet->position, LH->position);
+					if (d < (bullet->collisionObjectInfo.radius + LH->collisionObjectInfo.radius))
+					{
+						glm::vec3 collisionVector = bullet->position - LH->position;
+						glm::vec3 normCollisionVector = glm::normalize(collisionVector);
+						float overlap = d - (bullet ->collisionObjectInfo.radius + LH->collisionObjectInfo.radius);
+						float halflap = -overlap / 2.0f;
+						LH_health -= 25;
+						hit = true;
+						std::cout << "Bullet hit LH" << std::endl;
+						bullet->visible = false;
+
+						cGameObject* ip = new cGameObject("impact_point");
+						ip->position = LH->position + normCollisionVector * LH->collisionObjectInfo.radius;
+						ip->color = glm::vec4(0.9f, 0.1f, 0.1f, 1.0f);
+						ip->meshName = "sphere";
+						ip->scale = 2.0f;
+						ip->inverseMass = 0.0f;
+						ip->collisionShapeType = eCollisionShapeType::NONE;
+						world->deferredAddGameObject(ip);
+					}
+				}
+
+				if (RH_health && !hit)
+				{
+					float d2 = glm::distance(bullet->position, RH->position);
+					if (!hit && d2 < (bullet->collisionObjectInfo.radius + RH->collisionObjectInfo.radius))
+					{
+						glm::vec3 collisionVector = bullet->position - RH->position;
+						glm::vec3 normCollisionVector = glm::normalize(collisionVector);
+						float overlap = d2 - (bullet->collisionObjectInfo.radius + RH->collisionObjectInfo.radius);
+						float halflap = -overlap / 2.0f;
+						RH_health -= 25;
+						hit = true;
+						std::cout << "Bullet hit RH" << std::endl;
+						bullet->visible = false;
+
+						cGameObject* ip = new cGameObject("impact_point");
+						ip->position = RH->position + normCollisionVector * RH->collisionObjectInfo.radius;
+						ip->color = glm::vec4(0.9f, 0.1f, 0.1f, 1.0f);
+						ip->meshName = "sphere";
+						ip->scale = 2.0f;
+						ip->inverseMass = 0.0f;
+						ip->collisionShapeType = eCollisionShapeType::NONE;
+						world->deferredAddGameObject(ip);
+					}
+				}
+				
+				if (hit && !LH_health && !RH_health)
+				{
+					std::cout << "You've destroyed the Star Destroyer!" << std::endl;
+					xwing->visible = false;
+					attack_state = 0;
+				}
+
+				if (!hit)
+				{
+					sClosestTriInfo info = findClosestTriToPoint(mesh, bullet->position);
+
+					if (debug_mode)
+					{
+						pDebugRenderer->addTriangle(
+							glm::vec3(
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].x,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].y,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].z),
+							glm::vec3(
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].x,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].y,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].z),
+							glm::vec3(
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].x,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].y,
+								mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].z),
+							glm::vec3(1.0f, 0.0f, 0.0f), 0);
+
+						pDebugRenderer->addLine(bullet->position, info.point, glm::vec3(0.0f, 1.0f, 0.0f), 0);
+					}
+					if (info.distance <= bullet->collisionObjectInfo.radius)
+					{
+						// HIT
+						std::cout << "Bullet hit" << std::endl;
+						bullet->visible = false;
+
+						cGameObject* ip = new cGameObject("impact_point");
+						ip->position = info.point;
+						ip->color = glm::vec4(0.9f, 0.1f, 0.1f, 1.0f);
+						ip->meshName = "sphere";
+						ip->scale = 2.0f;
+						ip->inverseMass = 0.0f;
+						ip->collisionShapeType = eCollisionShapeType::NONE;
+						world->deferredAddGameObject(ip);
+					}
+				}
+			}
+		}
+
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		if (!LH_health && !RH_health)
+		{
+			dead_offset += 7.5f * dt;
+			glUniform1f(glGetUniformLocation(program, "offset"), dead_offset);
+		}
+
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 		{
 			debug_mode = !debug_mode;
 		}
+		if (pKeyboardManager->keyPressed(GLFW_KEY_2))
+		{
+			attack_state = 1;
 
-		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
-		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-		int rollMove = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-		pelican->forwardAccel = zMove * 50.0f;
-		pelican->leftrightAccel = xMove * 2.0f; // X rot
-		pelican->updownAccel = -yMove * 2.0f; // Y rot
-		pelican->rollAccel = -rollMove * 2.0f; // Z rot
+			int dir = rand() % 2;
+
+			while (true)
+			{
+				attack_start = glm::normalize(glm::vec3(dir ? randInRange(-1.0f, 0.0f) : randInRange(0.0f, 1.0f), randInRange(-0.2f, 0.2f), randInRange(-0.6f, 0.6f))) * randInRange(0.0f, 3000.0f);
+				if (CheckIfPointInMeshAndRadius(destroyer->collisionObjectInfo.meshes->first, attack_start, xwing->collisionObjectInfo.radius))
+					std::cout << "attack_start inside star destroyer, repicking" << std::endl;
+				else
+					break;
+			}
+			while (true)
+			{
+				attack_end = glm::normalize(glm::vec3(dir ? randInRange(0.0f, 1.0f) : randInRange(-1.0f, 0.0f), randInRange(-0.2f, 0.2f), randInRange(-0.6f, 0.6f))) * randInRange(0.0f, 3000.0f);
+				if (CheckIfPointInMeshAndRadius(destroyer->collisionObjectInfo.meshes->first, attack_end, xwing->collisionObjectInfo.radius))
+					std::cout << "attack_end inside star destroyer, repicking" << std::endl;
+				else
+					break;
+			}
+
+			attack_difference = attack_end - attack_start;
+			attack_direction = glm::normalize(attack_difference);
+			attack_length = glm::length(attack_difference);
+
+			attack_points.clear();
+			for (float s = 0.0f; s < attack_length; s += attack_step)
+				attack_points.push_back(attack_start + attack_direction * s);
+
+			traveled = 0.0f;
+			xwing->position = attack_start;
+			xwing->qOrientation = glm::quatLookAt(attack_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+			bullet->qOrientation = xwing->qOrientation;
+			bullet->visible = false;
+		}
+		else if (pKeyboardManager->keyPressed(GLFW_KEY_3))
+		{
+			attack_state = 1;
+
+			int dir = rand() % 2;
+			attack_start = glm::vec3(500.0f * (dir ? -1 : 1), 240.0f, 560.0f);
+			attack_end = glm::vec3(500.0f * (dir ? 1 : -1), 240.0f, 560.0f);
+
+			attack_difference = attack_end - attack_start;
+			attack_direction = glm::normalize(attack_difference);
+			attack_length = glm::length(attack_difference);
+
+			attack_points.clear();
+			for (float s = 0.0f; s < attack_length; s += attack_step)
+				attack_points.push_back(attack_start + attack_direction * s);
+
+			traveled = 0.0f;
+			xwing->position = attack_start;
+			xwing->qOrientation = glm::quatLookAt(attack_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+			bullet->qOrientation = xwing->qOrientation;
+			bullet->visible = false;
+		}
 
 		if (world->vecGameObjects.size() && world->vecLights.size())
 		{
-			std::ostringstream windowTitle;
-			windowTitle << std::fixed << std::setprecision(2)
-				<< "{" << pelican->position.x << ", " << pelican->position.y << ", " << pelican->position.z << "}";
-			glfwSetWindowTitle(window, windowTitle.str().c_str());
+			if (LH_health || RH_health)
+			{
+				std::ostringstream windowTitle;
+				windowTitle << std::boolalpha << std::fixed << std::setprecision(2)
+					<< "attack_state: " << attack_state << ", Health: LH " << LH_health << "% RH " << RH_health << "%";
+				glfwSetWindowTitle(window, windowTitle.str().c_str());
+			}
+			else
+			{
+				glfwSetWindowTitle(window, "You've destroyed the Star Destroyer!");
+			}
 		}
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
@@ -443,43 +717,11 @@ int main()
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
-		// collisions and stuff
-		physicsUpdate(world->vecGameObjects, gravity, dt, pDebugRenderer, debug_mode);
-
-		if (debug_mode)
-		{
-			pDebugRenderer->addTriangle(
-				pelican->position,
-				pelican->position + pelican->velocity,
-				pelican->position + glm::vec3(0.0f, pelican->velocity.y, 0.0f),
-				glm::vec3(1.0f, 1.0f, 0.0f));
-
-			pDebugRenderer->addTriangle(
-				pelican->position,
-				pelican->position + pelican->acceleration,
-				pelican->position + glm::vec3(0.0f, pelican->acceleration.y, 0.0f),
-				glm::vec3(0.0f, 1.0f, 1.0f));
-		}
-
-		v = glm::mat4(1.0f);
-		glm::vec3 expectedPosition = pelican->position + (pelican->qOrientation * glm::vec3(0.0f, 1.0f, -4.5f));
-		cameraPosition = expectedPosition; //glm::mix(cameraPosition, expectedPosition, dt * 25.0f);
-		glm::vec3 expectedUpRel = pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f);
-		cameraUpRel = expectedUpRel;// glm::mix(cameraUpRel, expectedUpRel, dt * 25.0f);
-
-		v = glm::lookAt(cameraPosition, pelican->position + pelican->qOrientation * glm::vec3(0.0f, 0.0f, 1.0f), pelican->qOrientation * glm::vec3(0.0f, 1.0f, 0.0f));
-
-		world->vecLights[1]->position = glm::vec4(pelican->position + (pelican->qOrientation * glm::vec3(0.0f, -0.14f, 0.49f)), 1.0f);
-		world->vecLights[1]->updateShaderUniforms();
-
-		// FOV, aspect ratio, near clip, far clip
-		fov = 60.0f; //glm::mix(fov, minfov + abs(pelican->velocity.length() / pelican->maxSpeed) * 10.0f, dt * 10.0f);
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
 		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
-
 
 		// draw Skybox
 		{
@@ -492,12 +734,9 @@ int main()
 				glUniform1i(glGetUniformLocation(program, "skyboxSamp00"), 10);
 			}
 			debugSphere->scale = 1.0f;
-			debugSphere->position = cameraPosition;
+			debugSphere->position = cameraEye;
 			debugSphere->wireFrame = false;
-			//debugSphere->lighting = true;
 			debugSphere->color = glm::vec4(1.0f);
-			//debugSphere->visible = true;
-			//debugSphere->calculateCollisionMeshTransformed();
 			debugSphere->updateMatricis();
 			glUniformMatrix4fv(glGetUniformLocation(program, "matModel"), 1, GL_FALSE, glm::value_ptr(debugSphere->matWorld));
 			glUniformMatrix4fv(glGetUniformLocation(program, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(debugSphere->inverseTransposeMatWorld));
@@ -523,54 +762,36 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		// HACK
-		emitter1.position = pelican->position + pelican->qOrientation * glm::vec3(0.12f, 0.15f, -0.5f);
-		emitter1.particleInitialVelocityMin = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 1.1f;
-		emitter1.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter1.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter1.particleAcceleration = glm::vec3(0.0f);
-		//emitter1.spawnNew = zMove;
-
-		emitter1.update(dt);
-		std::vector<cParticle*> particles;
-		emitter1.getParticles(particles);
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = false;
-		for (auto p : particles)
+		if (attack_state)
 		{
-			debugSphere->scale = p->scale;
-			debugSphere->position = p->position;
-			debugSphere->color = p->color;
+			debugSphere->lighting = false;
+			debugSphere->scale = 2.0f;
+
+			debugSphere->position = attack_start;
+			debugSphere->color = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
 			debugSphere->updateMatricis();
 			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
-		}
-		emitter2.position = pelican->position + pelican->qOrientation * glm::vec3(-0.12f, 0.15f, -0.5f);
-		emitter2.particleInitialVelocityMin = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 1.1f;
-		emitter2.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter2.particleInitialVelocityMax = pelican->qOrientation * glm::vec3(0.0f, 0.0f, -1.0f) * 0.9f;
-		emitter2.particleAcceleration = glm::vec3(0.0f);
-		//emitter1.spawnNew = zMove;
 
-		emitter2.update(dt);
-		emitter2.getParticles(particles);
-		debugSphere->wireFrame = false;
-		debugSphere->lighting = false;
-		for (auto p : particles)
-		{
-			debugSphere->scale = p->scale;
-			debugSphere->position = p->position;
-			debugSphere->color = p->color;
+			debugSphere->position = attack_end;
+			debugSphere->color = glm::vec4(1.0f, 1.0f, 0.2f, 1.0f);
 			debugSphere->updateMatricis();
 			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//pDebugRenderer->addLine(p->position, p->position - glm::vec3(0.0f, 0.01f, 0.0f), p->color, 0.0f);
+
+			debugSphere->scale = 0.33f;
+			debugSphere->color = glm::vec4(1.0f, 0.65f, 0.2f, 1.0f);
+			for (unsigned i = 0; i < attack_points.size(); ++i)
+			{
+				debugSphere->position = attack_points[i];
+				debugSphere->updateMatricis();
+				drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			}
 		}
-
-
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			if (!world->vecGameObjects[i]->visible)
+				continue;
+			if (i > 0 && !LH_health && !RH_health)
 				continue;
 			drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
 		}
@@ -598,9 +819,6 @@ int main()
 
 	for (auto m : mapMeshes)
 		delete m.second;
-
-	for (auto aabb : cAABB::g_mapAABBs_World)
-		delete aabb.second;
 
 	delete pShaderManager;
 	delete pModelLoader;

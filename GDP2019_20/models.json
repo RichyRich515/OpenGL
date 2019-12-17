@@ -1,22 +1,22 @@
 [
 	{
-		"name": "terrain",
-		"location": "assets/models/mountains_xyzn_uv.ply"
-	},
-	{
-		"name": "pelican",
-		"location": "assets/models/pelican_xyzn.ply"
-	},
-	{
-		"name": "pillar_of_autumn",
-		"location": "assets/models/pillar_of_autumn_xyzn.ply"
-	},
-	{
 		"name": "sphere",
 		"location": "assets/models/sphere_xyzn.ply"
 	},
 	{
 		"name": "cube",
 		"location": "assets/models/cube_xyzn.ply"
+	},
+	{
+		"name": "xwing",
+		"location": "assets/models/XWing_xyz_n_uv.ply"
+	},
+	{
+		"name": "bullet",
+		"location": "assets/models/TearDropBullet_xyz_n_uv.ply"
+	},
+	{
+		"name": "star_destroyer",
+		"location": "assets/models/StarDestroyer_xyz_n_uv.ply"
 	}
 ]

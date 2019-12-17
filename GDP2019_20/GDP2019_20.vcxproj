@@ -150,7 +150,6 @@
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cParticleEmitter.cpp" />
-    <ClCompile Include="cPelican.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
@@ -174,7 +173,6 @@
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
     <ClInclude Include="cParticleEmitter.hpp" />
-    <ClInclude Include="cPelican.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
@@ -201,6 +199,9 @@
     <None Include="assets\shaders\vertexShader01.glsl" />
     <None Include="models.json" />
     <None Include="scene1.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\README.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

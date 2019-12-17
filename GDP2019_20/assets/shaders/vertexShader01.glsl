@@ -5,6 +5,8 @@ uniform mat4 matModelInverseTranspose;	// inverse transpose
 uniform mat4 matView;					// View or Camera
 uniform mat4 matProjection;				// Projection
 
+uniform float offset;
+
 in vec4 vColour;
 in vec4 vPosition;
 in vec4 vNormal;
@@ -18,6 +20,7 @@ out vec4 fUVx2;
 void main()
 {
 	vec4 vertPosition = vPosition;
+	vertPosition += vNormal * offset;
 
 	mat4 matMVP = matProjection * matView * matModel;
 	

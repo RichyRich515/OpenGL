@@ -3,15 +3,15 @@
 	{
 		"cameraEye" : 
 		[
-			2.6228821277618408,
-			0.60312420129776001,
-			-0.45852220058441162
+			0.0,
+			200,
+			-1000
 		],
 		"cameraFront" : 
 		[
-			-0.96304875612258911,
-			-0.24023164808750153,
-			0.12176211178302765
+			0.0,
+			0.0,
+			0.0
 		],
 		"cameraUp" : 
 		[
@@ -19,11 +19,10 @@
 			1.0,
 			0.0
 		],
-		"pitch" : -13.900211334228516,
-		"yaw" : 1612.7940673828125
+		"pitch" : 0.0,
+		"yaw" : 90.0
 	},
-	"gameObjects" : 
-	[
+	"gameObjects": [
 		{
 			"acceleration": [
 				0.0,
@@ -32,18 +31,18 @@
 			],
 			"bounciness": 0.0,
 			"collisionObjectInfo": {
-				"mesh": "terrain"
+				"mesh": "star_destroyer"
 			},
-			"collisionShapeType": 8,
+			"collisionShapeType": 6,
 			"color": [
-				0.8,
-				0.8,
-				0.8,
+				0.5,
+				0.5,
+				0.5,
 				1.0
 			],
 			"inverseMass": 0.0,
-			"meshName": "terrain",
-			"name": "terrain",
+			"meshName": "star_destroyer",
+			"name": "star_destroyer",
 			"position": [
 				0.0,
 				0.0,
@@ -52,7 +51,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 1.0,
 			"specular": [
@@ -61,7 +61,7 @@
 				1.0,
 				1000.0
 			],
-			"textureName": "mountains_big_2.bmp",
+			"textureName": "",
 			"type": "basic",
 			"velocity": [
 				0.0,
@@ -78,28 +78,17 @@
 				0.0
 			],
 			"bounciness": 0.0,
-			"collisionObjectInfo": {
-
-				"points": [
-					[ 0.0, -0.15, 0.5 ],
-					[ 0.383, 0.05, 0.2 ],
-					[ -0.383, 0.05, 0.2 ],
-					[ 0.0, -0.14, 0.0 ],
-					[ 0.0, 0.14, 0.0 ],
-					[ -0.195, 0.15, -0.5 ],
-					[ 0.195, 0.15, -0.5 ]
-				]
-			},
-			"collisionShapeType": 7,
+			"collisionObjectInfo": { "radius": 80.0 },
+			"collisionShapeType": 3,
 			"color": [
-				0.25,
-				0.3,
-				0.25,
+				1.0,
+				1.0,
+				1.0,
 				1.0
 			],
-			"inverseMass": 1.0,
-			"meshName": "pelican",
-			"name": "pelican",
+			"inverseMass": 0.0,
+			"meshName": "xwing",
+			"name": "xwing",
 			"position": [
 				0.0,
 				0.0,
@@ -108,7 +97,8 @@
 			"rotation": [
 				0.0,
 				0.0,
-				0.0
+				0.0,
+				1.0
 			],
 			"scale": 1.0,
 			"specular": [
@@ -117,14 +107,152 @@
 				1.0,
 				10000.0
 			],
-			"textureName": "",
-			"type": "pelican",
+			"textureName": "X-Wing-Texture.bmp",
+			"type": "basic",
 			"velocity": [
 				0.0,
 				0.0,
 				0.0
 			],
 			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": { "radius": 4.0 },
+			"collisionShapeType": 3,
+			"color": [
+				1.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "bullet",
+			"name": "bullet",
+			"position": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale": 8.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": true,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": { "radius": 43.0 },
+			"collisionShapeType": 3,
+			"color": [
+				0.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "sphere",
+			"name": "LH globe",
+			"position": [
+				-104.0,
+				245.0,
+				555.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale": 43.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": false,
+			"wireFrame": false
+		},
+		{
+			"acceleration": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"bounciness": 0.0,
+			"collisionObjectInfo": { "radius": 43.0 },
+			"collisionShapeType": 3,
+			"color": [
+				0.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"inverseMass": 0.0,
+			"meshName": "sphere",
+			"name": "RH globe",
+			"position": [
+				104.0,
+				245.0,
+				555.0
+			],
+			"rotation": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scale": 43.0,
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				10000.0
+			],
+			"textureName": "",
+			"type": "basic",
+			"velocity": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"visible": false,
 			"wireFrame": false
 		}
 	],
@@ -165,50 +293,6 @@
 				0.0,
 				0.0,
 				1.0
-			],
-			"specular": [
-				0.0,
-				0.0,
-				0.0,
-				0.0
-			]
-		},
-		{
-			"atten": [
-				0.0,
-				0.04,
-				0.0,
-				10000.0
-			],
-			"diffuse": [
-				0.7,
-				0.7,
-				0.5,
-				1.0
-			],
-			"direction": [
-				0.0,
-				0.0,
-				0.0,
-				1.0
-			],
-			"param1": [
-				0.0,
-				0.0,
-				0.0,
-				0.0
-			],
-			"param2": [
-				1.0,
-				0.0,
-				0.0,
-				0.0
-			],
-			"position": [
-				0.0,
-				0.0,
-				0.0,
-				0.0
 			],
 			"specular": [
 				0.0,
