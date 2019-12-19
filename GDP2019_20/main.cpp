@@ -30,7 +30,6 @@
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 #include "cGameObject.hpp"
-#include "cPelican.hpp"
 #include "cLight.hpp"
 #include "Physics.hpp"
 #include "cKeyboardManager.hpp"
