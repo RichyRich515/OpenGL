@@ -1,7 +1,6 @@
 #include "cGameObjectFactory.hpp"
 
 #include "cGameObject.hpp"
-#include "cPelican.hpp"
 
 cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {

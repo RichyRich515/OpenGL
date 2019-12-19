@@ -133,6 +133,40 @@ int TestPointTriangle(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
 }
 
 
+bool CheckIfPointInMeshAndRadius(cMesh* mesh, glm::vec3 const& point, float r)
+{
+	sClosestTriInfo info = findClosestTriToPoint(mesh, point);
+
+	glm::vec3 p1, p2, p3, n1, n2, n3;
+	p1 = glm::vec3(
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].x,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].y,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].z);
+	p2 = glm::vec3(
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].x,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].y,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].z);
+	p3 = glm::vec3(
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].x,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].y,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].z);
+	n1 = glm::vec3(
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].nx,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].ny,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_1].nz);
+	n2 = glm::vec3(
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].nx,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].ny,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_2].nz);
+	n3 = glm::vec3(
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].nx,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].ny,
+		mesh->vecVertices[mesh->vecTriangles[info.triIndex].vert_index_3].nz);
+
+	glm::vec3 faceNorm = CalcNormalOfFace(p1, p2, p3, n1, n2, n3);
+
+	return (glm::dot(faceNorm, point - info.point) <= 0.0f && TestPointTriangle(point, p1, p2, p3)) || glm::distance(point, info.point) < r;
+}
 // Calculates the face normal of a tri
 // From https://stackoverflow.com/questions/13689632/converting-vertex-normals-to-face-normals
 glm::vec3 CalcNormalOfFace(glm::vec3 const& v1, glm::vec3 const& v2, glm::vec3 const& v3, glm::vec3 const& n1, glm::vec3 const& n2, glm::vec3 const& n3)
@@ -147,12 +181,6 @@ glm::vec3 CalcNormalOfFace(glm::vec3 const& v1, glm::vec3 const& v2, glm::vec3 c
 	return (d < 0.0f) ? -faceNormal : faceNormal;
 }
 
-struct sClosestTriInfo
-{
-	unsigned triIndex;
-	glm::vec3 point;
-	float distance;
-};
 
 sClosestTriInfo findClosestTriToPoint(cMesh* mesh, glm::vec3 point)
 {

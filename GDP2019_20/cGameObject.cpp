@@ -110,6 +110,7 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 		this->color[j] = obj["color"][j].asFloat();
 		this->qOrientation[j] = obj["rotation"][j].asFloat();
 		this->specular[j] = obj["specular"][j].asFloat();
+		this->qOrientation[j] = obj["rotation"][j].asFloat();
 	}
 	this->scale = obj["scale"].asFloat();
 	this->wireFrame = obj["wireFrame"].asBool();
@@ -242,6 +243,7 @@ Json::Value cGameObject::serializeJSONObject()
 		obj["color"][j] = this->color[j];
 		obj["rotation"][j] = this->qOrientation[j];
 		obj["specular"][j] = this->specular[j];
+		obj["rotation"][j] = this->qOrientation[j];
 	}
 	obj["scale"] = this->scale;
 	obj["wireFrame"] = this->wireFrame;
