@@ -12,10 +12,13 @@
 
 #include "cMesh.hpp"
 #include "iMessageable.hpp"
+#include "cTexture.hpp"
 
 #include "Lua/cLuaBrain.hpp"
 
 #include "cCommand.hpp"
+
+constexpr unsigned MAX_TEXTURES = 6;
 
 enum class eCollisionShapeType
 {
@@ -61,6 +64,10 @@ public:
 	int id;
 	std::string name;
 	std::string type;
+	cTexture textures[MAX_TEXTURES];
+	cTexture heightmap;
+	cTexture discardmap;
+
 	std::string script_init_name;
 	std::string script_update_name;
 	cLuaBrain* pScript_init;
@@ -68,7 +75,6 @@ public:
 
 	iCommand* command;
 
-	std::string textureName;
 	std::string meshName;
 	cMesh* mesh;
 
@@ -108,5 +114,4 @@ public:
 		MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
 		PointsList* points;
 	} collisionObjectInfo;
-
 };

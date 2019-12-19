@@ -7,7 +7,6 @@ cGameObject::cGameObject()
 {
 	this->name = "";
 	this->meshName = "";
-	this->textureName = "";
 	this->type = "basic";
 	this->mesh = NULL;
 	this->position = glm::vec3(0);
@@ -27,7 +26,6 @@ cGameObject::cGameObject(std::string name)
 {
 	this->name = name;
 	this->meshName = "";
-	this->textureName = "";
 	this->type = "basic";
 	this->mesh = NULL;
 	this->position = glm::vec3(0);
@@ -78,6 +76,35 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 {
 	this->name = obj["name"].asString();
 	this->type = obj["type"].asString();
+
+	if (obj["texture"])
+	{
+		if (obj["texture"]["textures"])
+		{
+			unsigned tex_count = obj["texture"]["textures"].size();
+			if (tex_count <= MAX_TEXTURES)
+			{
+				for (unsigned i = 0; i < tex_count; ++i)
+				{
+					this->textures[i].fileName = obj["texture"]["textures"][i]["name"].asString();
+					this->textures[i].tiling = obj["texture"]["textures"][i]["tiling"].asFloat();
+					this->textures[i].blend = obj["texture"]["textures"][i]["blend"].asFloat();
+				}
+			}
+		}
+		if (obj["texture"]["heightmap"])
+		{
+			this->heightmap.fileName = obj["texture"]["heightmap"]["name"].asString();
+			this->heightmap.tiling = obj["texture"]["heightmap"]["tiling"].asFloat();
+			this->heightmap.blend = obj["texture"]["heightmap"]["scale"].asFloat();
+		}
+		if (obj["texture"]["discardmap"])
+		{
+			this->discardmap.fileName = obj["texture"]["discardmap"]["name"].asString();
+			this->discardmap.tiling = obj["texture"]["discardmap"]["tiling"].asFloat();
+			this->discardmap.blend = obj["texture"]["discardmap"]["cutoff"].asFloat();
+		}
+	}
 	if (obj["script_init"])
 	{
 		this->script_init_name = obj["script_init"].asString();
@@ -90,8 +117,6 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 		this->pScript_update = new cLuaBrain();
 		this->pScript_update->loadScript(this->script_update_name, this);
 	}
-	
-	this->textureName = obj["textureName"].asString();
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
 	// Load vec3s
@@ -190,7 +215,41 @@ Json::Value cGameObject::serializeJSONObject()
 	Json::Value obj = Json::objectValue;
 	obj["name"] = this->name;
 	obj["type"] = this->type;
-	obj["textureName"] = this->textureName;
+
+	Json::Value text = Json::objectValue;
+	bool textured = false;
+	for (unsigned i = 0; i < MAX_TEXTURES; ++i)
+	{
+		if (this->textures[i].fileName.length())
+		{
+			Json::Value text_temp = Json::objectValue;
+			text_temp["name"] = this->textures[i].fileName;
+			text_temp["tiling"] = this->textures[i].tiling;
+			text_temp["blend"] = this->textures[i].blend;
+			text["textures"].append(text_temp);
+			textured = true;
+		}
+	}
+	if (this->heightmap.fileName.length())
+	{
+		text["heightmap"] = Json::objectValue;
+		text["heightmap"]["name"] = this->heightmap.fileName;
+		text["heightmap"]["tiling"] = this->heightmap.tiling;
+		text["heightmap"]["scale"] = this->heightmap.blend;
+		textured = true;
+	}
+	if (this->discardmap.fileName.length())
+	{
+		text["discardmap"] = Json::objectValue;
+		text["discardmap"]["name"] = this->discardmap.fileName;
+		text["discardmap"]["tiling"] = this->discardmap.tiling;
+		text["discardmap"]["cutoff"] = this->discardmap.blend;
+		textured = true;
+	}
+
+	if (textured)
+		obj["texture"] = text;
+
 	obj["meshName"] = this->meshName;
 	// write vec3s
 	for (unsigned j = 0; j < 3; ++j)
@@ -205,6 +264,7 @@ Json::Value cGameObject::serializeJSONObject()
 		obj["color"][j] = this->color[j];
 		obj["rotation"][j] = this->qOrientation[j];
 		obj["specular"][j] = this->specular[j];
+		obj["rotation"][j] = this->qOrientation[j];
 	}
 	obj["scale"] = this->scale;
 	obj["wireFrame"] = this->wireFrame;

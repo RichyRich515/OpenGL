@@ -1,15 +1,15 @@
 [
 	{
 		"name": "terrain",
-		"location": "assets/models/terrain_xyzn.ply"
+		"location": "assets/models/terrain_xyzn_uv.ply"
 	},
 	{
-		"name": "pillar_of_autumn",
-		"location": "assets/models/pillar_of_autumn_xyzn.ply"
+		"name": "plane",
+		"location": "assets/models/plane_xyzn_uv.ply"
 	},
 	{
-		"name": "pelican",
-		"location": "assets/models/pelican_xyzn.ply"
+		"name": "sand_floor",
+		"location": "assets/models/sand_floor_xyzn_uv.ply"
 	},
 	{
 		"name": "sphere",
@@ -17,6 +17,14 @@
 	},
 	{
 		"name": "cube",
-		"location": "assets/models/cube_xyzn.ply"
+		"location": "assets/models/cube_xyzn_uv.ply"
+	},
+	{
+		"name": "fish",
+		"location": "assets/models/fish_xyz_n_uv.ply"
+	},
+	{
+		"name": "shark",
+		"location": "assets/models/shark_xyz_n_uv.ply"
 	}
 ]

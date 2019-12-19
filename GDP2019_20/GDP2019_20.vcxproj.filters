@@ -200,13 +200,13 @@
     <ClInclude Include="cCommand.hpp">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="cTexture.hpp">
+      <Filter>Textures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="models.json">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="scene1.json">
-      <Filter>Resource Files\Scenes</Filter>
     </None>
     <None Include="assets\shaders\fragmentShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
@@ -214,15 +214,17 @@
     <None Include="assets\shaders\vertexShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="assets\LuaScripts\test.lua">
-      <Filter>Resource Files\Lua Scripts</Filter>
+    <None Include="textures.json">
+      <Filter>Resource Files</Filter>
     </None>
-    <None Include="assets\LuaScripts\init.lua">
-      <Filter>Resource Files\Lua Scripts</Filter>
+    <None Include="scene1.json">
+      <Filter>Resource Files\Scenes</Filter>
     </None>
-    <None Include="assets\LuaScripts\init_pelican.lua">
-      <Filter>Resource Files\Lua Scripts</Filter>
-    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\README.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />

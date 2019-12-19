@@ -184,7 +184,7 @@ bool CTextureFromBMP::CreateNewCubeTextureFromBMPFiles( std::string cubeMapName,
 {
 
 	bool bReturnVal = true;
-
+	unsigned i = glGetError();
 	// Do the magic...
 
 	// Pick a texture number...

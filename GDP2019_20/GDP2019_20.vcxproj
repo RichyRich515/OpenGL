@@ -149,6 +149,7 @@
     <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
+    <ClCompile Include="cParticleEmitter.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
+    <ClInclude Include="cParticleEmitter.hpp" />
     <ClInclude Include="cCommand.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
@@ -186,7 +188,7 @@
     <ClInclude Include="cKeyboardManager.hpp" />
     <ClInclude Include="iMessageable.hpp" />
     <ClInclude Include="cWorld.hpp" />
-    <ClInclude Include="Lua\cLuaBrain.hpp" />
+    <ClInclude Include="cTexture.hpp" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />
@@ -199,6 +201,13 @@
     <None Include="assets\shaders\vertexShader01.glsl" />
     <None Include="models.json" />
     <None Include="scene1.json" />
+    <None Include="textures.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />
