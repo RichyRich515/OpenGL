@@ -77,6 +77,19 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 	this->name = obj["name"].asString();
 	this->type = obj["type"].asString();
 
+	if (obj["script_init"])
+	{
+		this->script_init_name = obj["script_init"].asString();
+		this->pScript_init = new cLuaBrain();
+		this->pScript_init->loadScript(this->script_init_name, this);
+	}
+	if (obj["script_update"])
+	{
+		this->script_update_name = obj["script_update"].asString();
+		this->pScript_update = new cLuaBrain();
+		this->pScript_update->loadScript(this->script_update_name, this);
+	}
+
 	if (obj["texture"])
 	{
 		if (obj["texture"]["textures"])
@@ -105,18 +118,7 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 			this->discardmap.blend = obj["texture"]["discardmap"]["cutoff"].asFloat();
 		}
 	}
-	if (obj["script_init"])
-	{
-		this->script_init_name = obj["script_init"].asString();
-		this->pScript_init = new cLuaBrain();
-		this->pScript_init->loadScript(this->script_init_name, this);
-	}
-	if (obj["script_update"])
-	{
-		this->script_update_name = obj["script_update"].asString();
-		this->pScript_update = new cLuaBrain();
-		this->pScript_update->loadScript(this->script_update_name, this);
-	}
+
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
 	// Load vec3s

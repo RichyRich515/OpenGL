@@ -58,6 +58,9 @@
     <Filter Include="Commands">
       <UniqueIdentifier>{843bb41f-abfd-4298-88de-a812ae2b4c4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Particles">
+      <UniqueIdentifier>{ab6ac858-c003-40f0-86a7-991e9318965d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -129,6 +132,9 @@
     <ClCompile Include="cCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
+    <ClCompile Include="cParticleEmitter.cpp">
+      <Filter>Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -194,14 +200,17 @@
     <ClInclude Include="Texture\CTextureFromBMP.h">
       <Filter>Textures</Filter>
     </ClInclude>
-    <ClInclude Include="Lua\cLuaBrain.hpp">
-      <Filter>Lua</Filter>
-    </ClInclude>
     <ClInclude Include="cCommand.hpp">
       <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="cTexture.hpp">
       <Filter>Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="cParticleEmitter.hpp">
+      <Filter>Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="cParticle.hpp">
+      <Filter>Particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -220,11 +229,9 @@
     <None Include="scene1.json">
       <Filter>Resource Files\Scenes</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\README.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <None Include="assets\LuaScripts\init.lua" />
+    <None Include="assets\LuaScripts\init_pelican.lua" />
+    <None Include="assets\LuaScripts\test.lua" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />

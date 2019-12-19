@@ -432,98 +432,9 @@ int main()
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		cameraFront = glm::normalize(front);
 
-		int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-		int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
-		int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-
-		cameraEye += zMove * cameraSpeed * dt * cameraFront;
-		cameraEye += -xMove * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
-		cameraEye += yMove * cameraSpeed * dt * cameraUp;
-
-		glUseProgram(program);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 		{
 			cWorld::debugMode = !cWorld::debugMode;
-		}
-
-		if (world->vecGameObjects.size() && world->vecLights.size())
-		{
-			std::ostringstream windowTitle;
-			windowTitle << std::fixed << std::setprecision(2) << std::boolalpha
-				<< "{" << cameraEye.x << ", " << cameraEye.y << ", " << cameraEye.z << "}";
-			glfwSetWindowTitle(window, windowTitle.str().c_str());
-		}
-
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		{
-			world->vecGameObjects[i]->update(dt, totalTime);
-			world->vecGameObjects[i]->physicsUpdate(dt);
-			world->vecGameObjects[i]->updateMatricis();
-		}
-
-		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
-
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-		glUniform4f(eyeLocation_loc, cameraEye.x, cameraEye.y, cameraEye.z, 1.0f);
-
-
-		// draw Skybox
-		{
-			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName("daytime");
-			if (texture_ul)
-			{
-				glActiveTexture(GL_TEXTURE10);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-				glUniform1i(glGetUniformLocation(program, "skyboxSamp00"), 10);
-			}
-			texture_ul = pTextureManager->getTextureIDFromName("nighttime");
-			if (texture_ul)
-			{
-				glActiveTexture(GL_TEXTURE11);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-				glUniform1i(glGetUniformLocation(program, "skyboxSamp01"), 11);
-			}
-			debugSphere->scale = 800.0f;
-			debugSphere->position = glm::vec3(0.0f, 100.0f, 0.0f);
-			debugSphere->wireFrame = false;
-			//debugSphere->lighting = true;
-			debugSphere->color = glm::vec4(1.0f);
-			debugSphere->visible = true;
-			debugSphere->updateMatricis();
-			glUniformMatrix4fv(glGetUniformLocation(program, "matModel"), 1, GL_FALSE, glm::value_ptr(debugSphere->matWorld));
-			glUniformMatrix4fv(glGetUniformLocation(program, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(debugSphere->inverseTransposeMatWorld));
-			glUniform4f(glGetUniformLocation(program, "diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(glGetUniformLocation(program, "specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(glGetUniformLocation(program, "params1"), dt, totalTime, 1.0f, 0.0f);
-			glUniform4f(glGetUniformLocation(program, "params2"), 1.0f, 0.0f, 0.0f, 0.0f);
-			glUniform4f(glGetUniformLocation(program, "heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-			glUniform1i(glGetUniformLocation(program, "daytime"), day_time);
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_DEPTH);
-			glDisable(GL_DEPTH_TEST);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName(debugSphere->meshName, drawInfo))
-			{
-				glBindVertexArray(drawInfo.VAO_ID);
-				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
-			}
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_DEPTH);
-			glEnable(GL_DEPTH_TEST);
-		}
-
-		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-		{
-			debug_mode = !debug_mode;
 		}
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_V))
@@ -644,9 +555,9 @@ int main()
 		}
 		else
 		{
-			cameraEye += zMove * CAMERA_SPEED * dt * cameraFront;
-			cameraEye += -xMove * CAMERA_SPEED * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
-			cameraEye += yMove * CAMERA_SPEED * dt * cameraUp;
+			cameraEye += zMove * cameraSpeed * dt * cameraFront;
+			cameraEye += -xMove * cameraSpeed * dt * glm::normalize(glm::cross(cameraFront, cameraUp));
+			cameraEye += yMove * cameraSpeed * dt * cameraUp;
 		}
 
 		if (world->vecGameObjects.size() && world->vecLights.size())
@@ -675,14 +586,17 @@ int main()
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
-			world->vecGameObjects[i]->update(dt);
+			world->vecGameObjects[i]->update(dt, totalTime);
 			world->vecGameObjects[i]->physicsUpdate(dt);
 			world->vecGameObjects[i]->updateMatricis();
 		}
 
 		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 800.0f);
+		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
+
+		glUseProgram(program);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
@@ -690,6 +604,55 @@ int main()
 		glUniform4f(glGetUniformLocation(program, "ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
 		glUniform2f(glGetUniformLocation(program, "waterOffset"), waterOffset.x, waterOffset.y);
+
+		// draw Skybox
+		{
+			// Tie texture
+			GLuint texture_ul = pTextureManager->getTextureIDFromName("daytime");
+			if (texture_ul)
+			{
+				glActiveTexture(GL_TEXTURE10);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
+				glUniform1i(glGetUniformLocation(program, "skyboxSamp00"), 10);
+			}
+			texture_ul = pTextureManager->getTextureIDFromName("nighttime");
+			if (texture_ul)
+			{
+				glActiveTexture(GL_TEXTURE11);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
+				glUniform1i(glGetUniformLocation(program, "skyboxSamp01"), 11);
+			}
+			debugSphere->scale = 1.0f;
+			debugSphere->position = cameraEye;
+			debugSphere->wireFrame = false;
+			debugSphere->lighting = false;
+			debugSphere->color = glm::vec4(1.0f);
+			debugSphere->visible = true;
+			debugSphere->updateMatricis();
+			glUniformMatrix4fv(glGetUniformLocation(program, "matModel"), 1, GL_FALSE, glm::value_ptr(debugSphere->matWorld));
+			glUniformMatrix4fv(glGetUniformLocation(program, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(debugSphere->inverseTransposeMatWorld));
+			glUniform4f(glGetUniformLocation(program, "diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
+			glUniform4f(glGetUniformLocation(program, "specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
+			glUniform4f(glGetUniformLocation(program, "params1"), dt, totalTime, 1.0f, 0.0f);
+			glUniform4f(glGetUniformLocation(program, "params2"), 1.0f, 0.0f, 0.0f, 0.0f);
+			glUniform4f(glGetUniformLocation(program, "heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
+			glUniform1i(glGetUniformLocation(program, "daytime"), day_time);
+			glDisable(GL_CULL_FACE);
+			glDisable(GL_DEPTH);
+			glDisable(GL_DEPTH_TEST);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			sModelDrawInfo drawInfo;
+			if (pVAOManager->FindDrawInfoByModelName(debugSphere->meshName, drawInfo))
+			{
+				glBindVertexArray(drawInfo.VAO_ID);
+				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH);
+			glEnable(GL_DEPTH_TEST);
+		}
 
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
@@ -843,7 +806,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
 	glUniform4f(glGetUniformLocation(shader, "diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(glGetUniformLocation(shader, "specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
-	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, (float)debug_mode);
+	glUniform4f(glGetUniformLocation(shader, "params1"), dt, tt, (float)go->lighting, 0.0f);
 	glUniform4f(glGetUniformLocation(shader, "params2"), 
 		0.0f,
 		go->name == "terrain" ? 1.0f : 0.0f, 

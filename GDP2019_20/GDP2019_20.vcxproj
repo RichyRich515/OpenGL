@@ -171,6 +171,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
+    <ClInclude Include="cParticle.hpp" />
     <ClInclude Include="cParticleEmitter.hpp" />
     <ClInclude Include="cCommand.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
@@ -202,12 +203,6 @@
     <None Include="models.json" />
     <None Include="scene1.json" />
     <None Include="textures.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\README.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />
