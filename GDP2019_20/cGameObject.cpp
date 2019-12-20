@@ -122,89 +122,131 @@ void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string
 	this->meshName = obj["meshName"].asString();
 	this->mesh = mapMeshes[this->meshName];
 	// Load vec3s
+
+	bool bpos = (bool)obj["position"];
+	bool bvel = (bool)obj["velocity"];
+	bool bacl = (bool)obj["acceleration"];
 	for (unsigned j = 0; j < 3; ++j)
 	{
-		this->position[j] = obj["position"][j].asFloat();
-		this->velocity[j] = obj["velocity"][j].asFloat();
-		this->acceleration[j] = obj["acceleration"][j].asFloat();
+		if (bpos)
+			this->position[j] = obj["position"][j].asFloat();
+		if (bvel)
+			this->velocity[j] = obj["velocity"][j].asFloat();
+		if (bacl)
+			this->acceleration[j] = obj["acceleration"][j].asFloat();
 	}
+
+	bool bcol = (bool)obj["color"];
+	bool bspc = (bool)obj["specular"];
+	bool bori = (bool)obj["orientation"];
 	// Load vec4s
 	for (unsigned j = 0; j < 4; ++j)
 	{
-		this->color[j] = obj["color"][j].asFloat();
-		this->specular[j] = obj["specular"][j].asFloat();
-		this->qOrientation[j] = obj["rotation"][j].asFloat();
+		if (bcol)
+			this->color[j] = obj["color"][j].asFloat();
+		if (bspc)
+			this->specular[j] = obj["specular"][j].asFloat();
+		if (bori)
+			this->qOrientation[j] = obj["orientation"][j].asFloat();
 	}
-	this->scale = obj["scale"].asFloat();
-	this->wireFrame = obj["wireFrame"].asBool();
-	this->visible = obj["visible"].asBool();
-	this->inverseMass = obj["inverseMass"].asFloat();
-	this->bounciness = obj["bounciness"].asFloat();
-	this->collisionShapeType = (eCollisionShapeType)obj["collisionShapeType"].asInt();
-	Json::Value collisionObjectInfo = obj["collisionObjectInfo"];
-	switch (this->collisionShapeType)
+	if (!bori)
+		this->qOrientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+	if (obj["scale"])
+		this->scale = obj["scale"].asFloat();
+	else
+		this->scale = 1.0f;
+
+	if (obj["scale"])
+		this->wireFrame = obj["wireFrame"].asBool();
+	else
+		this->wireFrame = false;
+
+	if (obj["visible"])
+		this->visible = obj["visible"].asBool();
+	else
+		this->visible = true;
+
+	if (obj["inverseMass"])
+		this->inverseMass = obj["inverseMass"].asFloat();
+	else
+		this->inverseMass = 0.0f;
+
+	if (obj["bounciness"])
+		this->bounciness = obj["bounciness"].asFloat();
+	else
+		this->bounciness = 0.0f;
+
+	if (obj["lighting"])
+		this->lighting = obj["lighting"].asBool();
+	else
+		this->lighting = true;
+
+	if (obj["collisionObjectInfo"])
 	{
-	case eCollisionShapeType::AABB:
-	{
-		this->collisionObjectInfo.minmax = new cGameObject::AABBminmax();
-		// load vec3s
-		for (unsigned j = 0; j < 3; ++j)
+		this->collisionShapeType = (eCollisionShapeType)obj["collisionObjectInfo"]["type"].asInt();
+		Json::Value collisionObjectInfo = obj["collisionObjectInfo"];
+		switch (this->collisionShapeType)
 		{
-			this->collisionObjectInfo.minmax->first[j] = collisionObjectInfo["min"][j].asFloat();
-			this->collisionObjectInfo.minmax->second[j] = collisionObjectInfo["max"][j].asFloat();
-		}
-		break;
-	}
-	case eCollisionShapeType::OBB:
-		break;
-	case eCollisionShapeType::SPHERE:
-		this->collisionObjectInfo.radius = collisionObjectInfo["radius"].asFloat();
-		break;
-	case eCollisionShapeType::CAPSULE:
-		break;
-	case eCollisionShapeType::PLANE:
-		break;
-	case eCollisionShapeType::MESH:
-	{
-		this->collisionObjectInfo.meshes = new MeshPair();
-		this->collisionObjectInfo.meshes->first = mapMeshes[collisionObjectInfo["mesh"].asString()];
-		cMesh* collMesh = new cMesh();
-		*collMesh = *this->collisionObjectInfo.meshes->first;
-		this->collisionObjectInfo.meshes->second = collMesh;
-		break;
-	}
-	case eCollisionShapeType::POINT_LIST:
-	{
-		unsigned pointsCount = collisionObjectInfo["points"].size();
-		//glm::vec3* plist = new glm::vec3[pointsCount];
-		this->collisionObjectInfo.points = new PointsList;
-		this->collisionObjectInfo.points->reserve(pointsCount);
-		for (unsigned i = 0; i < pointsCount; ++i)
+		case eCollisionShapeType::AABB:
 		{
-			glm::vec3 p;
+			this->collisionObjectInfo.minmax = new cGameObject::AABBminmax();
+			// load vec3s
 			for (unsigned j = 0; j < 3; ++j)
 			{
-				p[j] = collisionObjectInfo["points"][i][j].asFloat();
+				this->collisionObjectInfo.minmax->first[j] = collisionObjectInfo["min"][j].asFloat();
+				this->collisionObjectInfo.minmax->second[j] = collisionObjectInfo["max"][j].asFloat();
 			}
-			this->collisionObjectInfo.points->push_back(p);
+			break;
 		}
-		break;
+		case eCollisionShapeType::OBB:
+			break;
+		case eCollisionShapeType::SPHERE:
+			this->collisionObjectInfo.radius = collisionObjectInfo["radius"].asFloat();
+			break;
+		case eCollisionShapeType::CAPSULE:
+			break;
+		case eCollisionShapeType::PLANE:
+			break;
+		case eCollisionShapeType::MESH:
+		{
+			this->collisionObjectInfo.meshes = new MeshPair();
+			this->collisionObjectInfo.meshes->first = mapMeshes[collisionObjectInfo["mesh"].asString()];
+			cMesh* collMesh = new cMesh();
+			*collMesh = *this->collisionObjectInfo.meshes->first;
+			this->collisionObjectInfo.meshes->second = collMesh;
+			break;
+		}
+		case eCollisionShapeType::POINT_LIST:
+		{
+			unsigned pointsCount = collisionObjectInfo["points"].size();
+			//glm::vec3* plist = new glm::vec3[pointsCount];
+			this->collisionObjectInfo.points = new PointsList;
+			this->collisionObjectInfo.points->reserve(pointsCount);
+			for (unsigned i = 0; i < pointsCount; ++i)
+			{
+				glm::vec3 p;
+				for (unsigned j = 0; j < 3; ++j)
+				{
+					p[j] = collisionObjectInfo["points"][i][j].asFloat();
+				}
+				this->collisionObjectInfo.points->push_back(p);
+			}
+			break;
+		}
+		case eCollisionShapeType::STATIC_MESH_AABBS:
+		{
+			this->collisionObjectInfo.meshes = new MeshPair();
+			this->collisionObjectInfo.meshes->first = mapMeshes[collisionObjectInfo["mesh"].asString()];
+			cMesh* collMesh = new cMesh();
+			*collMesh = *this->collisionObjectInfo.meshes->first;
+			this->collisionObjectInfo.meshes->second = collMesh;
+			break;
+		}
+		default:
+			break;
+		}
 	}
-	case eCollisionShapeType::STATIC_MESH_AABBS:
-	{
-		this->collisionObjectInfo.meshes = new MeshPair();
-		this->collisionObjectInfo.meshes->first = mapMeshes[collisionObjectInfo["mesh"].asString()];
-		cMesh* collMesh = new cMesh();
-		*collMesh = *this->collisionObjectInfo.meshes->first;
-		this->collisionObjectInfo.meshes->second = collMesh;
-		break;
-	}
-	default:
-		break;
-	}
-
-	// TODO: load lighting from file
-	this->lighting = true;
 }
 
 void cGameObject::instatiateUniqueVariables(Json::Value& obj)
@@ -253,69 +295,94 @@ Json::Value cGameObject::serializeJSONObject()
 		obj["texture"] = text;
 
 	obj["meshName"] = this->meshName;
+
+	bool bpos = position.x || position.y || position.z;
+	bool bvel = velocity.x || velocity.y || velocity.z;
+	bool bacl = acceleration.x || acceleration.y || acceleration.z;
+	bool bcol = color.r || color.g || color.b || color.a;
+	bool bspc = specular.r || specular.g || specular.b || specular.a;
+	bool bori = qOrientation.x || qOrientation.y || qOrientation.z || qOrientation.w;
+
 	// write vec3s
 	for (unsigned j = 0; j < 3; ++j)
 	{
-		obj["position"][j] = this->position[j];
-		obj["velocity"][j] = this->velocity[j];
-		obj["acceleration"][j] = this->acceleration[j];
+		if (bpos)
+			obj["position"][j] = this->position[j];
+		if (bvel)
+			obj["velocity"][j] = this->velocity[j];
+		if (bacl)
+			obj["acceleration"][j] = this->acceleration[j];
 	}
 	// write vec4s
 	for (unsigned j = 0; j < 4; ++j)
 	{
-		obj["color"][j] = this->color[j];
-		obj["rotation"][j] = this->qOrientation[j];
-		obj["specular"][j] = this->specular[j];
-		obj["rotation"][j] = this->qOrientation[j];
+		if (bcol)
+			obj["color"][j] = this->color[j];
+		if (bspc)
+			obj["specular"][j] = this->specular[j];
+		if (bori)
+			obj["orientation"][j] = this->qOrientation[j];
 	}
 	obj["scale"] = this->scale;
-	obj["wireFrame"] = this->wireFrame;
-	obj["visible"] = this->visible;
-	obj["inverseMass"] = this->inverseMass;
-	obj["bounciness"] = this->bounciness;
-	obj["collisionShapeType"] = (int)this->collisionShapeType;
-	Json::Value collisionObjectInfo = Json::objectValue;
-	switch (this->collisionShapeType)
+
+	if (this->wireFrame)
+		obj["wireFrame"] = this->wireFrame;
+
+	if (!this->visible)
+		obj["visible"] = this->visible;
+
+	if (this->inverseMass)
+		obj["inverseMass"] = this->inverseMass;
+
+	if (this->bounciness)
+		obj["bounciness"] = this->bounciness;
+	if (this->collisionShapeType != eCollisionShapeType::NONE)
 	{
-	case eCollisionShapeType::AABB:
-	{
-		// write vec3s
-		for (unsigned j = 0; j < 3; ++j)
+		Json::Value collisionObjectInfo = Json::objectValue;
+		collisionObjectInfo["type"] = (int)this->collisionShapeType;
+		switch (this->collisionShapeType)
 		{
-			collisionObjectInfo["min"][j] = this->collisionObjectInfo.minmax->first[j];
-			collisionObjectInfo["max"][j] = this->collisionObjectInfo.minmax->second[j];
-		}
-		break;
-	}
-	case eCollisionShapeType::OBB:
-		break;
-	case eCollisionShapeType::SPHERE:
-		collisionObjectInfo["radius"] = this->collisionObjectInfo.radius;
-		break;
-	case eCollisionShapeType::CAPSULE:
-		break;
-	case eCollisionShapeType::PLANE:
-		break;
-	case eCollisionShapeType::MESH:
-		collisionObjectInfo["mesh"] = this->meshName; // TODO: copy collision mesh name instead
-		break;
-	case eCollisionShapeType::POINT_LIST:
-		// point list
-		for (unsigned i = 0; i < this->collisionObjectInfo.points->size(); ++i)
+		case eCollisionShapeType::AABB:
 		{
+			// write vec3s
 			for (unsigned j = 0; j < 3; ++j)
 			{
-				collisionObjectInfo["points"] = (*this->collisionObjectInfo.points)[i][j];
+				collisionObjectInfo["min"][j] = this->collisionObjectInfo.minmax->first[j];
+				collisionObjectInfo["max"][j] = this->collisionObjectInfo.minmax->second[j];
 			}
+			break;
 		}
-		break;
-	case eCollisionShapeType::STATIC_MESH_AABBS:
-		collisionObjectInfo["mesh"] = this->meshName; // TODO: copy collision mesh name instead
-		break;
-	default:
-		break;
+		case eCollisionShapeType::OBB:
+			break;
+		case eCollisionShapeType::SPHERE:
+			collisionObjectInfo["radius"] = this->collisionObjectInfo.radius;
+			break;
+		case eCollisionShapeType::CAPSULE:
+			break;
+		case eCollisionShapeType::PLANE:
+			break;
+		case eCollisionShapeType::MESH:
+			collisionObjectInfo["mesh"] = this->meshName; // TODO: copy collision mesh name instead
+			break;
+		case eCollisionShapeType::POINT_LIST:
+			// point list
+			for (unsigned i = 0; i < this->collisionObjectInfo.points->size(); ++i)
+			{
+				for (unsigned j = 0; j < 3; ++j)
+				{
+					collisionObjectInfo["points"] = (*this->collisionObjectInfo.points)[i][j];
+				}
+			}
+			break;
+		case eCollisionShapeType::STATIC_MESH_AABBS:
+			collisionObjectInfo["mesh"] = this->meshName; // TODO: copy collision mesh name instead
+			break;
+		default:
+			break;
+		}
+		obj["collisionObjectInfo"] = collisionObjectInfo;
+
 	}
-	obj["collisionObjectInfo"] = collisionObjectInfo;
 
 	serializeUniqueVariables(obj);
 	return obj;
