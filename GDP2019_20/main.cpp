@@ -541,7 +541,7 @@ int main()
 
 					world->vecLights[selectedLight]->updateShaderUniforms();
 
-					debugSphere->position = world->vecLights[selectedLight]->position;
+					debugSphere->setPosition(world->vecLights[selectedLight]->position);
 					debugSphere->scale = 1.0f;//0.1f / world->vecLights[selectedLight]->atten.y;
 					debugSphere->color = world->vecLights[selectedLight]->diffuse;
 					debugSphere->wireFrame = true;
@@ -628,7 +628,7 @@ int main()
 				glUniform1i(glGetUniformLocation(program, "skyboxSamp01"), 11);
 			}
 			debugSphere->scale = 1.0f;
-			debugSphere->position = camera->position;
+			debugSphere->setPosition(camera->position);
 			debugSphere->wireFrame = false;
 			debugSphere->lighting = false;
 			debugSphere->color = glm::vec4(1.0f);

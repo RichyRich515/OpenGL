@@ -70,6 +70,8 @@ cGameObject::~cGameObject()
 	if (this->command)
 		delete this->command;
 	// TODO: Capsule
+
+	// TODO: manage children?
 }
 
 void cGameObject::instatiateBaseVariables(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
@@ -390,7 +392,52 @@ Json::Value cGameObject::serializeJSONObject()
 
 void cGameObject::serializeUniqueVariables(Json::Value& obj)
 {
-	// nothing
+	// None for base game object
+}
+
+void cGameObject::setPosition(glm::vec3 pos)
+{
+	this->position = pos;
+}
+
+void cGameObject::setPosition(float x, float y, float z)
+{
+	this->position = glm::vec3(x, y, z);
+}
+
+glm::vec3 cGameObject::getPosition()
+{
+	return this->position;
+}
+
+void cGameObject::setRotation(glm::vec3 rotation, bool deg)
+{
+	if (deg)
+	{
+		this->qOrientation = glm::quat(glm::radians(rotation));
+		for (auto c : children)
+		{
+			c->qOrientation = glm::quat(glm::radians(rotation));
+		}
+	}
+	else
+	{
+		this->qOrientation = glm::quat(rotation);
+		for (auto c : children)
+		{
+			c->qOrientation = glm::quat(rotation);
+		}
+	}
+}
+
+void cGameObject::setOrientation(glm::quat q)
+{
+	this->qOrientation = q;
+}
+
+glm::quat cGameObject::getOrientation()
+{
+	return this->qOrientation;
 }
 
 void cGameObject::calculateCollisionMeshTransformed()
@@ -415,14 +462,33 @@ void cGameObject::calculateCollisionMeshTransformed()
 }
 
 
-void cGameObject::translate(glm::vec3 velocity)
+void cGameObject::translate(glm::vec3 translation)
 {
-	this->position += velocity;
+	this->position += translation;
+	for (auto c : children)
+	{
+		c->position += translation;
+	}
 }
 
 void cGameObject::rotate(glm::vec3 rotation, bool deg)
 {
-	this->qOrientation *= glm::quat(rotation);
+	if (deg)
+	{
+		this->qOrientation *= glm::quat(glm::radians(rotation));
+		for (auto c : children)
+		{
+			c->qOrientation *= glm::quat(glm::radians(rotation));
+		}
+	}
+	else
+	{
+		this->qOrientation *= glm::quat(rotation);
+		for (auto c : children)
+		{
+			c->qOrientation *= glm::quat(rotation);
+		}
+	}
 }
 
 void cGameObject::updateMatricis()

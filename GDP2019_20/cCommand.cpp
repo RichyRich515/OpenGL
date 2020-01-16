@@ -76,7 +76,7 @@ cCommand_MoveToTimed::cCommand_MoveToTimed(cGameObject* go, float duration, glm:
 }
 void cCommand_MoveToTimed::my_init(float dt, float tt)
 {
-	this->startposition = go->position;
+	this->startposition = go->getPosition();
 	this->full_translation = this->destination - this->startposition;
 }
 bool cCommand_MoveToTimed::my_update(float dt, float tt)
@@ -101,7 +101,7 @@ bool cCommand_MoveToTimed::my_update(float dt, float tt)
 	{
 		offset = this->full_translation * t;
 	}
-	this->go->position = this->startposition + offset;
+	this->go->setPosition(this->startposition + offset);
 
 	cWorld* world = cWorld::getWorld();
 	if (world->debugMode)
@@ -125,7 +125,7 @@ cCommand_RotateToTimed::cCommand_RotateToTimed(cGameObject* go, float duration, 
 }
 void cCommand_RotateToTimed::my_init(float dt, float tt)
 {
-	this->startOrientation = go->qOrientation;
+	this->startOrientation = go->getOrientation();
 }
 bool cCommand_RotateToTimed::my_update(float dt, float tt)
 {
@@ -149,11 +149,12 @@ bool cCommand_RotateToTimed::my_update(float dt, float tt)
 	cWorld* world = cWorld::getWorld();
 	if (world->debugMode)
 	{
-		world->pDebugRenderer->addLine(this->go->position, this->go->position + this->startOrientation * glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.5f, 0.0f), 0.0f);
-		world->pDebugRenderer->addLine(this->go->position, this->go->position + this->endOrientation * glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.5f, 1.0f), 0.0f);
+		glm::vec3 pos = this->go->getPosition();
+		world->pDebugRenderer->addLine(pos, pos + this->startOrientation * glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.5f, 0.0f), 0.0f);
+		world->pDebugRenderer->addLine(pos, pos + this->endOrientation * glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.5f, 1.0f), 0.0f);
 	}
 
-	this->go->qOrientation = glm::slerp(this->startOrientation, this->endOrientation, amt);
+	this->go->setOrientation(glm::slerp(this->startOrientation, this->endOrientation, amt));
 	return false;
 }
 
@@ -181,7 +182,7 @@ cCommand_SetPosition::cCommand_SetPosition(cGameObject* go, glm::vec3 position)
 }
 void cCommand_SetPosition::my_init(float dt, float tt)
 {
-	this->go->position = this->position;
+	this->go->setPosition(this->position);
 }
 bool cCommand_SetPosition::my_update(float dt, float tt)
 {
@@ -220,7 +221,7 @@ cCommand_MoveCurveTimed::cCommand_MoveCurveTimed(cGameObject* go, float duration
 }
 void cCommand_MoveCurveTimed::my_init(float dt, float tt)
 {
-	this->start = this->go->position;
+	this->start = this->go->getPosition();
 }
 bool cCommand_MoveCurveTimed::my_update(float dt, float tt)
 {
@@ -244,7 +245,7 @@ bool cCommand_MoveCurveTimed::my_update(float dt, float tt)
 	glm::vec3 pa = getPoint(this->start, this->point, t);
 	glm::vec3 pb = getPoint(this->point, this->end, t);
 
-	this->go->position = getPoint(pa, pb, t);
+	this->go->setPosition(getPoint(pa, pb, t));
 
 	cWorld* world = cWorld::getWorld();
 	if (world->debugMode)
@@ -282,9 +283,9 @@ bool cCommand_FollowTimed::my_update(float dt, float tt)
 
 	// Adapted from Feeney's follow cam code
 
-	glm::vec3 idealPos = this->target->position + this->offset;
-	glm::vec3 direction = glm::normalize(idealPos - this->go->position);
-	float distanceToIdeal = glm::distance(this->go->position, idealPos);
+	glm::vec3 idealPos = this->target->getPosition() + this->offset;
+	glm::vec3 direction = glm::normalize(idealPos - this->go->getPosition());
+	float distanceToIdeal = glm::distance(this->go->getPosition(), idealPos);
 
 	// Set to maximum speed by default;
 	glm::vec3 vel = direction * this->speed;
@@ -301,7 +302,7 @@ bool cCommand_FollowTimed::my_update(float dt, float tt)
 		vel *= glm::smoothstep(0.0f, 1.0f, (distanceToIdeal - this->minDistance) / diffMinAndMax);
 	}
 
-	this->go->position += vel * dt;
+	this->go->setPosition(this->go->getPosition() + vel * dt);
 
 	return false;
 }

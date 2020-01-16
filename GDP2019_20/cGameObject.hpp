@@ -6,6 +6,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <string>
 #include <map>
+#include <vector>
 #include <utility>
 
 #include <json/json.h>
@@ -55,8 +56,13 @@ public:
 	Json::Value serializeJSONObject();
 	virtual void serializeUniqueVariables(Json::Value& obj);
 
-	// Move an object
-	void translate(glm::vec3 velocity);
+	void setPosition(glm::vec3 pos);
+	void setPosition(float x, float y, float z);
+	glm::vec3 getPosition();
+	void setRotation(glm::vec3 rotation, bool deg = false);
+	void setOrientation(glm::quat q);
+	glm::quat getOrientation();
+	void translate(glm::vec3 translation);
 	void rotate(glm::vec3 rotation, bool deg = false);
 
 	void updateMatricis();
@@ -81,8 +87,17 @@ public:
 	glm::mat4 matWorld;
 	glm::mat4 inverseTransposeMatWorld;
 
+private:
+	cGameObject* parent;
+	std::vector<cGameObject*> children;
+
 	glm::vec3 position;
 	glm::quat qOrientation;
+
+public:
+
+	glm::vec3 velocity;
+	glm::vec3 acceleration;
 
 	float scale;
 	glm::vec4 color;
@@ -91,8 +106,6 @@ public:
 	bool lighting;
 	bool visible;
 
-	glm::vec3 velocity;
-	glm::vec3 acceleration;
 	float inverseMass; // Set 0.0f to ignore during physics
 	float bounciness; // Set 0.0f stop when hitting, Set to 1.0f maintain 100% of velocity
 	

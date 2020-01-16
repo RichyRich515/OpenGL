@@ -182,10 +182,7 @@ int cLuaBrain::l_SetObjectPosition(lua_State* L)
 
 	// Object ID is valid
 	// Get the values that lua pushed and update object
-	go->position.x = (float)lua_tonumber(L, 2);
-	go->position.y = (float)lua_tonumber(L, 3);
-	go->position.z = (float)lua_tonumber(L, 4);
-
+	go->setPosition((float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4));
 	lua_pushboolean(L, true); // index is OK
 
 	return 1; // There was 1 thing on the stack
@@ -204,9 +201,10 @@ int cLuaBrain::l_GetObjectPosition(lua_State* L)
 
 	// Object ID is valid
 	lua_pushboolean(L, true);
-	lua_pushnumber(L, go->position.x);
-	lua_pushnumber(L, go->position.y);
-	lua_pushnumber(L, go->position.z);
+	glm::vec3 pos = go->getPosition();
+	lua_pushnumber(L, pos.x);
+	lua_pushnumber(L, pos.y);
+	lua_pushnumber(L, pos.z);
 
 	return 4; // There were 7 things on the stack
 }
