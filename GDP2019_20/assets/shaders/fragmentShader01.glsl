@@ -55,6 +55,10 @@ uniform sampler2D discardSamp;
 uniform samplerCube skyboxSamp00;
 uniform samplerCube skyboxSamp01;
 
+
+uniform sampler2D secondPassSamp;
+uniform float passCount;
+
 uniform bool daytime;
 
 uniform vec2 waterOffset;
@@ -88,6 +92,16 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 	 
 void main()  
 {
+	if (passCount == 2)
+	{
+		// TODO: pass viewport size
+		float s = gl_FragCoord.x / 1920;
+		float t = gl_FragCoord.y / 1080;
+
+		pixelColour = texture(secondPassSamp, vec2(s, t));
+
+		return;
+	}
 	vec3 norm = normalize(fNormal.xyz);
 	if (params1.w != 0.0) // normals as color
 	{

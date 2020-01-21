@@ -43,6 +43,16 @@
 
 #include "cParticleEmitter.hpp"
 
+#include "cFBO.h"
+
+
+namespace std {
+
+	inline std::string to_string(glm::vec3 _Val)
+	{
+		return std::string("{" + std::to_string(_Val.x) + ", " + std::to_string(_Val.y) + ", " + std::to_string(_Val.z) + "}");
+	}
+}
 
 static void error_callback(int error, const char* description)
 {
@@ -69,6 +79,7 @@ GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
 
+cFBO* fbo = nullptr;
 
 // factory for any game object
 iGameObjectFactory* pGameObjectFactory;
@@ -230,7 +241,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main()
 {
-	// 19x3x19
 	GLFWwindow* window;
 
 	glfwSetErrorCallback(error_callback);
@@ -273,15 +283,16 @@ int main()
 	Json::Value models;
 	modelsjson >> models;
 	modelsjson.close();
+	std::string error_string;
 	for (unsigned i = 0; i < models.size(); ++i)
 	{
 		std::string name = models[i]["name"].asString();
 		std::string location = models[i]["location"].asString();
 
 		cMesh* m = new cMesh();
-		if (!pModelLoader->loadModel(location, m))
+		if (!pModelLoader->loadModel_assimp(location, m, error_string))
 		{
-			std::cerr << "Failed to load Model \"" << name << "\" from " << location << std::endl;
+			std::cerr << "Failed to load Model \"" << name << "\" from " << location << " Error: " << error_string << std::endl;
 			exit(EXIT_FAILURE);
 		}
 		mapMeshes[name] = m;
@@ -356,6 +367,10 @@ int main()
 	debugSphere->wireFrame = true;
 	debugSphere->lighting = true;
 
+	cGameObject* triangle = new cGameObject("triangle");
+	triangle->meshName = "triangle";
+	triangle->scale = 100.0f;
+
 	openSceneFromFile("scene1.json");
 
 	float ratio;
@@ -397,6 +412,17 @@ int main()
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = (float)cursorX;
 
+	fbo = new cFBO();
+	// Usually make this the size of the screen which we can get from opengl
+	std::string fboError;
+	if (!fbo->init(width, height, fboError))
+	{
+		std::cout << "FBO init error: " << fboError << std::endl;
+	}
+	
+	// for resizing
+	//fbo->reset();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		totalTime = (float)glfwGetTime();
@@ -431,6 +457,7 @@ int main()
 		front.y = sin(glm::radians(pitch));
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		cameraFront = glm::normalize(front);
+		cameraRight = glm::normalize(glm::cross(front, cameraUp));
 
 		if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 		{
@@ -595,6 +622,8 @@ int main()
 		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 		v = glm::lookAt(cameraEye, cameraEye + cameraFront, cameraUp);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+
 		glUseProgram(program);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -665,6 +694,29 @@ int main()
 		{
 			pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
+
+		// whole scene is drawn to buffer
+
+		// 1. disable the FBO
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// 2. clear actual screen buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		// 3. use the FBO colour texture as the texture on the quad
+		glActiveTexture(GL_TEXTURE0 + 40);
+		glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
+		glUniform1i(glGetUniformLocation(program, "secondPassSamp"), 40);
+		glUniform1f(glGetUniformLocation(program, "passCount"), 2);
+		
+		// 4. draw a single object, (tri or quad)
+		triangle->position = (cameraEye - cameraFront * -2.0f);
+		triangle->qOrientation = glm::quatLookAt(cameraFront, glm::normalize(glm::cross(cameraFront, cameraRight)));
+		triangle->updateMatricis();
+		drawObject(triangle, program, pVAOManager, dt, totalTime);
+		glUniform1f(glGetUniformLocation(program, "passCount"), 1);
+
+
 
 		glfwSwapBuffers(window); // Draws to screen
 		glfwPollEvents(); // Keyboard/Mouse input, etc.

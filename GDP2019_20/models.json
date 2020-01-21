@@ -26,5 +26,9 @@
 	{
 		"name": "shark",
 		"location": "assets/models/shark_xyz_n_uv.ply"
+	},
+	{
+		"name": "triangle",
+		"location": "assets/models/triangle.ply"
 	}
 ]
