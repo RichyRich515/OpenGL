@@ -141,6 +141,12 @@
     <ClCompile Include="cCamera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="cFBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kakodemon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -220,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="cCamera.hpp">
       <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kakodemon.hpp">
+      <Filter>CustomObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

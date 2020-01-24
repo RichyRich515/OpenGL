@@ -672,13 +672,6 @@ int main()
 				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
 				glUniform1i(pShader->getUniformLocID("skyboxSamp00"), 10);
 			}
-			texture_ul = pTextureManager->getTextureIDFromName("nighttime");
-			if (texture_ul)
-			{
-				glActiveTexture(GL_TEXTURE11);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-				glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
-			}
 			debugSphere->scale = 1.0f;
 			debugSphere->setPosition(camera->position);
 			debugSphere->wireFrame = false;
@@ -898,11 +891,7 @@ void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float 
 	glUniform4f(pShader->getUniformLocID("diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
 	glUniform4f(pShader->getUniformLocID("specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
 	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, (float)go->lighting, 0.0f);
-	glUniform4f(pShader->getUniformLocID("params2"),
-		0.0f,
-		go->name == "terrain" ? 1.0f : 0.0f,
-		go->name == "ocean" || go->name == "sand_floor" ? 1.0f : 0.0f,
-		0.0f);
+	glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 	if (go->wireFrame)
 	{

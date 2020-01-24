@@ -3,27 +3,18 @@
 	"skyboxes": [
 		{
 			"name": "daytime",
-			"file_left": "TropicalSunnyDayLeft2048.bmp",
-			"file_right": "TropicalSunnyDayRight2048.bmp",
-			"file_down": "TropicalSunnyDayDown2048.bmp",
-			"file_up": "TropicalSunnyDayUp2048.bmp",
-			"file_front": "TropicalSunnyDayFront2048.bmp",
-			"file_back": "TropicalSunnyDayBack2048.bmp"
-		},
-		{
-			"name": "nighttime",
-			"file_left": "SpaceBox_right1_posX.bmp",
-			"file_right": "SpaceBox_left2_negX.bmp",
-			"file_down": "SpaceBox_top3_posY.bmp",
-			"file_up": "SpaceBox_bottom4_negY.bmp",
-			"file_front": "SpaceBox_front5_posZ.bmp",
-			"file_back": "SpaceBox_back6_negZ.bmp"
+			"file_left": "hell_lf.bmp",
+			"file_right": "hell_rt.bmp",
+			"file_down": "hell_dn.bmp",
+			"file_up": "hell_up.bmp",
+			"file_front": "hell_ft.bmp",
+			"file_back": "hell_bk.bmp"
 		}
 	],
 	"textures": [
-		"water_height.bmp",
-		"terrain_texture.bmp",
-		"sand.bmp",
-		"rocky.bmp"
+		"FloorTexture.bmp",
+		"WallTexture.bmp",
+		"kakodemon.bmp",
+		"kakodemon_discard.bmp"
 	]
 }
