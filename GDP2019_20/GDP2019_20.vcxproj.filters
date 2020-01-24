@@ -61,8 +61,8 @@
     <Filter Include="Particles">
       <UniqueIdentifier>{ab6ac858-c003-40f0-86a7-991e9318965d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="FrameBuffer">
-      <UniqueIdentifier>{f75d53ac-2349-4cd2-aa9a-c26c84e51551}</UniqueIdentifier>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{8ded9370-12ff-41f7-bfd2-c1fa5fdc03dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -138,8 +138,8 @@
     <ClCompile Include="cParticleEmitter.cpp">
       <Filter>Particles</Filter>
     </ClCompile>
-    <ClCompile Include="cFBO.cpp">
-      <Filter>FrameBuffer</Filter>
+    <ClCompile Include="cCamera.cpp">
+      <Filter>Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,34 +218,28 @@
     <ClInclude Include="cParticle.hpp">
       <Filter>Particles</Filter>
     </ClInclude>
-    <ClInclude Include="cFBO.h">
-      <Filter>FrameBuffer</Filter>
+    <ClInclude Include="cCamera.hpp">
+      <Filter>Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="models.json">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="assets\shaders\fragmentShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="assets\shaders\vertexShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="textures.json">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="scene1.json">
       <Filter>Resource Files\Scenes</Filter>
     </None>
-    <None Include="assets\LuaScripts\init.lua">
-      <Filter>Resource Files\Lua Scripts</Filter>
+    <None Include="assets\LuaScripts\init.lua" />
+    <None Include="assets\LuaScripts\init_pelican.lua" />
+    <None Include="assets\LuaScripts\test.lua" />
+    <None Include="assets\models.json">
+      <Filter>Resource Files</Filter>
     </None>
-    <None Include="assets\LuaScripts\init_pelican.lua">
-      <Filter>Resource Files\Lua Scripts</Filter>
-    </None>
-    <None Include="assets\LuaScripts\test.lua">
-      <Filter>Resource Files\Lua Scripts</Filter>
+    <None Include="assets\textures.json">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

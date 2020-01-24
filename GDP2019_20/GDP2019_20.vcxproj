@@ -157,6 +157,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cCamera.cpp" />
     <ClCompile Include="cCommand.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="Texture\CTextureFromBMP.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cCamera.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.h" />
     <ClInclude Include="cGameObject.hpp" />
@@ -215,11 +217,11 @@
     <None Include="assets\LuaScripts\init.lua" />
     <None Include="assets\LuaScripts\init_pelican.lua" />
     <None Include="assets\LuaScripts\test.lua" />
+    <None Include="assets\models.json" />
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />
-    <None Include="models.json" />
+    <None Include="assets\textures.json" />
     <None Include="scene1.json" />
-    <None Include="textures.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />

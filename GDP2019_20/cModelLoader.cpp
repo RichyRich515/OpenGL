@@ -84,30 +84,6 @@ bool cModelLoader::loadModel_assimp(std::string filename, cMesh* mesh, std::stri
 
 	if (pScene->HasMeshes())
 	{
-		//aiMesh* pMesh = pScene->mMeshes[0];
-		/*mesh->vecTriangles.resize(pMesh->mNumFaces);
-		for (size_t i = 0; i < pMesh->mNumFaces; ++i)
-		{
-			mesh->vecTriangles[i] = sPlyTriangle{
-					pMesh->mFaces[i].mIndices[0],
-					pMesh->mFaces[i].mIndices[1],
-					pMesh->mFaces[i].mIndices[2]
-				};
-		}
-		mesh->vecVertices.resize(pMesh->mNumVertices);
-		for (size_t i = 0; i < pMesh->mNumVertices; ++i)
-		{
-			mesh->vecVertices[i] = sPlyVertex{
-				pMesh->mVertices[i].x,
-				pMesh->mVertices[i].y,
-				pMesh->mVertices[i].z,
-				pMesh->mNormals[i].x,
-				pMesh->mNormals[i].y,
-				pMesh->mNormals[i].z,
-				pMesh->mTextureCoords[i]->x,
-				pMesh->mTextureCoords[i]->y
-			};
-		}*/
 		mesh->vecVertices.reserve(pScene->mMeshes[0]->mNumVertices);
 		if (pScene->mMeshes[0]->HasTextureCoords(0))
 		{

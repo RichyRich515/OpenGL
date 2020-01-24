@@ -146,6 +146,18 @@ void main()
 	// terrain mesh
 	if (params2.y != 0.0)
 	{
+		vec2 dx00 = dFdx(fUVx2.st * textparams00.w + textparams00.xy);
+		vec2 dy00 = dFdy(fUVx2.st * textparams00.w + textparams00.xy);
+
+		vec2 dx01 = dFdx(fUVx2.st * textparams01.w + textparams01.xy);
+		vec2 dy01 = dFdy(fUVx2.st * textparams01.w + textparams01.xy);
+
+		vec2 dx02 = dFdx(fUVx2.st * textparams02.w + textparams02.xy);
+		vec2 dy02 = dFdy(fUVx2.st * textparams02.w + textparams02.xy);
+
+		vec2 dx03 = dFdx(fUVx2.st * textparams03.w + textparams03.xy + waterOffset);
+		vec2 dy03 = dFdy(fUVx2.st * textparams03.w + textparams03.xy + waterOffset);
+
 		if (fVertWorldLocation.y <= 0.0f)
 		{
 			discard;
@@ -153,39 +165,39 @@ void main()
 		vec3 textured = vec3(0.0, 0.0, 0.0);
 		
 		vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, norm, fVertWorldLocation.xyz, specularColour);
-		if (fVertWorldLocation.y <= 29.0f)
+		if (fVertWorldLocation.y < 29.0f)
 		{
-			vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
-			vec3 textCol2 = texture(textSamp03, fUVx2.st * textparams03.w + textparams03.xy + waterOffset).rgb;
+			vec3 textCol = textureGrad(textSamp00, fUVx2.st * textparams00.w + textparams00.xy, dx00, dy00).rgb;
+			vec3 textCol2 = textureGrad(textSamp03, fUVx2.st * textparams03.w + textparams03.xy + waterOffset, dx03, dy03).rgb;
 			textured = textCol * textparams00.z * 0.6 + textCol2 * textparams03.z * 0.4;
 		}
-		else if (fVertWorldLocation.y <= 30.0f)
+		else if (fVertWorldLocation.y < 30.0f)
 		{
-			vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
+			vec3 textCol = textureGrad(textSamp00, fUVx2.st * textparams00.w + textparams00.xy, dx00, dy00).rgb;
 			textured = textCol * textparams00.z;
 		}
-		else if (fVertWorldLocation.y <= 35.0f)
+		else if (fVertWorldLocation.y < 35.0f)
 		{
-			vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
-			vec3 textCol2 = texture(textSamp01, fUVx2.st * textparams01.w + textparams01.xy).rgb;
-			float ratio = (fVertWorldLocation.y - 30.0f) / 5.0f;
+			vec3 textCol = textureGrad(textSamp00, fUVx2.st * textparams00.w + textparams00.xy, dx00, dy00).rgb;
+			vec3 textCol2 = textureGrad(textSamp01, fUVx2.st * textparams01.w + textparams01.xy, dx01, dy01).rgb;
+			float ratio = clamp((fVertWorldLocation.y - 30.0f) / 5.0f, 0.0f, 1.0f);
 			textured = mix(textCol * textparams00.z, textCol2.rgb * textparams01.z, ratio);
 		}
-		else if (fVertWorldLocation.y <= 130.0f)
+		else if (fVertWorldLocation.y < 130.0f)
 		{
-			vec3 textCol = texture(textSamp01, fUVx2.st * textparams01.w + textparams01.xy).rgb;
+			vec3 textCol = textureGrad(textSamp01, fUVx2.st * textparams01.w + textparams01.xy, dx01, dy01).rgb;
 			textured = textCol.rgb * textparams01.z;
 		}
-		else if (fVertWorldLocation.y <= 135.0f)
+		else if (fVertWorldLocation.y < 135.0f)
 		{
-			vec3 textCol = texture(textSamp01, fUVx2.st * textparams01.w + textparams01.xy).rgb;
-			vec3 textCol2 = texture(textSamp02, fUVx2.st * textparams02.w + textparams02.xy).rgb;
+			vec3 textCol = textureGrad(textSamp01, fUVx2.st * textparams01.w + textparams01.xy, dx01, dy01).rgb;
+			vec3 textCol2 = textureGrad(textSamp02, fUVx2.st * textparams02.w + textparams02.xy, dx02, dy02).rgb;
 			float ratio = (fVertWorldLocation.y - 130.0f) / 5.0f;
 			textured = mix(textCol * textparams01.z, textCol2.rgb * textparams02.z, ratio);
 		}
 		else
 		{
-			vec3 textCol = texture(textSamp02, fUVx2.st * textparams02.w + textparams02.xy).rgb;
+			vec3 textCol = textureGrad(textSamp02, fUVx2.st * textparams02.w + textparams02.xy, dx02, dy02).rgb;
 			textured = textCol * textparams02.z;
 		}
 

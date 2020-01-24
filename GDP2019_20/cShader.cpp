@@ -32,38 +32,47 @@ std::string cShaderManager::cShader::getShaderTypeString(void)
 	return "UNKNOWN_SHADER_TYPE";
 }
 
-
-//// TODO: For the students to do, because it's FUN, FUN, FUN
-//std::map< std::string /*name of uniform variable*/,
-//		    unsigned int /* uniform location ID */ > 
-//						mapUniformName_to_UniformLocation;
-
 // Look up the uniform inside the shader, then save it, if it finds it
 bool cShaderManager::cShaderProgram::LoadUniformLocation(std::string variableName)
 {
 	GLint uniLocation = glGetUniformLocation(this->ID, variableName.c_str());
-	// Did it find it (not -1)
 	if (uniLocation == -1)
-	{	// Nope.
 		return false;
-	}
-	// Save it
 	this->mapUniformName_to_UniformLocation[variableName.c_str()] = uniLocation;
-
 	return true;
 }
 
-// Look up the uniform location and save it.
-int cShaderManager::cShaderProgram::getUniformID_From_Name(std::string name)
+void cShaderManager::cShaderProgram::LoadActiveUniforms()
 {
-	std::map< std::string /*name of uniform variable*/,
-		int /* uniform location ID */ >::iterator
-		itUniform = this->mapUniformName_to_UniformLocation.find(name);
+	int maxNameSize = 0;
+	glGetProgramiv(this->ID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameSize);
 
-	if (itUniform == this->mapUniformName_to_UniformLocation.end())
+
+	int uniformCount = 0;
+	glGetProgramiv(this->ID, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+	char* uniformName = new char[maxNameSize];
+	for (int i = 0; i < uniformCount; ++i)
 	{
-		return -1;		// OpenGL uniform not found value
+		GLsizei numCharWritten = 0;
+		GLint sizeOfVariable = 0;
+		GLenum uniformType = 0;
+
+		memset(uniformName, 0, maxNameSize);
+
+		glGetActiveUniform(this->ID, i, maxNameSize, &numCharWritten, &sizeOfVariable, &uniformType, uniformName);
+
+		this->mapUniformName_to_UniformLocation[uniformName] = glGetUniformLocation(this->ID, uniformName);
 	}
 
-	return itUniform->second;		// second if the "int" value
+	delete[] uniformName;
+}
+
+GLint cShaderManager::cShaderProgram::getUniformLocID(std::string uniformname)
+{
+	//auto itUniform = this->mapUniformName_to_UniformLocation.find(uniformname);
+	//if (itUniform == this->mapUniformName_to_UniformLocation.end())
+	//	return -1; // Not found
+	//return itUniform->second;
+	return this->mapUniformName_to_UniformLocation[uniformname];
 }
