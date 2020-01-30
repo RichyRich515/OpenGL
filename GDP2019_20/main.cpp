@@ -436,7 +436,6 @@ int main()
 	camera = new cCamera();
 
 
-
 	openSceneFromFile("scene1.json");
 
 	while (!glfwWindowShouldClose(window))
@@ -632,7 +631,6 @@ int main()
 		}
 
 		// update objects
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);

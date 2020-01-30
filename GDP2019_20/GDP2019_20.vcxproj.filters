@@ -141,6 +141,9 @@
     <ClCompile Include="cCamera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="cFBO.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -220,6 +223,9 @@
     </ClInclude>
     <ClInclude Include="cCamera.hpp">
       <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
