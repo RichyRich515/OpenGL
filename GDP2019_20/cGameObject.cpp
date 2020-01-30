@@ -530,12 +530,8 @@ void cGameObject::update(float dt, float tt)
 
 void cGameObject::physicsUpdate(float dt)
 {
-	this->velocity.x += (this->acceleration.x /* + gravity.x */) * dt;
-	this->velocity.y += (this->acceleration.y /* + gravity.y */) * dt;
-	this->velocity.z += (this->acceleration.z /* + gravity.z */) * dt;
-	this->position.x += this->velocity.x * dt;
-	this->position.y += this->velocity.y * dt;
-	this->position.z += this->velocity.z * dt;
+	this->velocity += this->acceleration * dt;
+	this->position += this->velocity * dt;
 }
 
 sMessage cGameObject::message(sMessage const& msg)

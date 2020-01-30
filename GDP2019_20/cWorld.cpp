@@ -1,4 +1,5 @@
 #include "cWorld.hpp"
+#include "cCamera.hpp"
 
 #include <algorithm>
 
@@ -6,9 +7,21 @@ cWorld cWorld::_world;
 
 bool cWorld::debugMode;
 cDebugRenderer* cWorld::pDebugRenderer;
+cCamera* cWorld::pCamera;
 
 sMessage cWorld::message(sMessage const& msg)
 {
+	if (msg.name.substr(0, 10) == "GetObjects")
+	{
+		std::string name = msg.name.substr(11);
+		std::vector<cGameObject*>* vec = (std::vector<cGameObject*>*)msg.data.vp;
+
+		for (cGameObject* go : vecGameObjects)
+		{
+			if (go->name == name)
+				vec->push_back(go);
+		}
+	}
 	return sMessage();
 }
 

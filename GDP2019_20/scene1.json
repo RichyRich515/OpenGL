@@ -7,7 +7,7 @@
 		],
 		"pitch": 0.0,
 		"yaw": -90.0,
-		"cameraSpeed": 15.0
+		"cameraSpeed": 10.0
 	},
 	"gameObjects": [
 		{
@@ -212,8 +212,8 @@
 				0.1,
 				1.0
 			],
-			"meshName": "kakodemon",
-			"name": "demon1",
+			"meshName": "Cacodemon",
+			"name": "demon",
 			"position": [
 				0.0,
 				2.0,
@@ -225,7 +225,7 @@
 				0.0,
 				1.0
 			],
-			"scale": 1.0,
+			"scale": 2.0,
 			"specular": [
 				1.0,
 				1.0,
@@ -236,17 +236,27 @@
 				"textures": [
 					{
 						"blend": 1.0,
-						"name": "kakodemon.bmp",
+						"name": "Cacodemon.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back_discard.bmp",
 						"tiling": 1.0
 					}
 				],
 				"discardmap": {
-					"name": "kakodemon_discard.bmp",
+					"name": "Cacodemon_discard.bmp",
 					"tiling": 1.0,
 					"cutoff": 0.5
 				}
 			},
-			"type": "basic",
+			"type": "Cacodemon",
 			"lighting": false
 		},
 		{
@@ -256,8 +266,8 @@
 				0.1,
 				1.0
 			],
-			"meshName": "kakodemon",
-			"name": "demon2",
+			"meshName": "Cacodemon",
+			"name": "demon",
 			"position": [
 				2.0,
 				2.0,
@@ -269,7 +279,7 @@
 				0.0,
 				1.0
 			],
-			"scale": 1.0,
+			"scale": 2.0,
 			"specular": [
 				1.0,
 				1.0,
@@ -280,17 +290,27 @@
 				"textures": [
 					{
 						"blend": 1.0,
-						"name": "kakodemon.bmp",
+						"name": "Cacodemon.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back_discard.bmp",
 						"tiling": 1.0
 					}
 				],
 				"discardmap": {
-					"name": "kakodemon_discard.bmp",
+					"name": "Cacodemon_discard.bmp",
 					"tiling": 1.0,
 					"cutoff": 0.5
 				}
 			},
-			"type": "basic",
+			"type": "Cacodemon",
 			"lighting": false
 		},
 		{
@@ -300,8 +320,8 @@
 				1.0,
 				1.0
 			],
-			"meshName": "kakodemon",
-			"name": "demon3",
+			"meshName": "Cacodemon",
+			"name": "demon",
 			"position": [
 				-2.0,
 				2.0,
@@ -313,7 +333,7 @@
 				0.0,
 				1.0
 			],
-			"scale": 1.0,
+			"scale": 2.0,
 			"specular": [
 				1.0,
 				1.0,
@@ -324,17 +344,27 @@
 				"textures": [
 					{
 						"blend": 1.0,
-						"name": "kakodemon.bmp",
+						"name": "Cacodemon.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back_discard.bmp",
 						"tiling": 1.0
 					}
 				],
 				"discardmap": {
-					"name": "kakodemon_discard.bmp",
+					"name": "Cacodemon_discard.bmp",
 					"tiling": 1.0,
 					"cutoff": 0.5
 				}
 			},
-			"type": "basic",
+			"type": "Cacodemon",
 			"lighting": false
 		},
 		{
@@ -344,8 +374,8 @@
 				1.0,
 				1.0
 			],
-			"meshName": "kakodemon",
-			"name": "demon4",
+			"meshName": "Cacodemon",
+			"name": "demon",
 			"position": [
 				4.0,
 				2.0,
@@ -357,7 +387,7 @@
 				0.0,
 				1.0
 			],
-			"scale": 1.0,
+			"scale": 2.0,
 			"specular": [
 				1.0,
 				1.0,
@@ -368,17 +398,27 @@
 				"textures": [
 					{
 						"blend": 1.0,
-						"name": "kakodemon.bmp",
+						"name": "Cacodemon.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back_discard.bmp",
 						"tiling": 1.0
 					}
 				],
 				"discardmap": {
-					"name": "kakodemon_discard.bmp",
+					"name": "Cacodemon_discard.bmp",
 					"tiling": 1.0,
 					"cutoff": 0.5
 				}
 			},
-			"type": "basic",
+			"type": "Cacodemon",
 			"lighting": false
 		},
 		{
@@ -388,8 +428,8 @@
 				1.0,
 				1.0
 			],
-			"meshName": "kakodemon",
-			"name": "demon5",
+			"meshName": "Cacodemon",
+			"name": "demon",
 			"position": [
 				-4.0,
 				2.0,
@@ -401,7 +441,7 @@
 				0.0,
 				1.0
 			],
-			"scale": 1.0,
+			"scale": 2.0,
 			"specular": [
 				1.0,
 				1.0,
@@ -412,17 +452,27 @@
 				"textures": [
 					{
 						"blend": 1.0,
-						"name": "kakodemon.bmp",
+						"name": "Cacodemon.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back.bmp",
+						"tiling": 1.0
+					},
+					{
+						"blend": 0.0,
+						"name": "Cacodemon_back_discard.bmp",
 						"tiling": 1.0
 					}
 				],
 				"discardmap": {
-					"name": "kakodemon_discard.bmp",
+					"name": "Cacodemon_discard.bmp",
 					"tiling": 1.0,
 					"cutoff": 0.5
 				}
 			},
-			"type": "basic",
+			"type": "Cacodemon",
 			"lighting": false
 		}
 	],

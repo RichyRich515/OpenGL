@@ -14,7 +14,10 @@
 	"textures": [
 		"FloorTexture.bmp",
 		"WallTexture.bmp",
-		"kakodemon.bmp",
-		"kakodemon_discard.bmp"
+		"Cacodemon.bmp",
+		"Cacodemon_discard.bmp",
+		"Cacodemon_back.bmp",
+		"Cacodemon_back_discard.bmp",
+		"fireball.bmp"
 	]
 }

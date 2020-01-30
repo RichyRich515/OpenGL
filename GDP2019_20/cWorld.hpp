@@ -6,6 +6,7 @@
 #include "iMessageable.hpp"
 #include "iGameObjectFactory.hpp"
 #include "cGameObject.hpp"
+#include "cCamera.hpp"
 #include "DebugRenderer/cDebugRenderer.h"
 #include "cLight.hpp"
 
@@ -32,6 +33,7 @@ public:
 	void doDeferredActions();
 
 	static cDebugRenderer* pDebugRenderer;
+	static cCamera* pCamera;
 	static bool debugMode;
 
 private:

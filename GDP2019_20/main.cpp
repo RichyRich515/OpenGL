@@ -46,6 +46,7 @@
 
 #include "cFBO.h"
 
+#include "cBullet.hpp"
 
 namespace std {
 
@@ -287,7 +288,6 @@ int main()
 		}
 	}
 
-
 	// make shader and load models to VAO
 	{
 		cShaderManager::cShader vertexShader01;
@@ -426,7 +426,6 @@ int main()
 
 		// for resizing
 		//fbo->reset();
-
 	}
 
 	cWorld::pDebugRenderer = new cDebugRenderer();
@@ -434,8 +433,7 @@ int main()
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
 	camera = new cCamera();
-
-
+	cWorld::pCamera = camera;
 
 	openSceneFromFile("scene1.json");
 
@@ -473,7 +471,7 @@ int main()
 
 			// debugging camera
 			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
-			camera->forward.y = sin(glm::radians(camera->pitch));
+			//camera->forward.y = sin(glm::radians(camera->pitch));
 			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
 			camera->forward = glm::normalize(camera->forward);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
@@ -507,105 +505,28 @@ int main()
 			}
 
 			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
 			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 
-			int xRot = pKeyboardManager->keyDown(GLFW_KEY_I) - pKeyboardManager->keyDown(GLFW_KEY_K);
-			int yRot = pKeyboardManager->keyDown(GLFW_KEY_U) - pKeyboardManager->keyDown(GLFW_KEY_O);
-			int zRot = pKeyboardManager->keyDown(GLFW_KEY_J) - pKeyboardManager->keyDown(GLFW_KEY_L);
+			glm::vec3 last_camera_pos = camera->position;
+			camera->velocity = (glm::vec3(zMove * camera->speed * glm::normalize(glm::cross(camera->up, camera->right))) + glm::vec3(-xMove * camera->speed * camera->right)) * dt;
+			camera->position += camera->velocity;
 
-			int scaleFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-
-			if (pKeyboardManager->keyPressed(GLFW_KEY_V))
+			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
 			{
-				if (shift_pressed)
-				{
-					if (world->vecLights.size())
-						world->vecLights[selectedLight]->param2.x = !world->vecLights[selectedLight]->param2.x;
-				}
-				else
-				{
-					if (world->vecGameObjects.size())
-						world->vecGameObjects[selectedObject]->visible = !world->vecGameObjects[selectedObject]->visible;
-				}
-			}
-			if (pKeyboardManager->keyPressed(GLFW_KEY_B))
-			{
-				if (world->vecGameObjects.size())
-					world->vecGameObjects[selectedObject]->wireFrame = !world->vecGameObjects[selectedObject]->wireFrame;
-			}
-
-			if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
-			{
-				if (shift_pressed)
-				{
-					++selectedLight;
-					if (selectedLight >= world->vecLights.size())
-						selectedLight = 0;
-				}
-				else
-				{
-					++selectedObject;
-					if (selectedObject >= world->vecGameObjects.size())
-						selectedObject = 0;
-				}
-			}
-			else if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
-			{
-				if (shift_pressed)
-				{
-					--selectedLight;
-					if (selectedLight < 0)
-						selectedLight = (int)world->vecLights.size() - 1;
-				}
-				else
-				{
-					--selectedObject;
-					if (selectedObject < 0)
-						selectedObject = (int)world->vecGameObjects.size() - 1;
-				}
-			}
-
-			if (ctrl_pressed)
-			{
-				if (world->vecGameObjects.size())
-				{
-					glm::vec3 velocity = dt * 3.0f * glm::vec3(xMove, yMove, zMove);
-					glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
-					world->vecGameObjects[selectedObject]->translate(velocity);
-					world->vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
-					world->vecGameObjects[selectedObject]->rotate(rotation);
-				}
-			}
-			else if (shift_pressed)
-			{
-				if (world->vecLights.size())
-				{
-					float speed = 3.0f;
-					// Move light if shift pressed
-					world->vecLights[selectedLight]->position.x += xMove * speed * dt;
-					world->vecLights[selectedLight]->position.y += yMove * speed * dt;
-					world->vecLights[selectedLight]->position.z += zMove * speed * dt;
-					world->vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
-
-					world->vecLights[selectedLight]->updateShaderUniforms();
-
-					debugSphere->setPosition(world->vecLights[selectedLight]->position);
-					debugSphere->scale = 1.0f;//0.1f / world->vecLights[selectedLight]->atten.y;
-					debugSphere->color = world->vecLights[selectedLight]->diffuse;
-					debugSphere->wireFrame = true;
-					debugSphere->visible = true;
-					debugSphere->lighting = false;
-					debugSphere->updateMatricis();
-					// Draw light sphere if shift pressed
-					drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-				}
-			}
-			else
-			{
-				camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
-				camera->position += -xMove * camera->speed * dt * camera->right;
-				camera->position += yMove * camera->speed * dt * camera->up;
+				cBullet* bullet = new cBullet();
+				bullet->from_enemy = false;
+				bullet->name = "bullet";
+				bullet->meshName = "Cacodemon";
+				bullet->textures[0].fileName = "fireball.bmp";
+				bullet->textures[0].blend = 1.0f;
+				bullet->textures[0].tiling = 1.0f;
+				bullet->scale = 0.25f;
+				bullet->setPosition(camera->position);
+				bullet->velocity = camera->forward * 30.0f;
+				bullet->lighting = false;
+				bullet->setOrientation(glm::quatLookAt(camera->forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+				bullet->color = glm::vec4(0.3f, 0.3f, 1.0f, 0.5f);
+				world->vecGameObjects.push_back(bullet);
 			}
 		}
 
@@ -632,7 +553,6 @@ int main()
 		}
 
 		// update objects
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
@@ -715,7 +635,6 @@ int main()
 		// draw debug
 		if (cWorld::debugMode)
 		{
-			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), dt);
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
@@ -744,7 +663,6 @@ int main()
 
 		}
 
-		
 
 		glfwSwapBuffers(window); // Draws to screen
 		world->doDeferredActions();
@@ -770,8 +688,10 @@ int main()
 		delete pKeyboardManager;
 		delete pTextureManager;
 		delete cWorld::pDebugRenderer;
+		delete cWorld::pCamera;
 
 		delete debugSphere;
+		delete triangle;
 	}
 	
 	return 0;

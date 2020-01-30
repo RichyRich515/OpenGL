@@ -3,7 +3,8 @@
 class cCamera
 {
 public:
-	glm::vec3 position = glm::vec3(0.0f, 28.0f, 10.0f);
+	glm::vec3 position = glm::vec3(0.0f);
+	glm::vec3 velocity = glm::vec3(0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 forward = glm::vec3(0.0f, 0.0f, 1.0f);
 	float sensitivity = 10.0f;

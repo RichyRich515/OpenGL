@@ -1,6 +1,5 @@
 #include "cFactoryManager.hpp"
 
-
 std::map<std::string, iGameObjectFactory*> cFactoryManager::_mapFactories;
 
 iGameObjectFactory* cFactoryManager::getObjectFactory(std::string type)

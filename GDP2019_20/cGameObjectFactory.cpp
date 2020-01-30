@@ -1,6 +1,7 @@
 #include "cGameObjectFactory.hpp"
 
 #include "cGameObject.hpp"
+#include "cCacodemon.hpp"
 
 cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {
@@ -8,6 +9,10 @@ cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::
 	if (type == "basic")
 	{
 		return new cGameObject(obj, mapMeshes);
+	}
+	else if (type == "Cacodemon")
+	{
+		return new cCacodemon(obj, mapMeshes);
 	}
 	return nullptr;
 }

@@ -157,6 +157,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cBullet.cpp" />
     <ClCompile Include="cCamera.cpp" />
     <ClCompile Include="cCommand.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
@@ -177,15 +178,18 @@
     <ClCompile Include="DebugRenderer\cGLRenderStateHelper.cpp" />
     <ClCompile Include="DebugRenderer\COpenGLError.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="kakodemon.cpp" />
+    <ClCompile Include="cCacodemon.cpp" />
     <ClCompile Include="Lua\cLuaBrain.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="rwmath.cpp" />
     <ClCompile Include="src\json\jsoncpp.cpp" />
+    <ClCompile Include="SteeringFunctions.cpp" />
     <ClCompile Include="Texture\C24BitBMPpixel.cpp" />
     <ClCompile Include="Texture\cBasicTextureManager.cpp" />
     <ClCompile Include="Texture\CTextureFromBMP.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cBullet.hpp" />
     <ClInclude Include="cCamera.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.h" />
@@ -210,7 +214,9 @@
     <ClInclude Include="iMessageable.hpp" />
     <ClInclude Include="cWorld.hpp" />
     <ClInclude Include="cTexture.hpp" />
-    <ClInclude Include="kakodemon.hpp" />
+    <ClInclude Include="cCacodemon.hpp" />
+    <ClInclude Include="rwmath.hpp" />
+    <ClInclude Include="SteeringFunctions.hpp" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />
@@ -231,4 +237,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties assets_4textures_1json__JsonSchema="http://json.schemastore.org/appsscript" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

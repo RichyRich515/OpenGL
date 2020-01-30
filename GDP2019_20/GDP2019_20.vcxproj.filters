@@ -64,6 +64,9 @@
     <Filter Include="Camera">
       <UniqueIdentifier>{8ded9370-12ff-41f7-bfd2-c1fa5fdc03dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ai">
+      <UniqueIdentifier>{86a3adc5-6fc7-4648-8846-53f03d43a0d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -144,7 +147,16 @@
     <ClCompile Include="cFBO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="kakodemon.cpp">
+    <ClCompile Include="SteeringFunctions.cpp">
+      <Filter>Ai</Filter>
+    </ClCompile>
+    <ClCompile Include="cCacodemon.cpp">
+      <Filter>CustomObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="cBullet.cpp">
+      <Filter>CustomObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="rwmath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -230,8 +242,17 @@
     <ClInclude Include="cFBO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="kakodemon.hpp">
+    <ClInclude Include="SteeringFunctions.hpp">
+      <Filter>Ai</Filter>
+    </ClInclude>
+    <ClInclude Include="cCacodemon.hpp">
       <Filter>CustomObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="cBullet.hpp">
+      <Filter>CustomObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="rwmath.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
