@@ -138,6 +138,8 @@ void openSceneFromFile(std::string filename)
 	scenejson >> root;
 	scenejson.close();
 
+	srand(time(NULL));
+
 	Json::Value world_node = root["world"];
 	Json::Value camera_node = root["camera"];
 	Json::Value lights = root["lights"];
