@@ -5,7 +5,7 @@ namespace nPhysics
 {
 	struct sPlaneDef
 	{
-		float Constant;
+		float Constant; // = dot(point, normal)
 		glm::vec3 Normal;
 	};
 	class iPlaneComponent : public iPhysicsComponent

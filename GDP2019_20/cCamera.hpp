@@ -13,3 +13,5 @@ public:
 	glm::vec3 direction = glm::normalize(position - forward);
 	glm::vec3 right = glm::normalize(glm::cross(up, direction));
 };
+
+// mInterpolatedTransform = glm::inverse(finalTransform * initialTransform)

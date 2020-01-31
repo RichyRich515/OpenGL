@@ -44,11 +44,11 @@ namespace phys
 		// force = mass * acceleration
 		// so 
 		// acceleration = force / mass
-		this->mAcceleration += force / this->mMass;
+		this->mAcceleration += force * this->mInvMass;
 	}
 
 	void cRigidBody::ApplyImpulse(const glm::vec3& impulse)
 	{
-		// TODO: ApplyImpulse
+		this->mVelocity += impulse;
 	}
 }

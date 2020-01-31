@@ -47,8 +47,8 @@
 #include "cFBO.h"
 
 
-namespace std {
-
+namespace std 
+{
 	inline std::string to_string(glm::vec3 _Val)
 	{
 		return std::string("{" + std::to_string(_Val.x) + ", " + std::to_string(_Val.y) + ", " + std::to_string(_Val.z) + "}");
