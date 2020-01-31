@@ -11,11 +11,11 @@ namespace phys
 	{
 		vel.x += acc.x * dt;
 		vel.y += acc.y * dt;
-		vel.y += acc.z * dt;
+		vel.z += acc.z * dt;
 
 		pos.x += vel.x * dt;
 		pos.y += vel.y * dt;
-		pos.y += vel.z * dt;
+		pos.z += vel.z * dt;
 	}
 
 	void cIntegrator::Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, const glm::vec3& appliedAcc, float dt)

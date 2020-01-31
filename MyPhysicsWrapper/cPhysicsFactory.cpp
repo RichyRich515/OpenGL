@@ -3,10 +3,14 @@
 #include "cBallComponent.hpp"
 #include "cPlaneComponent.hpp"
 
+// Export function from DLL
+extern "C" __declspec(dllexport) nPhysics::iPhysicsFactory* MakePhysicsFactory();
+
 namespace nPhysics
 {
 	iPhysicsWorld* cPhysicsFactory::CreateWorld()
 	{
+		// TODO: def for gravity, RK4, euler and stuff?
 		return new cPhysicsWorld();
 	}
 
@@ -19,4 +23,9 @@ namespace nPhysics
 	{
 		return new cPlaneComponent(def);
 	}
+}
+
+nPhysics::iPhysicsFactory* MakePhysicsFactory()
+{
+	return new nPhysics::cPhysicsFactory();
 }

@@ -46,8 +46,25 @@
 
 #include "cFBO.h"
 
+#include <iPhysicsFactory.h>
 
-namespace std 
+
+#include <Windows.h>
+
+constexpr char physics_interface_factory_func_name[] = "MakePhysicsFactory";
+typedef nPhysics::iPhysicsFactory* (func_createPhysicsFactory)();
+
+#define MY_PHYSICS
+
+#ifdef MY_PHYSICS
+constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
+#elif
+constexpr char physics_library_name[] = "BulletWrapper.dll";
+#endif
+
+nPhysics::iPhysicsFactory* pPhysicsFactory;
+
+namespace std
 {
 	inline std::string to_string(glm::vec3 _Val)
 	{
@@ -287,7 +304,6 @@ int main()
 		}
 	}
 
-
 	// make shader and load models to VAO
 	{
 		cShaderManager::cShader vertexShader01;
@@ -434,10 +450,36 @@ int main()
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
 	camera = new cCamera();
-
-
+	
 	openSceneFromFile("scene1.json");
 
+	// Load physics library
+	HMODULE hModule = NULL;
+	{
+		hModule = LoadLibraryA(physics_library_name);
+		if (!hModule)
+		{
+			std::cout << "Error loading " << physics_library_name << std::endl;
+			return EXIT_FAILURE;
+		}
+		// make a Physics factory
+		pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
+	}
+
+	auto physWorld = pPhysicsFactory->CreateWorld();
+	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f) };
+	auto ball1 = pPhysicsFactory->CreateBall(def);
+
+	def.Position.z += 10.0f;
+	def.Position.y += 5.0f;
+	auto ball2 = pPhysicsFactory->CreateBall(def);
+
+	physWorld->AddComponent(ball1);
+	physWorld->AddComponent(ball2);
+	glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 30.0f, 0.0f), n), n }));
+
+	cWorld::debugMode = true;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Timing
@@ -608,37 +650,7 @@ int main()
 			}
 		}
 
-		// window title
-		if (world->vecGameObjects.size() && world->vecLights.size())
-		{
-			std::ostringstream windowTitle;
-			windowTitle << std::fixed << std::setprecision(2)
-				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
-				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} ";
-
-			if (selectedObject < world->vecGameObjects.size())
-			{
-				windowTitle << "Obj[" << selectedObject << "]: \"" << world->vecGameObjects[selectedObject]->name << "\" ";
-			}
-			if (shift_pressed)
-			{
-				if (selectedLight < world->vecLights.size())
-				{
-					windowTitle << "Light[" << selectedLight << "]";
-				}
-			}
-			glfwSetWindowTitle(window, windowTitle.str().c_str());
-		}
-
-		// update objects
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		{
-			world->vecGameObjects[i]->update(dt, totalTime);
-			world->vecGameObjects[i]->physicsUpdate(dt);
-			world->vecGameObjects[i]->updateMatricis();
-		}
-
-		// global shader uniforms
+		// shader uniforms
 		{
 			// FOV, aspect ratio, near clip, far clip
 			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
@@ -657,7 +669,6 @@ int main()
 			waterOffset.s += 0.1f * dt;
 			waterOffset.t += 0.017f * dt;
 			glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
-
 		}
 
 		// draw Skybox
@@ -709,9 +720,14 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		// draw objects
+		physWorld->Update(dt);
+
+		// update and draw objects
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
+			world->vecGameObjects[i]->update(dt, totalTime);
+			world->vecGameObjects[i]->updateMatricis();
+
 			if (!world->vecGameObjects[i]->visible)
 				continue;
 			drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
@@ -720,7 +736,22 @@ int main()
 		// draw debug
 		if (cWorld::debugMode)
 		{
-			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), dt);
+			glm::mat4 mat(1.0f);
+			debugSphere->wireFrame = true;
+			debugSphere->scale = 2.0f;
+
+			ball1->GetTransform(mat);
+			debugSphere->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			debugSphere->setPosition(mat[3]);
+			debugSphere->updateMatricis();
+			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+
+			ball2->GetTransform(mat);
+			debugSphere->color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+			debugSphere->setPosition(mat[3]);
+			debugSphere->updateMatricis();
+			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			std::cout << std::to_string(mat[3]) << std::endl;
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
@@ -733,13 +764,13 @@ int main()
 
 			// 2. clear actual screen buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 			// 3. use the FBO colour texture as the texture on the quad
 			glActiveTexture(GL_TEXTURE0 + 40);
 			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
 			glUniform1f(pShader->getUniformLocID("passCount"), 2);
-		
+
 			// 4. draw a single object, (tri or quad)
 			triangle->setPosition(camera->position - camera->forward * -2.0f);
 			triangle->setOrientation(glm::quatLookAt(camera->forward, glm::normalize(glm::cross(camera->forward, camera->right))));
@@ -749,9 +780,31 @@ int main()
 
 		}
 
-		
 
 		glfwSwapBuffers(window); // Draws to screen
+
+		// window title
+		if (world->vecGameObjects.size() && world->vecLights.size())
+		{
+			std::ostringstream windowTitle;
+			windowTitle << std::fixed << std::setprecision(2)
+				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
+				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} ";
+
+			if (selectedObject < world->vecGameObjects.size())
+			{
+				windowTitle << "Obj[" << selectedObject << "]: \"" << world->vecGameObjects[selectedObject]->name << "\" ";
+			}
+			if (shift_pressed)
+			{
+				if (selectedLight < world->vecLights.size())
+				{
+					windowTitle << "Light[" << selectedLight << "]";
+				}
+			}
+			glfwSetWindowTitle(window, windowTitle.str().c_str());
+		}
+
 		world->doDeferredActions();
 	}
 
@@ -777,8 +830,15 @@ int main()
 		delete cWorld::pDebugRenderer;
 
 		delete debugSphere;
+		delete pPhysicsFactory;
+
+		if (hModule)
+		{
+			FreeLibrary(hModule);
+			hModule = NULL;
+		}
 	}
-	
+
 	return 0;
 }
 

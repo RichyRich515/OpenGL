@@ -6,7 +6,7 @@ nPhysics::cPhysicsWorld::cPhysicsWorld()
 {
 	world = new phys::cWorld();
 	// TODO: this someplace else
-	world->SetGravity(glm::vec3(0.0f, 9.8f, 0.0f));
+	world->SetGravity(glm::vec3(0.0f, -9.8f, 0.0f));
 }
 
 void nPhysics::cPhysicsWorld::Update(float dt)

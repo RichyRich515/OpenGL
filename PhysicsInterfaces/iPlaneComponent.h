@@ -16,7 +16,6 @@ namespace nPhysics
 	protected:
 		iPlaneComponent() : iPhysicsComponent(eComponentType::plane) {}
 	private:
-		iPlaneComponent() = delete;
 		iPlaneComponent(const iPlaneComponent& other) = delete;
 		iPlaneComponent& operator=(const iPlaneComponent& other) = delete;
 	};

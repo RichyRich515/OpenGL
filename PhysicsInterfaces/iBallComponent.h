@@ -19,7 +19,6 @@ namespace nPhysics
 	protected:
 		iBallComponent() : iPhysicsComponent(eComponentType::ball) {}
 	private:
-		iBallComponent() = delete;
 		iBallComponent(const iBallComponent& other) = delete;
 		iBallComponent& operator=(const iBallComponent& other) = delete;
 	};

@@ -29,7 +29,7 @@ namespace phys
 	void cWorld::Update(float dt)
 	{
 		// 1) If we have no bodies, there's nothing to do... return.
-		if (this->mBodies.size())
+		if (this->mBodies.size() == 0)
 			return;
 
 		this->mDt = dt;
@@ -37,6 +37,7 @@ namespace phys
 		// 2) Integrate each body.
 		for (cRigidBody* rb : this->mBodies)
 		{
+			rb->mAcceleration += this->mGravity;
 			this->IntegrateRigidBody(rb, dt);
 		}
 
@@ -152,18 +153,18 @@ namespace phys
 	{
 		float t = 0.0f;
 		glm::vec3 q(0.0f);
-		int result = nCollide::intersect_moving_sphere_plane(sphereBody->mPosition, sphereShape->GetRadius(), sphereBody->mVelocity, planeShape->GetNormal(), planeShape->GetConstant(), t, q);
+		int result = nCollide::intersect_moving_sphere_plane(sphereBody->mPosition, sphereShape->GetRadius(), sphereBody->mPosition - sphereBody->mPreviousPosition, planeShape->GetNormal(), planeShape->GetConstant(), t, q);
 
 		// case A: The sphere did not collide during the timestep.
 		//		Return false to indicate no collision happened.
-		if (result == -1)
+		if (result == 0)
 		{
 			return false;
 		}
 
 		// case B: The sphere was already colliding at the beginning of the timestep.
 		//		Do the timestep again for this sphere after applying an impulse that should separate it from the plane.
-		if (result == 0)
+		if (result == -1)
 		{
 			// 1) From our textbook, use closest_point_on_plane(..inputs..) to determine the 
 			//    penetration-depth of the sphere at the beginning of the timestep.
@@ -172,11 +173,11 @@ namespace phys
 			glm::vec3 closest_point = nCollide::closest_point_on_plane(sphereBody->mPosition, planeShape->GetNormal(), planeShape->GetConstant());
 
 			// 2) Use the sphere's center and the closest point on the plane to define the direction of our impulse vector.
-			glm::vec3 from_point_to_center = closest_point - sphereBody->mPosition;
-			glm::vec3 direction = glm::normalize(from_point_to_center);
+			glm::vec3 from_center_to_point = sphereBody->mPosition - closest_point;
+			glm::vec3 direction = glm::normalize(from_center_to_point);
 
 			// 3) Use (penetration-depth / DT) to define the magnitude of our impulse vector. (The impulse vector is now distance/time ...a velocity!)
-			float penetration_depth = sphereShape->GetRadius() - glm::length(from_point_to_center);
+			float penetration_depth = sphereShape->GetRadius() - glm::length(from_center_to_point);
 			glm::vec3 impulse = direction * penetration_depth / this->mDt; 
 
 			// 4) Apply the impulse vector to sphere velocity.
@@ -203,7 +204,8 @@ namespace phys
 			sphereBody->mVelocity = glm::reflect(sphereBody->mVelocity, planeShape->GetNormal());
 
 			// 3) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
-			// TODO: 
+			// TODO: THIS CORRECTLY, also store dampening value in rigidbody?
+ 			sphereBody->mVelocity *= 0.80f;
 
 			// 4) Re-integrate the sphere with its new velocity over the remaining portion of the timestep.
 			this->IntegrateRigidBody(sphereBody, this->mDt - time_to_collision);
