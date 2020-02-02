@@ -52,6 +52,7 @@ void cCacodemon::update(float dt, float tt)
 		if (bullets.size() > 0)
 		{
 			this->velocity += cSteeringFunctions::steerAvoid(pos, this->velocity, bullets, 2.5f, 5.0f, this->maxSpeed, dt);
+			this->color = glm::vec4(0.25f, 1.0f, 0.25f, 1.0f);
 		}
 		else
 		{
@@ -61,7 +62,7 @@ void cCacodemon::update(float dt, float tt)
 		break;
 	case eEnemyType::type_c:
 		shot_timer -= dt;
-		if (glm::distance(pos, cWorld::pCamera->position) <= 10.0f)
+		if (glm::distance(pos, cWorld::pCamera->position) <= 25.0f)
 		{
 			if (shot_timer <= 0.0f)
 			{
@@ -78,7 +79,7 @@ void cCacodemon::update(float dt, float tt)
 				bullet->lighting = false;
 				bullet->setOrientation(glm::quatLookAt(glm::normalize(bullet->velocity), glm::vec3(0.0f, 1.0f, 0.0f)));
 				bullet->color = glm::vec4(1.0f, 0.3f, 0.3f, 0.5f);
-				cWorld::getWorld()->vecGameObjects.push_back(bullet);
+				cWorld::getWorld()->deferredAddGameObject(bullet);
 				shot_timer = 6.0f;
 			}
 			this->velocity *= 0.0f;
@@ -139,9 +140,9 @@ void cCacodemon::update(float dt, float tt)
 		this->setPosition(pos);
 	}
 
-	if (glm::distance(pos, cWorld::pCamera->position) <= 2.5f)
+	if (glm::distance(pos, cWorld::pCamera->position) <= 1.0f)
 	{
-		// TODO: reset game
+		cWorld::getWorld()->message(sMessage("Reset"));
 	}
 	
 	float speed = glm::length(this->velocity);

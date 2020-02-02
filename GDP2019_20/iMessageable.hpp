@@ -6,8 +6,8 @@
 struct sMessage
 {
 public:
-	sMessage() : name("") { }
-	sMessage(std::string namestr) : name(namestr) { }
+	sMessage() : name("") { data.b = 0; }
+	sMessage(std::string namestr) : name(namestr) { data.b = 0; }
 	sMessage(std::string namestr, bool b) : name(namestr) { data.b = b; }
 	sMessage(std::string namestr, int i) : name(namestr) { data.i = i; }
 	sMessage(std::string namestr, float f) : name(namestr) { data.f = f; }

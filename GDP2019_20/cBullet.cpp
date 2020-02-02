@@ -10,11 +10,13 @@ void cBullet::update(float dt, float tt)
 	{
 		cWorld::getWorld()->deferredDeleteGameObject(this);
 	}
-	else if (from_enemy && glm::distance(pos, cWorld::pCamera->position) <= 0.5f)
+	else if (from_enemy && glm::distance(pos, cWorld::pCamera->position) <= 0.75f)
 	{
+		// Enemy bullet
+		cWorld::getWorld()->message(sMessage("Reset"));
 		std::cout << "dead" << std::endl;
 	}
-	else
+	else if (!from_enemy)
 	{
 		// player bullet
 		std::vector<cGameObject*> demons;

@@ -31,6 +31,8 @@ private:
 	float shot_timer = 0.0f;
 public:
 	cCacodemon(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
+	cCacodemon() {};
+	virtual ~cCacodemon() {};
 	virtual void init() override;
 	virtual void update(float dt, float tt) override;
 };

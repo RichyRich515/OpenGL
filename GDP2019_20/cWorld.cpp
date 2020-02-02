@@ -2,6 +2,8 @@
 #include "cCamera.hpp"
 
 #include <algorithm>
+#include <iostream>
+#include "cCacodemon.hpp"
 
 cWorld cWorld::_world;
 
@@ -21,6 +23,45 @@ sMessage cWorld::message(sMessage const& msg)
 			if (go->name == name)
 				vec->push_back(go);
 		}
+		return sMessage();
+	}
+	if (msg.name == "Reset")
+	{
+		for (cGameObject* go : vecGameObjects)
+		{
+			if (go->name == "demon" || go->name == "bullet")
+			{
+				deferredDeleteGameObject(go);
+			}
+			pCamera->position = glm::vec3(0.0f, 2.0f, 0.0f);
+			pCamera->yaw = 90.0f;
+			pCamera->pitch = 0.0f;
+		}
+
+		for (unsigned i = 0; i < 6; ++i)
+		{
+			cCacodemon* caco = new cCacodemon();
+			caco->name = "demon";
+			caco->meshName = "Cacodemon";
+			caco->textures[0].fileName = "Cacodemon.bmp";
+			caco->textures[0].blend = 1.0f;
+			caco->textures[0].tiling = 1.0f;
+			caco->textures[1].fileName = "Cacodemon_back.bmp";
+			caco->textures[1].blend = 0.0f;
+			caco->textures[1].tiling = 1.0f;
+			caco->textures[2].fileName = "Cacodemon_back_discard.bmp";
+			caco->textures[2].blend = 0.0f;
+			caco->textures[2].tiling = 1.0f;
+			caco->discardmap.fileName = "Cacodemon_discard.bmp";
+			caco->discardmap.blend = 0.5f;
+			caco->discardmap.tiling = 1.0f;
+			caco->scale = 2.0f;
+			caco->lighting = false;
+			caco->init();
+			this->deferredAddGameObject(caco);
+		}
+		std::cout << "Player died! Restarting" << std::endl;
+		return sMessage();
 	}
 	return sMessage();
 }

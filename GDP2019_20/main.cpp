@@ -47,6 +47,7 @@
 #include "cFBO.h"
 
 #include "cBullet.hpp"
+#include "cCacodemon.hpp"
 
 namespace std {
 
@@ -439,6 +440,8 @@ int main()
 
 	openSceneFromFile("scene1.json");
 
+	float demon_spawn_timer = 5.0f;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Timing
@@ -452,6 +455,33 @@ int main()
 
 			if (pKeyboardManager->keyDown('G'))
 				dt *= 10;
+
+			demon_spawn_timer -= dt;
+		}
+
+		if (demon_spawn_timer <= 0.0f)
+		{
+			demon_spawn_timer = 5.0f;
+
+			cCacodemon* caco = new cCacodemon();
+			caco->name = "demon";
+			caco->meshName = "Cacodemon";
+			caco->textures[0].fileName = "Cacodemon.bmp";
+			caco->textures[0].blend = 1.0f;
+			caco->textures[0].tiling = 1.0f;
+			caco->textures[1].fileName = "Cacodemon_back.bmp";
+			caco->textures[1].blend = 0.0f;
+			caco->textures[1].tiling = 1.0f;
+			caco->textures[2].fileName = "Cacodemon_back_discard.bmp";
+			caco->textures[2].blend = 0.0f;
+			caco->textures[2].tiling = 1.0f;
+			caco->discardmap.fileName = "Cacodemon_discard.bmp";
+			caco->discardmap.blend = 0.5f;
+			caco->discardmap.tiling = 1.0f;
+			caco->scale = 2.0f;
+			caco->lighting = false;
+			caco->init();
+			world->deferredAddGameObject(caco);
 		}
 
 		glfwPollEvents();
@@ -528,7 +558,7 @@ int main()
 				bullet->lighting = false;
 				bullet->setOrientation(glm::quatLookAt(camera->forward, glm::vec3(0.0f, 1.0f, 0.0f)));
 				bullet->color = glm::vec4(0.3f, 0.3f, 1.0f, 0.5f);
-				world->vecGameObjects.push_back(bullet);
+				world->deferredAddGameObject(bullet);
 			}
 		}
 
