@@ -106,8 +106,9 @@ namespace phys
 		if (body->IsStatic())
 			return;
 
-		// 2) Update the body's previous position.
+		// 2) Update the body's previous data.
 		body->mPreviousPosition = body->mPosition;
+		body->mPreviousVelocity = body->mVelocity;
 
 		// TODO: RK4
 		// 3) Do some integrating!
@@ -151,6 +152,7 @@ namespace phys
 
 	bool cWorld::CollideSpherePlane(cRigidBody* sphereBody, cSphere* sphereShape, cRigidBody* planeBody, cPlane* planeShape)
 	{
+		// From our textbook, REAL-TIME COLLISION DETECTION, ERICSON
 		float t = 0.0f;
 		glm::vec3 q(0.0f);
 		int result = nCollide::intersect_moving_sphere_plane(sphereBody->mPosition, sphereShape->GetRadius(), sphereBody->mPosition - sphereBody->mPreviousPosition, planeShape->GetNormal(), planeShape->GetConstant(), t, q);
@@ -173,18 +175,26 @@ namespace phys
 			glm::vec3 closest_point = nCollide::closest_point_on_plane(sphereBody->mPosition, planeShape->GetNormal(), planeShape->GetConstant());
 
 			// 2) Use the sphere's center and the closest point on the plane to define the direction of our impulse vector.
-			glm::vec3 from_center_to_point = sphereBody->mPosition - closest_point;
-			glm::vec3 direction = glm::normalize(from_center_to_point);
+			glm::vec3 from_point_to_center = sphereBody->mPosition - closest_point;
+			glm::vec3 direction = glm::normalize(from_point_to_center);
 
 			// 3) Use (penetration-depth / DT) to define the magnitude of our impulse vector. (The impulse vector is now distance/time ...a velocity!)
-			float penetration_depth = sphereShape->GetRadius() - glm::length(from_center_to_point);
-			glm::vec3 impulse = direction * penetration_depth / this->mDt; 
-
-			// 4) Apply the impulse vector to sphere velocity.
-			sphereBody->ApplyImpulse(impulse);
+			float penetration_depth = sphereShape->GetRadius() - glm::length(from_point_to_center);
+			glm::vec3 impulse = direction * penetration_depth / this->mDt;
 
 			// 5) Reset the sphere position.
 			sphereBody->mPosition = sphereBody->mPreviousPosition;
+			sphereBody->mVelocity = sphereBody->mPreviousVelocity;
+
+			// a) Reflect the sphere's velocity about the plane's normal vector.
+			sphereBody->mVelocity = glm::reflect(sphereBody->mVelocity, planeShape->GetNormal());
+
+			// b) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
+			// TODO: THIS CORRECTLY
+			sphereBody->mVelocity *= sphereBody->mElasticity;
+
+			// 4) Apply the impulse vector to sphere velocity.
+			sphereBody->ApplyImpulse(impulse);
 
 			// 6) Re-do the integration for the timestep.
 			this->IntegrateRigidBody(sphereBody, this->mDt);
@@ -197,15 +207,20 @@ namespace phys
 		//		Rewind to the point of impact, reflect, then replay.
 		if (result == 1)
 		{
+			sphereBody->mPosition = sphereBody->mPreviousPosition;
+			sphereBody->mVelocity = sphereBody->mPreviousVelocity;
+
 			// 1) Use the outputs from the Ericson function to determine and set the sphere position to the point of impact.
 			float time_to_collision = t * this->mDt;
+
+			this->IntegrateRigidBody(sphereBody, time_to_collision);
 
 			// 2) Reflect the sphere's velocity about the plane's normal vector.
 			sphereBody->mVelocity = glm::reflect(sphereBody->mVelocity, planeShape->GetNormal());
 
 			// 3) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
-			// TODO: THIS CORRECTLY, also store dampening value in rigidbody?
- 			sphereBody->mVelocity *= 0.80f;
+			// TODO: THIS CORRECTLY
+			sphereBody->mVelocity *= sphereBody->mElasticity;
 
 			// 4) Re-integrate the sphere with its new velocity over the remaining portion of the timestep.
 			this->IntegrateRigidBody(sphereBody, this->mDt - time_to_collision);
@@ -214,53 +229,108 @@ namespace phys
 			return true;
 		}
 
-		return false; 
+		return false;
 	}
 
 	bool cWorld::CollideSphereSphere(cRigidBody* bodyA, cSphere* shapeA, cRigidBody* bodyB, cSphere* shapeB)
 	{
-		// TODO:
-		// 
 		// From our textbook, REAL-TIME COLLISION DETECTION, ERICSON
-		// Use intersect_moving_sphere_sphere(...inputs...outputs...)
-		// to determine if:
-		// case A: The spheres don't collide during the timestep.
-		// case B: The spheres were already colliding at the beginning of the timestep.
-		// case C: The spheres collided during the timestep.
-		//
-		// case A: Return false to indicate no collision happened.
-		//
-		// case B: Do the timestep again for these spheres after
-		//         applying an impulse that should separate them.
-		// 
-		// 1) Determine the penetration-depth of the spheres at the beginning of the timestep.
-		//    (This penetration-depth is the distance the spheres must travel during
-		//    the timestep in order to separate.)
-		// 2) Use the sphere's centers to define the direction of our impulse vector.
-		// 3) Use (penetration-depth / DT) to define the magnitude of our impulse vector.
-		//    (The impulse vector is now distance/time ...a velocity!)
-		// 4) Apply a portion of the impulse vector to sphereA's velocity.
-		// 5) Apply a portion of the impulse vector to sphereB's velocity.
-		//    (Be sure to apply the impulse in opposing directions.)
-		// 6) Reset the spheres' positions.
-		// 7) Re-do the integration for the timestep.
-		// 8) Return true to indicate a collision has happened.
-		// 
-		// float c = 0.2f;
-		// float c = c1 * c2;
-		// bodyA->mVelocity = (c * mb * (vB - vA) + ma * vA + mb * vb) / mt;
-		// bodyB->mVelocity = (c * ma * (vA - vB) + mb * vB + ma * ma) / mt;
-		// 
-		// case C: 
-		//
-		// 1) Use the outputs from the Ericson function to determine
-		//    and set the spheres positions to the point of impact.
-		// 2) Use the inelastic collision response equations from
-		//    Wikepedia to set they're velocities post-impact.
-		// 3) Re-integrate the spheres with their new velocities
-		//    over the remaining portion of the timestep.
-		// 4) Return true to indicate a collision has happened.
+		float t = 0.0f;
+		int res = nCollide::intersect_moving_sphere_sphere(bodyA->mPosition, shapeA->GetRadius(), bodyA->mPosition - bodyA->mPreviousPosition, bodyB->mPosition, shapeB->GetRadius(), bodyB->mPosition - bodyB->mPreviousPosition, t);
 
-		return false; // placeholder
+		// case A: The spheres don't collide during the timestep.
+		//		Return false to indicate no collision happened.
+		if (res == 0)
+		{
+			return false;
+		}
+
+		// case B: The spheres were already colliding at the beginning of the timestep.
+		//		Do the timestep again for these spheres after applying an impulse that should separate them.
+		if (res == -1)
+		{
+			// 1) Determine the penetration-depth of the spheres at the beginning of the timestep.
+			//    (This penetration-depth is the distance the spheres must travel during
+			//    the timestep in order to separate.)
+			glm::vec3 from_centerA_to_centerB = bodyB->mPreviousPosition - bodyA->mPreviousPosition;
+			float distance = glm::length(from_centerA_to_centerB);
+
+			// 2) Use the sphere's centers to define the direction of our impulse vector.
+			glm::vec3 direction = glm::normalize(from_centerA_to_centerB);
+			
+			// 3) Use (penetration-depth / DT) to define the magnitude of our impulse vector.
+			//    (The impulse vector is now distance/time ...a velocity!)
+			float penetration_depth = shapeA->GetRadius() + shapeB->GetRadius() - distance;
+			glm::vec3 impulse = direction * penetration_depth / this->mDt;
+
+
+			// 6) Reset the spheres' positions.
+			bodyA->mPosition = bodyA->mPreviousPosition;
+			bodyA->mVelocity = bodyA->mPreviousVelocity;
+			bodyB->mPosition = bodyB->mPreviousPosition;
+			bodyB->mVelocity = bodyB->mPreviousVelocity;
+
+			//// 2) Use the inelastic collision response equations from Wikepedia to set they're velocities post-impact.
+			//float c = 0.50f;
+			/*float c = bodyA->mElasticity * bodyB->mElasticity;
+			float ma = bodyA->mMass;
+			float mb = bodyB->mMass;
+			float mt = ma + mb;
+			glm::vec3 vA = bodyA->mVelocity;
+			glm::vec3 vB = bodyB->mVelocity;
+
+			bodyA->mVelocity = (c * mb * (vB - vA) + ma * vA + mb * vB) / mt;
+			bodyB->mVelocity = (c * ma * (vA - vB) + mb * vB + ma * vA) / mt;*/
+
+
+			// 4) Apply a portion of the impulse vector to sphereA's velocity.
+			bodyA->ApplyImpulse(-impulse / 2.0f);
+
+			// 5) Apply a portion of the impulse vector to sphereB's velocity.
+			//    (Be sure to apply the impulse in opposing directions.)
+			bodyB->ApplyImpulse(impulse / 2.0f);
+
+			// 7) Re-do the integration for the timestep.
+			this->IntegrateRigidBody(bodyA, this->mDt);
+			this->IntegrateRigidBody(bodyB, this->mDt);
+
+			// 8) Return true to indicate a collision has happened.
+			return true;
+		}
+
+		// case C: The spheres collided during the timestep.
+		if (res == 1)
+		{
+			// 1) Use the outputs from the Ericson function to determine and set the spheres positions to the point of impact.
+			float time_to_collision = t * this->mDt;
+			bodyA->mPosition = bodyA->mPreviousPosition;
+			bodyA->mVelocity = bodyA->mPreviousVelocity;
+			bodyB->mPosition = bodyB->mPreviousPosition;
+			bodyB->mVelocity = bodyB->mPreviousVelocity;
+			this->IntegrateRigidBody(bodyA, time_to_collision);
+			this->IntegrateRigidBody(bodyB, time_to_collision);
+
+			// 2) Use the inelastic collision response equations from Wikepedia to set they're velocities post-impact.
+			//float c = 0.50f;
+			float c = bodyA->mElasticity * bodyB->mElasticity;
+			float ma = bodyA->mMass;
+			float mb = bodyB->mMass;
+			float mt = ma + mb;
+			glm::vec3 vA = bodyA->mVelocity;
+			glm::vec3 vB = bodyB->mVelocity;
+
+			bodyA->mVelocity = (c * mb * (vB - vA) + ma * vA + mb * vB) / mt;
+			bodyB->mVelocity = (c * ma * (vA - vB) + mb * vB + ma * vA) / mt;
+
+			// 3) Re-integrate the spheres with their new velocities over the remaining portion of the timestep.
+			float remaining_time = this->mDt - time_to_collision;
+			this->IntegrateRigidBody(bodyA, remaining_time);
+			this->IntegrateRigidBody(bodyB, remaining_time);
+
+			// 4) Return true to indicate a collision has happened.
+			return true;
+		}
+
+		return false;
 	}
 }

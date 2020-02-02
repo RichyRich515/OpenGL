@@ -10,6 +10,7 @@ namespace nPhysics
 		bodydef.Mass = def.Mass;
 		bodydef.Position = def.Position;
 		bodydef.Velocity = glm::vec3(0.0f);
+		bodydef.Elasticity = def.Elasticity;
 
 		this->body = new phys::cRigidBody(bodydef, this->shape);
 	}

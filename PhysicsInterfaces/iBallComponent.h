@@ -9,6 +9,7 @@ namespace nPhysics
 		float Mass;
 		float Radius;
 		glm::vec3 Position;
+		float Elasticity;
 	};
 
 	class iBallComponent : public iPhysicsComponent

@@ -466,18 +466,29 @@ int main()
 		pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
 	}
 
+	std::vector<nPhysics::iBallComponent*> balls;
 	auto physWorld = pPhysicsFactory->CreateWorld();
-	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f) };
-	auto ball1 = pPhysicsFactory->CreateBall(def);
+	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f), 0.75f };
+	for (unsigned i = 0; i < 100; ++i)
+	{
+		def.Position.z += (float)rand() / RAND_MAX * 0.5f - 0.25f;
+		def.Position.x += (float)rand() / RAND_MAX * 0.5f - 0.25f;
+		def.Position.y += 2.5f + (float)rand() / RAND_MAX * 0.5f - 0.25f;
+		balls.push_back(pPhysicsFactory->CreateBall(def));
+		physWorld->AddComponent(balls[i]);
+	}
 
-	def.Position.z += 10.0f;
-	def.Position.y += 5.0f;
-	auto ball2 = pPhysicsFactory->CreateBall(def);
-
-	physWorld->AddComponent(ball1);
-	physWorld->AddComponent(ball2);
 	glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 30.0f, 0.0f), n), n }));
+
+	n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(256.0f, 0.0f, 0.0f), n), n }));
+	n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-256.0f, 0.0f, 0.0f), n), n }));
+	n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 256.0f), n), n }));
+	n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -256.0f), n), n }));
 
 	cWorld::debugMode = true;
 	while (!glfwWindowShouldClose(window))
@@ -739,18 +750,16 @@ int main()
 			glm::mat4 mat(1.0f);
 			debugSphere->wireFrame = true;
 			debugSphere->scale = 2.0f;
-
-			ball1->GetTransform(mat);
 			debugSphere->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-			debugSphere->setPosition(mat[3]);
-			debugSphere->updateMatricis();
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
 
-			ball2->GetTransform(mat);
-			debugSphere->color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-			debugSphere->setPosition(mat[3]);
-			debugSphere->updateMatricis();
-			drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			for (auto b : balls)
+			{
+				b->GetTransform(mat);
+				debugSphere->setPosition(mat[3]);
+				debugSphere->updateMatricis();
+				drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			}
+			
 			std::cout << std::to_string(mat[3]) << std::endl;
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
@@ -830,6 +839,10 @@ int main()
 		delete cWorld::pDebugRenderer;
 
 		delete debugSphere;
+
+		for (auto b : balls)
+			delete b;
+		
 		delete pPhysicsFactory;
 
 		if (hModule)

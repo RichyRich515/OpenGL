@@ -13,7 +13,7 @@ namespace phys
 	{
 		// Default Constructor
 		// Initializes everything to 0
-		sRigidBodyDef(): Mass(0.0f), Position(glm::vec3(0.0f)), Velocity(glm::vec3(0.0f)) {}
+		sRigidBodyDef(): Mass(0.0f), Position(glm::vec3(0.0f)), Velocity(glm::vec3(0.0f)), Elasticity(0.0f) {}
 
 		// Must be set to a non-negative value.
 		// 0.0f will result in a static rigid body.
@@ -25,6 +25,9 @@ namespace phys
 
 		// The initial linear velocity of the rigid body.
 		glm::vec3 Velocity;
+
+		// How much it bounces off for a collision, 0 = no bounce, 1.0 = full bounce
+		float Elasticity; 
 	};
 
 	// cRigidBody
@@ -86,6 +89,9 @@ namespace phys
 		// Current linear velocity.
 		glm::vec3 mVelocity;
 
+		// During a timestep, the previous velocity is stored for collision related purposes.
+		glm::vec3 mPreviousVelocity;
+
 		// Current linear acceleration.
 		glm::vec3 mAcceleration;
 
@@ -96,6 +102,11 @@ namespace phys
 		// Stored for convenience.
 		// If mMass is 0, mInvMass will also be 0.
 		float mInvMass;
+
+
+		// Expected to be in range 0 to 1
+		// A value of 0 means no elasticity, 1 is full elasticity
+		float mElasticity;
 
 		// Constructors not to be used.
 		cRigidBody() = delete;

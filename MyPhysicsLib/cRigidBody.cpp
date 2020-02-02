@@ -8,8 +8,10 @@ namespace phys
 		mPreviousPosition(def.Position),
 		mPosition(def.Position),
 		mVelocity(def.Velocity),
+		mPreviousVelocity(def.Velocity),
 		mAcceleration(glm::vec3(0.0f)),
-		mMass(def.Mass)
+		mMass(def.Mass),
+		mElasticity(def.Elasticity)
 	{
 		if (this->mMass == 0.0f)
 		{
