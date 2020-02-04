@@ -18,9 +18,9 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 {
 	switch (component->GetComponentType())
 	{
-	case eComponentType::ball:
+	case ePhysicsComponentType::ball:
 		return this->world->AddRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
-	case eComponentType::plane:
+	case ePhysicsComponentType::plane:
 		return this->world->AddRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
 	default:
 		return false;
@@ -31,9 +31,9 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 {
 	switch (component->GetComponentType())
 	{
-	case eComponentType::ball:
+	case ePhysicsComponentType::ball:
 		return this->world->RemoveRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
-	case eComponentType::plane:
+	case ePhysicsComponentType::plane:
 		return this->world->RemoveRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
 	default:
 		return false;

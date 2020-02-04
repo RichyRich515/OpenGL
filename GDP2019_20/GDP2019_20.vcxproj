@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -163,6 +163,7 @@
     <ClCompile Include="cFBO.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
+    <ClCompile Include="cGraphicsComponent.cpp" />
     <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="DebugRenderer\cGLRenderStateHelper.cpp" />
     <ClCompile Include="DebugRenderer\COpenGLError.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="Lua\cLuaBrain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\json\jsoncpp.cpp" />
@@ -207,10 +209,11 @@
     <ClInclude Include="DebugRenderer\iDebugRenderer.h" />
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="cKeyboardManager.hpp" />
-    <ClInclude Include="iGraphicsComponent.hpp" />
+    <ClInclude Include="cGraphicsComponent.hpp" />
     <ClInclude Include="iMessageable.hpp" />
     <ClInclude Include="cWorld.hpp" />
     <ClInclude Include="cTexture.hpp" />
+    <ClInclude Include="JsonHelper.hpp" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />

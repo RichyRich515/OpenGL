@@ -19,8 +19,6 @@
 
 #include "cCommand.hpp"
 
-constexpr unsigned MAX_TEXTURES = 6;
-
 //enum class eCollisionShapeType
 //{
 //	NONE = 0,
@@ -71,10 +69,6 @@ public:
 	std::string name;
 	std::string type;
 
-	// TODO: pointers
-	cTexture textures[MAX_TEXTURES];
-	cTexture heightmap;
-	cTexture discardmap;
 
 	//std::string script_init_name;
 	//std::string script_update_name;
@@ -83,30 +77,22 @@ public:
 
 	//iCommand* command;
 
-	std::string meshName;
 	//cMesh* mesh;
-			
-	glm::mat4 matWorld;
-	glm::mat4 inverseTransposeMatWorld;
+
 
 private:
 	cGameObject* parent;
 	std::vector<cGameObject*> children;
 
+public:
 	glm::vec3 position;
 	glm::quat qOrientation;
 
-public:
 
 	//glm::vec3 velocity;
 	//glm::vec3 acceleration;
 
 	float scale;
-	glm::vec4 color;
-	glm::vec4 specular; // A IS SHINYNESS, 1 to 10000
-	bool wireFrame;
-	bool lighting;
-	bool visible;
 
 	//float inverseMass; // Set 0.0f to ignore during physics
 	//float bounciness; // Set 0.0f stop when hitting, Set to 1.0f maintain 100% of velocity

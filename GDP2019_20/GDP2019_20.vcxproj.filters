@@ -147,6 +147,12 @@
     <ClCompile Include="cFBO.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="cGraphicsComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonHelper.cpp">
+      <Filter>jsoncpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -230,11 +236,14 @@
     <ClInclude Include="cFBO.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="iGraphicsComponent.hpp">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="iComponent.hpp">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cGraphicsComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonHelper.hpp">
+      <Filter>jsoncpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

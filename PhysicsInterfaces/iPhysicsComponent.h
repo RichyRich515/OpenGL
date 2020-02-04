@@ -8,15 +8,15 @@ namespace nPhysics
 	{
 	public:
 		virtual ~iPhysicsComponent() {}
-		inline const eComponentType& GetComponentType() { return mComponentType; }
+		inline const ePhysicsComponentType& GetComponentType() { return mComponentType; }
 
 		virtual void GetTransform(glm::mat4& transformOut) = 0;
 
 	protected:
-		iPhysicsComponent(eComponentType componentType)
+		iPhysicsComponent(ePhysicsComponentType componentType)
 			: mComponentType(componentType) {}
 	private:
-		eComponentType mComponentType;
+		ePhysicsComponentType mComponentType;
 
 		// get rid of these!
 		iPhysicsComponent() = delete;
