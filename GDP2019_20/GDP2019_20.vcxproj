@@ -193,6 +193,7 @@
     <ClInclude Include="cParticle.hpp" />
     <ClInclude Include="cParticleEmitter.hpp" />
     <ClInclude Include="cCommand.hpp" />
+    <ClInclude Include="iComponent.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
     <ClInclude Include="cMesh.hpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="DebugRenderer\iDebugRenderer.h" />
     <ClInclude Include="GLCommon.h" />
     <ClInclude Include="cKeyboardManager.hpp" />
+    <ClInclude Include="iGraphicsComponent.hpp" />
     <ClInclude Include="iMessageable.hpp" />
     <ClInclude Include="cWorld.hpp" />
     <ClInclude Include="cTexture.hpp" />

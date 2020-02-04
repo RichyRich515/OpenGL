@@ -64,6 +64,9 @@
     <Filter Include="Camera">
       <UniqueIdentifier>{8ded9370-12ff-41f7-bfd2-c1fa5fdc03dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{cd73f0d3-57de-474b-8625-d00259498774}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -226,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="cFBO.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iGraphicsComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="iComponent.hpp">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

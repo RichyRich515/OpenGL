@@ -220,7 +220,7 @@ int cLuaBrain::l_SetObjectCommand(lua_State* L)
 		return 1;
 	}
 
-	go->command = (iCommand*)(long long)(lua_tonumber(L, 2));
+	//go->command = (iCommand*)(long long)(lua_tonumber(L, 2));
 
 	// Object ID is valid
 	lua_pushboolean(L, true);

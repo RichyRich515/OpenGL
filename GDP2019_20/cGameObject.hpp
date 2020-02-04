@@ -21,19 +21,19 @@
 
 constexpr unsigned MAX_TEXTURES = 6;
 
-enum class eCollisionShapeType
-{
-	NONE = 0,
-	AABB,
-	OBB,
-	SPHERE,
-	CAPSULE,
-	PLANE,
-	MESH,
-	POINT_LIST,
-	STATIC_MESH_AABBS,
-	UNKNOWN
-};
+//enum class eCollisionShapeType
+//{
+//	NONE = 0,
+//	AABB,
+//	OBB,
+//	SPHERE,
+//	CAPSULE,
+//	PLANE,
+//	MESH,
+//	POINT_LIST,
+//	STATIC_MESH_AABBS,
+//	UNKNOWN
+//};
 
 class cGameObject : public iMessageable
 {
@@ -46,7 +46,7 @@ public:
 
 	virtual void init();
 	virtual void update(float dt, float tt);
-	void physicsUpdate(float dt);
+	//void physicsUpdate(float dt);
 	virtual sMessage message(sMessage const& msg);
 
 	// Constructor will call this
@@ -70,20 +70,22 @@ public:
 	int id;
 	std::string name;
 	std::string type;
+
+	// TODO: pointers
 	cTexture textures[MAX_TEXTURES];
 	cTexture heightmap;
 	cTexture discardmap;
 
-	std::string script_init_name;
-	std::string script_update_name;
-	cLuaBrain* pScript_init;
-	cLuaBrain* pScript_update;
+	//std::string script_init_name;
+	//std::string script_update_name;
+	//cLuaBrain* pScript_init;
+	//cLuaBrain* pScript_update;
 
-	iCommand* command;
+	//iCommand* command;
 
 	std::string meshName;
-	cMesh* mesh;
-
+	//cMesh* mesh;
+			
 	glm::mat4 matWorld;
 	glm::mat4 inverseTransposeMatWorld;
 
@@ -96,8 +98,8 @@ private:
 
 public:
 
-	glm::vec3 velocity;
-	glm::vec3 acceleration;
+	//glm::vec3 velocity;
+	//glm::vec3 acceleration;
 
 	float scale;
 	glm::vec4 color;
@@ -106,25 +108,25 @@ public:
 	bool lighting;
 	bool visible;
 
-	float inverseMass; // Set 0.0f to ignore during physics
-	float bounciness; // Set 0.0f stop when hitting, Set to 1.0f maintain 100% of velocity
-	
-	// Transform the collision mesh by the world matrix
-	void calculateCollisionMeshTransformed();
+	//float inverseMass; // Set 0.0f to ignore during physics
+	//float bounciness; // Set 0.0f stop when hitting, Set to 1.0f maintain 100% of velocity
+	//
+	//// Transform the collision mesh by the world matrix
+	//void calculateCollisionMeshTransformed();
 
-	eCollisionShapeType collisionShapeType;
+	//eCollisionShapeType collisionShapeType;
 
-	typedef std::pair<glm::vec3, glm::vec3> AABBminmax;
-	typedef std::pair<cMesh*, cMesh*> MeshPair;
-	typedef std::vector<glm::vec3> PointsList;
+	//typedef std::pair<glm::vec3, glm::vec3> AABBminmax;
+	//typedef std::pair<cMesh*, cMesh*> MeshPair;
+	//typedef std::vector<glm::vec3> PointsList;
 
-	union uCollisionObjectInfo
-	{
-		AABBminmax* minmax; // For AABB
-		float radius; // For sphere
-		float height; // TODO: For capsule
-		glm::vec3 plane; // TODO: For plane
-		MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
-		PointsList* points;
-	} collisionObjectInfo;
+	//union uCollisionObjectInfo
+	//{
+	//	AABBminmax* minmax; // For AABB
+	//	float radius; // For sphere
+	//	float height; // TODO: For capsule
+	//	glm::vec3 plane; // TODO: For plane
+	//	MeshPair* meshes; // For mesh, first is original mesh, second is transformed mesh
+	//	PointsList* points;
+	//} collisionObjectInfo;
 };

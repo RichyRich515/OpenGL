@@ -180,7 +180,7 @@ namespace phys
 
 			// 3) Use (penetration-depth / DT) to define the magnitude of our impulse vector. (The impulse vector is now distance/time ...a velocity!)
 			float penetration_depth = sphereShape->GetRadius() - glm::length(from_point_to_center);
-			glm::vec3 impulse = direction * penetration_depth / this->mDt;
+			glm::vec3 impulse = direction * (penetration_depth / this->mDt);
 
 			// 5) Reset the sphere position.
 			sphereBody->mPosition = sphereBody->mPreviousPosition;
@@ -190,7 +190,8 @@ namespace phys
 			sphereBody->mVelocity = glm::reflect(sphereBody->mVelocity, planeShape->GetNormal());
 
 			// b) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
-			// TODO: THIS CORRECTLY
+			// TODO: THIS CORRECTLY?
+			//sphereBody->mVelocity += (1.0f - sphereBody->mElasticity) * glm::length(sphereBody->mVelocity) * -planeShape->GetNormal();
 			sphereBody->mVelocity *= sphereBody->mElasticity;
 
 			// 4) Apply the impulse vector to sphere velocity.
@@ -220,6 +221,7 @@ namespace phys
 
 			// 3) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
 			// TODO: THIS CORRECTLY
+			//sphereBody->mVelocity += (1.0f - sphereBody->mElasticity) * glm::length(sphereBody->mVelocity) * -planeShape->GetNormal();
 			sphereBody->mVelocity *= sphereBody->mElasticity;
 
 			// 4) Re-integrate the sphere with its new velocity over the remaining portion of the timestep.

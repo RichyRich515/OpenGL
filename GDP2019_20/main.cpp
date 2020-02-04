@@ -390,7 +390,6 @@ int main()
 
 	cGameObject* debugSphere = new cGameObject("debugsphere");
 	debugSphere->meshName = "sphere";
-	debugSphere->inverseMass = 0.0f;
 	debugSphere->wireFrame = true;
 	debugSphere->lighting = true;
 
@@ -469,11 +468,13 @@ int main()
 	std::vector<nPhysics::iBallComponent*> balls;
 	auto physWorld = pPhysicsFactory->CreateWorld();
 	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f), 0.75f };
-	for (unsigned i = 0; i < 100; ++i)
+	for (unsigned i = 0; i < 40; ++i)
 	{
-		def.Position.z += (float)rand() / RAND_MAX * 0.5f - 0.25f;
-		def.Position.x += (float)rand() / RAND_MAX * 0.5f - 0.25f;
-		def.Position.y += 2.5f + (float)rand() / RAND_MAX * 0.5f - 0.25f;
+		def.Position.x = -200.0f + (float)rand() / RAND_MAX * 5.0f;
+		def.Position.z = -50.0f + (float)rand() / RAND_MAX * 5.0f ;
+		def.Position.y += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
+		def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
+		def.Mass = def.Radius;
 		balls.push_back(pPhysicsFactory->CreateBall(def));
 		physWorld->AddComponent(balls[i]);
 	}
@@ -661,25 +662,27 @@ int main()
 			}
 		}
 
+		{ /* thanks Visual studio */ }
+
 		// shader uniforms
 		{
-			// FOV, aspect ratio, near clip, far clip
-			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
+		// FOV, aspect ratio, near clip, far clip
+		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+		v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 
-			glUseProgram(program);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(program);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
-			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
+		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
+		glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
+		glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
-			waterOffset.s += 0.1f * dt;
-			waterOffset.t += 0.017f * dt;
-			glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
+		waterOffset.s += 0.1f * dt;
+		waterOffset.t += 0.017f * dt;
+		glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
 		}
 
 		// draw Skybox
@@ -760,7 +763,7 @@ int main()
 				drawObject(debugSphere, program, pVAOManager, dt, totalTime);
 			}
 			
-			std::cout << std::to_string(mat[3]) << std::endl;
+			//std::cout << std::to_string(mat[3]) << std::endl;
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
