@@ -463,10 +463,17 @@ int main()
 		}
 		// make a Physics factory
 		pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
+		if (pPhysicsFactory == nullptr)
+		{
+			FreeLibrary(hModule);
+			return EXIT_FAILURE;
+		}
 	}
 
 	std::vector<nPhysics::iBallComponent*> balls;
 	auto physWorld = pPhysicsFactory->CreateWorld();
+	// TODO: check
+
 	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f), 0.75f };
 	for (unsigned i = 0; i < 40; ++i)
 	{
@@ -734,17 +741,28 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		physWorld->Update(dt);
-
-		// update and draw objects
+		
+		// update
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
-			world->vecGameObjects[i]->updateMatricis();
+			//world->vecGameObjects[i]->updateMatricis();
 
-			if (!world->vecGameObjects[i]->visible)
-				continue;
-			drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
+			//if (!world->vecGameObjects[i]->visible)
+			//	continue;
+			//drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
+		}
+
+		physWorld->Update(dt);
+
+		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		{
+			// go->pre
+		}
+		
+		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		{
+			// go->render
 		}
 
 		// draw debug

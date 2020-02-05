@@ -4,7 +4,9 @@ enum class eComponentType
 {
 	None = 0,
 	Graphics = 1,
-	Physics
+	Physics,
+	Transform,
+	Mesh
 };
 
 class iComponent

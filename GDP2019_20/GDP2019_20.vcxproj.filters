@@ -153,6 +153,12 @@
     <ClCompile Include="JsonHelper.cpp">
       <Filter>jsoncpp</Filter>
     </ClCompile>
+    <ClCompile Include="cTransformComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="cMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -244,6 +250,12 @@
     </ClInclude>
     <ClInclude Include="JsonHelper.hpp">
       <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="cTransformComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cMeshComponent.hpp">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

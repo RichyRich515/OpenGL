@@ -23,9 +23,6 @@ public:
 
 	std::string meshName;
 
-	glm::mat4 matWorld;
-	glm::mat4 inverseTransposeMatWorld;
-
 	glm::vec4 color;
 	glm::vec4 specular; // RGB is color A is shininess, from 1 to 10000+
 
@@ -33,7 +30,7 @@ public:
 	bool lighting;
 	bool wireFrame;
 
-	// TODO: pointers
+	// TODO: pointers?
 	cTexture textures[MAX_TEXTURES];
 	cTexture heightmap;
 	cTexture discardmap;

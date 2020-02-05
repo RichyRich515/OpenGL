@@ -166,10 +166,12 @@
     <ClCompile Include="cGraphicsComponent.cpp" />
     <ClCompile Include="cKeyboardManager.cpp" />
     <ClCompile Include="cLight.cpp" />
+    <ClCompile Include="cMeshComponent.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
     <ClCompile Include="cParticleEmitter.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
+    <ClCompile Include="cTransformComponent.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="cWorld.cpp" />
     <ClCompile Include="DebugRenderer\cDebugRenderer.cpp" />
@@ -192,9 +194,11 @@
     <ClInclude Include="cFBO.h" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
+    <ClInclude Include="cMeshComponent.hpp" />
     <ClInclude Include="cParticle.hpp" />
     <ClInclude Include="cParticleEmitter.hpp" />
     <ClInclude Include="cCommand.hpp" />
+    <ClInclude Include="cTransformComponent.hpp" />
     <ClInclude Include="iComponent.hpp" />
     <ClInclude Include="iGameObjectFactory.hpp" />
     <ClInclude Include="cLight.hpp" />
