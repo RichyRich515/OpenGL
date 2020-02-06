@@ -19,7 +19,6 @@
 
 #include <iPhysicsComponent.h>
 #include "iComponent.hpp"
-#include "cTransformComponent.hpp"
 #include "cGraphicsComponent.hpp"
 #include "cMeshComponent.hpp"
 
@@ -62,7 +61,6 @@ public:
 	Json::Value serializeJSONObject();
 	virtual void serializeUniqueVariables(Json::Value& obj);
 
-	cTransformComponent transform;
 	cMeshComponent mesh;
 	cGraphicsComponent graphics;
 	nPhysics::iPhysicsComponent* physics;

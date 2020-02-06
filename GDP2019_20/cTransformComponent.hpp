@@ -12,7 +12,9 @@ class cTransformComponent : public iComponent
 public:
 	// Inherited via iComponent
 	virtual void init() override;
+	virtual void preFrame() override;
 	virtual void update(float dt, float tt) override;
+	virtual void render() override;
 	virtual eComponentType getType() override;
 
 	glm::vec3 position;

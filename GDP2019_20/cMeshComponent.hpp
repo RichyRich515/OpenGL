@@ -10,15 +10,17 @@ class cMeshComponent : public iComponent
 public:
 	// Inherited via iComponent
 	virtual void init() override;
+	virtual void preFrame() override;
 	virtual void update(float dt, float tt) override;
+	virtual void render() override;
 	virtual eComponentType getType() override;
 
 	cMesh* mesh; // not necessary??
 	std::string meshName;
-	glm::mat4 matWorld;
-	glm::mat4 inverseTransposeMatWorld;
+	//glm::mat4 matWorld;
+	//glm::mat4 inverseTransposeMatWorld;
 
 	float scale;
 
-	void updateMatrices();
+	//void updateMatrices();
 };

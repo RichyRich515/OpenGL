@@ -7,11 +7,8 @@ cGraphicsComponent::cGraphicsComponent() :
 	lighting(false),
 	wireFrame(false),
 	color(glm::vec4(1.0f)),
-	specular(glm::vec4(1.0f)),
-	matWorld(glm::mat4(1.0f)),
-	inverseTransposeMatWorld(glm::mat4(1.0f))
+	specular(glm::vec4(1.0f))
 {
-
 }
 
 cGraphicsComponent::cGraphicsComponent(const Json::Value& obj)
@@ -22,23 +19,26 @@ cGraphicsComponent::cGraphicsComponent(const Json::Value& obj)
 	wireFrame = obj["wireFrame"] ? obj["wireFrame"].asBool() : false;
 	color = obj["color"] ? Json::toVec4(obj["color"]) : glm::vec4(1.0f);
 	specular = obj["specular"] ? Json::toVec4(obj["specular"]) : glm::vec4(1.0f);
-	matWorld = glm::mat4(1.0f);
-	inverseTransposeMatWorld = glm::mat4(1.0f);
 }
 
 cGraphicsComponent::~cGraphicsComponent()
 {
-
 }
 
 void cGraphicsComponent::init()
 {
+}
 
+void cGraphicsComponent::preFrame()
+{
 }
 
 void cGraphicsComponent::update(float dt, float tt)
 {
+}
 
+void cGraphicsComponent::render()
+{
 }
 
 eComponentType cGraphicsComponent::getType()

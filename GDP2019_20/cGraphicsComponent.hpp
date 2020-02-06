@@ -18,7 +18,9 @@ public:
 	virtual ~cGraphicsComponent();
 
 	virtual void init() override;
+	virtual void preFrame() override;
 	virtual void update(float dt, float tt) override;
+	virtual void render() override;
 	virtual eComponentType getType() override;
 
 	std::string meshName;

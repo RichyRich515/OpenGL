@@ -63,7 +63,15 @@ void cTransformComponent::init()
 {
 }
 
+void cTransformComponent::preFrame()
+{
+}
+
 void cTransformComponent::update(float dt, float tt)
+{
+}
+
+void cTransformComponent::render()
 {
 }
 
