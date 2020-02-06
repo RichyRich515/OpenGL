@@ -27,7 +27,6 @@
 #include "cCamera.hpp"
 #include "cMesh.hpp"
 #include "cModelLoader.hpp"
-#include "Texture/cBasicTextureManager.h"
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 #include "cGameObject.hpp"
@@ -880,116 +879,8 @@ int main()
 // Draw an object
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt)
 {
-	// Tie textures
-	{
-		GLuint texture_ul = pTextureManager->getTextureIDFromName(go->textures[0].fileName);
-		if (texture_ul)
-		{
-			glActiveTexture(GL_TEXTURE0 + 0);
-			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp00"), 0);
-			glUniform4f(pShader->getUniformLocID("textparams00"),
-				go->textures[0].xOffset,
-				go->textures[0].yOffset,
-				go->textures[0].blend,
-				go->textures[0].tiling);
-		}
-		else
-		{
-			glUniform4f(pShader->getUniformLocID("textparams00"), 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-		texture_ul = pTextureManager->getTextureIDFromName(go->textures[1].fileName);
-		if (texture_ul)
-		{
-			glActiveTexture(GL_TEXTURE0 + 1);
-			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp01"), 1);
-			glUniform4f(pShader->getUniformLocID("textparams01"),
-				go->textures[1].xOffset,
-				go->textures[1].yOffset,
-				go->textures[1].blend,
-				go->textures[1].tiling);
-		}
-		else
-		{
-			glUniform4f(pShader->getUniformLocID("textparams01"), 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-		texture_ul = pTextureManager->getTextureIDFromName(go->textures[2].fileName);
-		if (texture_ul)
-		{
-			glActiveTexture(GL_TEXTURE0 + 2);
-			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp02"), 2);
-			glUniform4f(pShader->getUniformLocID("textparams02"),
-				go->textures[2].xOffset,
-				go->textures[2].yOffset,
-				go->textures[2].blend,
-				go->textures[2].tiling);
-		}
-		else
-		{
-			glUniform4f(pShader->getUniformLocID("textparams02"), 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-		texture_ul = pTextureManager->getTextureIDFromName(go->textures[3].fileName);
-		if (texture_ul)
-		{
-			glActiveTexture(GL_TEXTURE0 + 3);
-			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp03"), 3);
-			glUniform4f(pShader->getUniformLocID("textparams03"),
-				go->textures[3].xOffset,
-				go->textures[3].yOffset,
-				go->textures[3].blend,
-				go->textures[3].tiling);
-		}
-		else
-		{
-			glUniform4f(pShader->getUniformLocID("textparams03"), 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-
-		// Height map
-		texture_ul = pTextureManager->getTextureIDFromName(go->heightmap.fileName);
-		if (texture_ul)
-		{
-			glActiveTexture(GL_TEXTURE0 + 40);
-			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("heightSamp"), 40);
-			glUniform4f(pShader->getUniformLocID("heightparams"),
-				go->heightmap.xOffset,
-				go->heightmap.yOffset,
-				go->heightmap.blend,
-				go->heightmap.tiling);
-		}
-		else
-		{
-			glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-
-		// discard map
-		texture_ul = pTextureManager->getTextureIDFromName(go->discardmap.fileName);
-		if (texture_ul)
-		{
-			glActiveTexture(GL_TEXTURE0 + 50);
-			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("discardSamp"), 50);
-			glUniform4f(pShader->getUniformLocID("discardparams"),
-				go->discardmap.xOffset,
-				go->discardmap.yOffset,
-				go->discardmap.blend,
-				go->discardmap.tiling);
-		}
-		else
-		{
-			glUniform4f(pShader->getUniformLocID("discardparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-
-	}
-
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
 	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
-	glUniform4f(pShader->getUniformLocID("diffuseColour"), go->color.r, go->color.g, go->color.b, go->color.a);
-	glUniform4f(pShader->getUniformLocID("specularColour"), go->specular.r, go->specular.g, go->specular.b, go->specular.a);
-	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, (float)go->lighting, 0.0f);
 	glUniform4f(pShader->getUniformLocID("params2"),
 		0.0f,
 		go->name == "terrain" ? 1.0f : 0.0f,

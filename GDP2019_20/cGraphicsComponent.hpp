@@ -6,6 +6,7 @@
 #include <json/json.h>
 #include "iComponent.hpp"
 #include "cTexture.hpp"
+#include "cShaderManager.hpp"
 
 
 class cGraphicsComponent : public iComponent
@@ -32,8 +33,15 @@ public:
 	bool lighting;
 	bool wireFrame;
 
+	// TODO: pass these in render???
+	float dt;
+	float tt;
+
+
 	// TODO: pointers?
 	cTexture textures[MAX_TEXTURES];
 	cTexture heightmap;
 	cTexture discardmap;
+
+	cShaderManager::cShaderProgram* pShader;
 };
