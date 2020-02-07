@@ -278,6 +278,7 @@ int main()
 
 	cModelLoader* pModelLoader = new cModelLoader();
 	cVAOManager* pVAOManager = new cVAOManager();
+	cVAOManager::setCurrentVAOManager(pVAOManager);
 	cShaderManager* pShaderManager = new cShaderManager();
 	GLuint view_loc = 0;
 	GLuint projection_loc = 0;
@@ -324,6 +325,8 @@ int main()
 
 		pShader = pShaderManager->pGetShaderProgramFromFriendlyName("shader01");
 
+
+		cShaderManager::setCurrentShader(pShader);
 		// NUB
 
 		const int NUB_NAME_BUFFERSIZE = 1000;
@@ -346,7 +349,6 @@ int main()
 				exit(EXIT_FAILURE);
 			}
 		}
-
 	}
 
 	// Load textures to shader
@@ -393,7 +395,7 @@ int main()
 	//debugSphere->meshName = "sphere";
 	//debugSphere->wireFrame = true;
 	//debugSphere->lighting = true;
-
+	//
 	//cGameObject* triangle = new cGameObject("triangle");
 	//triangle->meshName = "triangle";
 	//triangle->scale = 100.0f;
@@ -442,7 +444,6 @@ int main()
 
 		// for resizing
 		//fbo->reset();
-
 	}
 
 	cWorld::pDebugRenderer = new cDebugRenderer();
@@ -454,50 +455,83 @@ int main()
 	//openSceneFromFile("scene1.json");
 
 	// Load physics library
-	//HMODULE hModule = NULL;
-	//{
-	//	hModule = LoadLibraryA(physics_library_name);
-	//	if (!hModule)
-	//	{
-	//		std::cout << "Error loading " << physics_library_name << std::endl;
-	//		return EXIT_FAILURE;
-	//	}
-	//	// make a Physics factory
-	//	pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
-	//	if (pPhysicsFactory == nullptr)
-	//	{
-	//		FreeLibrary(hModule);
-	//		return EXIT_FAILURE;
-	//	}
-	//}
-	//
-	//std::vector<nPhysics::iBallComponent*> balls;
-	//auto physWorld = pPhysicsFactory->CreateWorld();
-	//// TODO: check
-	//
-	//nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f), 0.75f };
-	//for (unsigned i = 0; i < 40; ++i)
-	//{
-	//	def.Position.x = -200.0f + (float)rand() / RAND_MAX * 5.0f;
-	//	def.Position.z = -50.0f + (float)rand() / RAND_MAX * 5.0f ;
-	//	def.Position.y += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
-	//	def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
-	//	def.Mass = def.Radius;
-	//	balls.push_back(pPhysicsFactory->CreateBall(def));
-	//	physWorld->AddComponent(balls[i]);
-	//}
-	//
-	//glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 30.0f, 0.0f), n), n }));
-	//
-	//n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
-	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(256.0f, 0.0f, 0.0f), n), n }));
-	//n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
-	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-256.0f, 0.0f, 0.0f), n), n }));
-	//n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
-	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 256.0f), n), n }));
-	//n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
-	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -256.0f), n), n }));
+	HMODULE hModule = NULL;
+	{
+		hModule = LoadLibraryA(physics_library_name);
+		if (!hModule)
+		{
+			std::cout << "Error loading " << physics_library_name << std::endl;
+			return EXIT_FAILURE;
+		}
+		// make a Physics factory
+		pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
+		if (pPhysicsFactory == nullptr)
+		{
+			FreeLibrary(hModule);
+			return EXIT_FAILURE;
+		}
+	}
+	
+	std::vector<nPhysics::iPhysicsComponent*> balls;
+	auto physWorld = pPhysicsFactory->CreateWorld();
+	if (physWorld == nullptr)
+	{
+		FreeLibrary(hModule);
+		return EXIT_FAILURE;
+	}
+	
+	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(0.0f, 65.0f, 0.0f), 0.75f };
+	for (unsigned i = 0; i < 40; ++i)
+	{
+		def.Position.x = (float)rand() / RAND_MAX * 5.0f;
+		def.Position.z = (float)rand() / RAND_MAX * 5.0f ;
+		def.Position.y += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
+		def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
+		def.Mass = def.Radius;
+		nPhysics::iPhysicsComponent* physBall = pPhysicsFactory->CreateBall(def);
+		balls.push_back(physBall);
+
+		physWorld->AddComponent(physBall);
+
+		cGameObject* ball = new cGameObject();
+		ball->graphics.color = glm::vec4(1.0f, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0f);
+		ball->graphics.lighting = false;
+		ball->graphics.wireFrame = true;
+		ball->graphics.pShader = pShader;
+		
+		ball->mesh.meshName = "sphere";
+		ball->mesh.scale = def.Radius * 2;
+		ball->physics = physBall;
+
+		world->addGameObject(ball);
+	}
+	glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+	auto physPlane = pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 0.0f), n), n});
+	physWorld->AddComponent(physPlane);
+
+	cGameObject* plane = new cGameObject();
+	plane->graphics.color = glm::vec4(0.5f, 0.5f, 0.5f, 0.5f);
+	plane->graphics.lighting = true;
+	plane->graphics.wireFrame = false;
+	plane->graphics.pShader = pShader;
+	plane->graphics.textures[0].fileName = "sand.bmp";
+	plane->graphics.textures[0].blend = 1.0f;
+	plane->mesh.meshName = "plane";
+	plane->mesh.scale = 10.0f;
+	plane->physics = physPlane;
+	world->addGameObject(plane);
+	
+	n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(256.0f, 0.0f, 0.0f), n), n }));
+
+	n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-256.0f, 0.0f, 0.0f), n), n }));
+
+	n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 256.0f), n), n }));
+
+	n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -256.0f), n), n }));
 
 	cWorld::debugMode = true;
 	while (!glfwWindowShouldClose(window))
@@ -738,28 +772,28 @@ int main()
 		}
 
 		
-		//// update
-		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		//{
-		//	//world->vecGameObjects[i]->update(dt, totalTime);
-		//	//world->vecGameObjects[i]->updateMatricis();
-		//
-		//	//if (!world->vecGameObjects[i]->visible)
-		//	//	continue;
-		//	//drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
-		//}
-		//
-		////physWorld->Update(dt);
-		//
+		// update
+		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		{
+			world->vecGameObjects[i]->update(dt, totalTime);
+			//world->vecGameObjects[i]->updateMatricis();
+		
+			//if (!world->vecGameObjects[i]->visible)
+			//	continue;
+			//drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
+		}
+		
+		physWorld->Update(dt);
+		
 		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		//{
 		//	// go->pre
 		//}
 		//
-		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		//{
-		//	// go->render
-		//}
+		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		{
+			world->vecGameObjects[i]->render();
+		}
 
 		// draw debug
 		if (cWorld::debugMode)

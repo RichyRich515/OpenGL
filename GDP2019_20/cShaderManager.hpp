@@ -67,7 +67,13 @@ public:
 	// Clears last error
 	std::string getLastError();
 
+
+	static void setCurrentShader(cShaderProgram* s) { current_shader = s; }
+	static cShaderProgram* getCurrentShader() { return current_shader; }
 private:
+
+	static cShaderProgram* current_shader;
+
 	// Returns an empty string if it didn't work
 	bool m_loadSourceFromFile(cShader& shader);
 	std::string m_basepath;

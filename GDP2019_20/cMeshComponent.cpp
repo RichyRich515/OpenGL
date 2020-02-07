@@ -1,5 +1,7 @@
 #include "cMeshComponent.hpp"
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include "cShaderManager.hpp"
+#include "cVAOManager.hpp"
 
 void cMeshComponent::init()
 {
@@ -29,4 +31,13 @@ void cMeshComponent::preFrame()
 
 void cMeshComponent::render()
 {
+	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
+
+	sModelDrawInfo drawInfo;
+	if (cVAOManager::getCurrentVAOManager()->FindDrawInfoByModelName(meshName, drawInfo))
+	{
+		glBindVertexArray(drawInfo.VAO_ID);
+		glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
 }

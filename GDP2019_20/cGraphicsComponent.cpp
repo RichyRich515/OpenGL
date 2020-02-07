@@ -4,7 +4,6 @@
 #include "Texture/cBasicTextureManager.h"
 
 cGraphicsComponent::cGraphicsComponent() :
-	meshName(""),
 	visible(true),
 	lighting(false),
 	wireFrame(false),
@@ -15,7 +14,6 @@ cGraphicsComponent::cGraphicsComponent() :
 
 cGraphicsComponent::cGraphicsComponent(const Json::Value& obj)
 {
-	meshName = obj["meshName"] ? obj["meshName"].asString() : "";
 	visible = obj["visible"] ? obj["visible"].asBool() : true;
 	lighting = obj["lighting"] ? obj["lighting"].asBool() : false;
 	wireFrame = obj["wireFrame"] ? obj["wireFrame"].asBool() : false;
@@ -43,6 +41,8 @@ void cGraphicsComponent::update(float dt, float tt)
 
 void cGraphicsComponent::render()
 {
+	// TODO: move this to the game object?
+	cShaderManager::setCurrentShader(this->pShader);
 	// Tie textures
 	{
 		cBasicTextureManager* pTextureManager = cBasicTextureManager::getTextureManager();

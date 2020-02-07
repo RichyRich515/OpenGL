@@ -54,7 +54,12 @@ public:
 
 	std::string getLastError(bool bAndClear = true);
 
+
+	static void setCurrentVAOManager(cVAOManager* v) { currentVAO = v; }
+	static cVAOManager* getCurrentVAOManager() { return currentVAO; }
+
 private:
+	static cVAOManager* currentVAO;
 
 	std::map<std::string, sModelDrawInfo> m_map_ModelName_to_VAOID;
 };

@@ -19,6 +19,7 @@ cShaderManager::~cShaderManager()
 	return;
 }
 
+cShaderManager::cShaderProgram* cShaderManager::current_shader = nullptr;
 
 bool cShaderManager::useShaderProgram(unsigned int ID)
 {
@@ -55,8 +56,7 @@ unsigned int cShaderManager::getIDFromFriendlyName(std::string friendlyName)
 	return itShad->second;
 }
 
-cShaderManager::cShaderProgram*
-cShaderManager::pGetShaderProgramFromFriendlyName(std::string friendlyName)
+cShaderManager::cShaderProgram* cShaderManager::pGetShaderProgramFromFriendlyName(std::string friendlyName)
 {
 	unsigned int shaderID = this->getIDFromFriendlyName(friendlyName);
 

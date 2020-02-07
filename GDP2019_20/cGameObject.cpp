@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "GLCommon.h"
+#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 cGameObject::cGameObject()
 {
@@ -296,16 +297,16 @@ Json::Value cGameObject::serializeJSONObject()
 
 	//if (textured)
 	//	obj["texture"] = text;
-
+	//
 	//obj["meshName"] = this->meshName;
-
+	//
 	//bool bpos = position.x || position.y || position.z;
 	////bool bvel = velocity.x || velocity.y || velocity.z;
 	////bool bacl = acceleration.x || acceleration.y || acceleration.z;
 	//bool bcol = color.r || color.g || color.b || color.a;
 	//bool bspc = specular.r || specular.g || specular.b || specular.a;
 	//bool bori = qOrientation.x || qOrientation.y || qOrientation.z || qOrientation.w;
-
+	//
 	//// write vec3s
 	//for (unsigned j = 0; j < 3; ++j)
 	//{
@@ -512,15 +513,17 @@ void cGameObject::preFrame()
 
 void cGameObject::render()
 {
-	glm::mat4x4 m(1.0f);
+	glm::mat4 m(1.0f);
 	this->physics->GetTransform(m);
-	//glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
-	//glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
-	//glUniform4f(pShader->getUniformLocID("params2"),
-	//	0.0f,
-	//	go->name == "terrain" ? 1.0f : 0.0f,
-	//	go->name == "ocean" || go->name == "sand_floor" ? 1.0f : 0.0f,
-	//	0.0f);
+	m *= glm::scale(glm::mat4(1.0), glm::vec3(mesh.scale));
+	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
+	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
+	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(m))));
+	glUniform4f(pShader->getUniformLocID("params2"),
+		0.0f,
+		this->name == "terrain" ? 1.0f : 0.0f,
+		this->name == "ocean" || this->name == "sand_floor" ? 1.0f : 0.0f,
+		0.0f);
 
 	this->graphics.render();
 	this->mesh.render();

@@ -24,8 +24,6 @@ public:
 	virtual void render() override;
 	virtual eComponentType getType() override;
 
-	std::string meshName;
-
 	glm::vec4 color;
 	glm::vec4 specular; // RGB is color A is shininess, from 1 to 10000+
 

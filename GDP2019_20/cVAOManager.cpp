@@ -8,6 +8,8 @@
 #include <vector>
 #include <sstream>
 
+cVAOManager* cVAOManager::currentVAO;
+
 sModelDrawInfo::sModelDrawInfo()
 {
 	this->VAO_ID = 0;
