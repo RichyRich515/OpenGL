@@ -153,6 +153,19 @@ void cGraphicsComponent::render()
 	glUniform4f(pShader->getUniformLocID("diffuseColour"), this->color.r, this->color.g, this->color.b, this->color.a);
 	glUniform4f(pShader->getUniformLocID("specularColour"), this->specular.r, this->specular.g, this->specular.b, this->specular.a);
 	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, (float)this->lighting, 0.0f);
+
+	if (this->wireFrame)
+	{
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		// glCullFace
+		//glEnable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 }
 
 eComponentType cGraphicsComponent::getType()

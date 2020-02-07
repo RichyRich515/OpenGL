@@ -36,7 +36,7 @@
 //	UNKNOWN
 //};
 
-class cGameObject : public iMessageable
+class cGameObject : public iMessageable, public iComponent
 {
 public:
 	unsigned id;
@@ -49,8 +49,14 @@ public:
 	cGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
 	virtual ~cGameObject();
 
+	virtual eComponentType getType() override;
+
 	virtual void init();
+
+	virtual void preFrame() override;
 	virtual void update(float dt, float tt);
+	virtual void render() override;
+
 	//void physicsUpdate(float dt);
 	virtual sMessage message(sMessage const& msg);
 
@@ -65,6 +71,7 @@ public:
 	cGraphicsComponent graphics;
 	nPhysics::iPhysicsComponent* physics;
 	
+
 	//std::string script_init_name;
 	//std::string script_update_name;
 	//cLuaBrain* pScript_init;

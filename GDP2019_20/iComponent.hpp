@@ -3,7 +3,8 @@
 enum class eComponentType
 {
 	None = 0,
-	Graphics = 1,
+	GameObject,
+	Graphics,
 	Physics,
 	Transform,
 	Mesh

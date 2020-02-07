@@ -67,6 +67,9 @@
     <Filter Include="Components">
       <UniqueIdentifier>{cd73f0d3-57de-474b-8625-d00259498774}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{c8296e07-0d4e-400a-96ba-25ba4d7014e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -79,12 +82,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cVAOManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cShaderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\json\jsoncpp.cpp">
@@ -159,6 +156,15 @@
     <ClCompile Include="cMeshComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="iEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cShaderManager.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="cShader.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -171,9 +177,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GLCommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cShaderManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cGameObject.hpp">
@@ -256,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="cMeshComponent.hpp">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cShaderManager.hpp">
+      <Filter>Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

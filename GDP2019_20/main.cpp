@@ -879,26 +879,9 @@ int main()
 // Draw an object
 void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt)
 {
-	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
-	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
-	glUniform4f(pShader->getUniformLocID("params2"),
-		0.0f,
-		go->name == "terrain" ? 1.0f : 0.0f,
-		go->name == "ocean" || go->name == "sand_floor" ? 1.0f : 0.0f,
-		0.0f);
 
-	if (go->wireFrame)
-	{
-		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-	else
-	{
-		// glCullFace
-		//glEnable(GL_CULL_FACE);
-		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
+
+
 
 	sModelDrawInfo drawInfo;
 	if (pVAOManager->FindDrawInfoByModelName(go->meshName, drawInfo))
