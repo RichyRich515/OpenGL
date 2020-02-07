@@ -105,7 +105,7 @@ constexpr unsigned MAX_LIGHTS = 20;
 cWorld* world = cWorld::getWorld();
 
 glm::vec3 gravity;
-glm::vec4 ambience;
+glm::vec4 ambience = glm::vec4(0.25f);
 
 
 void writeSceneToFile(std::string filename)
@@ -250,6 +250,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main()
 {
+	srand(time(NULL));
 	GLFWwindow* window;
 
 	// GLFW setup
@@ -353,7 +354,7 @@ int main()
 
 	// Load textures to shader
 	{
-		pTextureManager = new cBasicTextureManager();
+		pTextureManager = cBasicTextureManager::getTextureManager();
 		pTextureManager->SetBasePath("assets/textures");
 
 		std::ifstream texturesjson("assets/textures.json");
@@ -481,7 +482,7 @@ int main()
 	}
 	
 	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(0.0f, 65.0f, 0.0f), 0.75f };
-	for (unsigned i = 0; i < 40; ++i)
+	for (unsigned i = 0; i < 30; ++i)
 	{
 		def.Position.x = (float)rand() / RAND_MAX * 5.0f;
 		def.Position.z = (float)rand() / RAND_MAX * 5.0f ;
@@ -494,9 +495,9 @@ int main()
 		physWorld->AddComponent(physBall);
 
 		cGameObject* ball = new cGameObject();
-		ball->graphics.color = glm::vec4(1.0f, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0f);
-		ball->graphics.lighting = false;
-		ball->graphics.wireFrame = true;
+		ball->graphics.color = glm::vec4(1.0f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 0.5f  + (float)rand() / RAND_MAX - 0.5f, 1.0f);
+		ball->graphics.lighting = true;
+		ball->graphics.wireFrame = false;
 		ball->graphics.pShader = pShader;
 		
 		ball->mesh.meshName = "sphere";
@@ -510,30 +511,60 @@ int main()
 	physWorld->AddComponent(physPlane);
 
 	cGameObject* plane = new cGameObject();
-	plane->graphics.color = glm::vec4(0.5f, 0.5f, 0.5f, 0.5f);
+	plane->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	plane->graphics.specular = glm::vec4(1.0f);
 	plane->graphics.lighting = true;
 	plane->graphics.wireFrame = false;
 	plane->graphics.pShader = pShader;
 	plane->graphics.textures[0].fileName = "sand.bmp";
 	plane->graphics.textures[0].blend = 1.0f;
+	plane->graphics.textures[0].tiling = 4.0f;
+	plane->graphics.textures[0].xOffset = 0.0f;
+	plane->graphics.textures[0].yOffset = 0.0f;
 	plane->mesh.meshName = "plane";
-	plane->mesh.scale = 10.0f;
+	plane->name = "plane";
+	plane->id = 1;
+	plane->mesh.scale = 0.5f;
 	plane->physics = physPlane;
 	world->addGameObject(plane);
-	
+
 	n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(256.0f, 0.0f, 0.0f), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(128.0f * plane->mesh.scale, 0.0f, 0.0f), n), n }));
 
 	n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-256.0f, 0.0f, 0.0f), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-128.0f * plane->mesh.scale, 0.0f, 0.0f), n), n }));
 
 	n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 256.0f), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 128.0f * plane->mesh.scale), n), n }));
 
 	n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -256.0f), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -128.0f * plane->mesh.scale), n), n }));
 
-	cWorld::debugMode = true;
+
+
+	glUseProgram(pShader->ID);
+	world->vecLights.push_back(new cLight(0, pShader->ID));
+	world->vecLights[0]->position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	world->vecLights[0]->atten = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	world->vecLights[0]->diffuse = glm::vec4(0.85);
+	world->vecLights[0]->specular = glm::vec4(0.0f);
+	world->vecLights[0]->direction = glm::vec4(1.0, -1.0, -0.5, 1.0);
+	world->vecLights[0]->param1 = glm::vec4(2.0f, 0.0f, 0.0f, 0.0f);
+	world->vecLights[0]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	world->vecLights[0]->updateShaderUniforms();
+
+	world->vecLights.push_back(new cLight(1, pShader->ID));
+	world->vecLights[1]->position = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	world->vecLights[1]->atten = glm::vec4(0.0f, 0.1f, 0.0f, 10000.0f);
+	world->vecLights[1]->diffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	world->vecLights[1]->specular = glm::vec4(0.0f);
+	world->vecLights[1]->direction = glm::vec4(0.0f);
+	world->vecLights[1]->param1 = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	world->vecLights[1]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	world->vecLights[1]->updateShaderUniforms();
+
+
+	//cWorld::debugMode = true;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Timing
@@ -936,7 +967,7 @@ int main()
 		delete pModelLoader;
 		delete pVAOManager;
 		delete pKeyboardManager;
-		delete pTextureManager;
+		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
 
 		delete fbo;

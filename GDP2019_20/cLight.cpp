@@ -7,23 +7,15 @@ cLight::cLight()
 	this->param2.x = 0; // Disabled
 }
 
+cLight::cLight(unsigned i, GLuint program)
+{
+	initShaderUniforms(i, program);
+	updateShaderUniforms();
+}
+
 cLight::cLight(unsigned i, Json::Value obj, GLuint program)
 {
-	char buffer[MAX_BUFFER];
-	sprintf_s(buffer, "lights[%d].%s", i, "position");
-	this->position_loc = glGetUniformLocation(program, buffer);
-	sprintf_s(buffer, "lights[%d].%s", i, "diffuse");
-	this->diffuse_loc =	glGetUniformLocation(program, buffer);
-	sprintf_s(buffer, "lights[%d].%s", i, "specular");
-	this->specular_loc = glGetUniformLocation(program, buffer);
-	sprintf_s(buffer, "lights[%d].%s", i, "atten");
-	this->atten_loc = glGetUniformLocation(program, buffer);
-	sprintf_s(buffer, "lights[%d].%s", i, "direction");
-	this->direction_loc = glGetUniformLocation(program, buffer);
-	sprintf_s(buffer, "lights[%d].%s", i, "param1");
-	this->param1_loc = glGetUniformLocation(program, buffer);
-	sprintf_s(buffer, "lights[%d].%s", i, "param2");
-	this->param2_loc = glGetUniformLocation(program, buffer);
+	initShaderUniforms(i, program);
 
 	for (unsigned j = 0; j < 4; ++j) // length of vec4
 	{
@@ -55,6 +47,25 @@ Json::Value cLight::serializeJSONObject()
 	}
 
 	return obj;
+}
+
+void cLight::initShaderUniforms(unsigned i, GLuint program)
+{
+	char buffer[MAX_BUFFER];
+	sprintf_s(buffer, "lights[%d].%s", i, "position");
+	this->position_loc = glGetUniformLocation(program, buffer);
+	sprintf_s(buffer, "lights[%d].%s", i, "diffuse");
+	this->diffuse_loc = glGetUniformLocation(program, buffer);
+	sprintf_s(buffer, "lights[%d].%s", i, "specular");
+	this->specular_loc = glGetUniformLocation(program, buffer);
+	sprintf_s(buffer, "lights[%d].%s", i, "atten");
+	this->atten_loc = glGetUniformLocation(program, buffer);
+	sprintf_s(buffer, "lights[%d].%s", i, "direction");
+	this->direction_loc = glGetUniformLocation(program, buffer);
+	sprintf_s(buffer, "lights[%d].%s", i, "param1");
+	this->param1_loc = glGetUniformLocation(program, buffer);
+	sprintf_s(buffer, "lights[%d].%s", i, "param2");
+	this->param2_loc = glGetUniformLocation(program, buffer);
 }
 
 void cLight::updateShaderUniforms()

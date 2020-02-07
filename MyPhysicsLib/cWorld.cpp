@@ -1,6 +1,7 @@
 #include "cWorld.h"    // My header
 #include "nCollide.h"  // collision detection functions from
 // REAL-TIME COLLISION DETECTION, ERICSON
+#include <glm/gtx/projection.hpp>
 
 namespace phys
 {
@@ -186,14 +187,6 @@ namespace phys
 			sphereBody->mPosition = sphereBody->mPreviousPosition;
 			sphereBody->mVelocity = sphereBody->mPreviousVelocity;
 
-			// a) Reflect the sphere's velocity about the plane's normal vector.
-			sphereBody->mVelocity = glm::reflect(sphereBody->mVelocity, planeShape->GetNormal());
-
-			// b) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
-			// TODO: THIS CORRECTLY?
-			//sphereBody->mVelocity += (1.0f - sphereBody->mElasticity) * glm::length(sphereBody->mVelocity) * -planeShape->GetNormal();
-			sphereBody->mVelocity *= sphereBody->mElasticity;
-
 			// 4) Apply the impulse vector to sphere velocity.
 			sphereBody->ApplyImpulse(impulse);
 
@@ -221,8 +214,15 @@ namespace phys
 
 			// 3) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
 			// TODO: THIS CORRECTLY
-			//sphereBody->mVelocity += (1.0f - sphereBody->mElasticity) * glm::length(sphereBody->mVelocity) * -planeShape->GetNormal();
-			sphereBody->mVelocity *= sphereBody->mElasticity;
+			glm::vec3 projected = glm::proj(sphereBody->mVelocity, planeShape->GetNormal());
+			if (glm::dot(projected, sphereBody->mVelocity) > 0.0f)
+			{
+				sphereBody->mVelocity -= projected * (1.0f - sphereBody->mElasticity);
+			}
+			else
+			{
+				// TODO: idk
+			}
 
 			// 4) Re-integrate the sphere with its new velocity over the remaining portion of the timestep.
 			this->IntegrateRigidBody(sphereBody, this->mDt - time_to_collision);
@@ -271,19 +271,6 @@ namespace phys
 			bodyA->mVelocity = bodyA->mPreviousVelocity;
 			bodyB->mPosition = bodyB->mPreviousPosition;
 			bodyB->mVelocity = bodyB->mPreviousVelocity;
-
-			//// 2) Use the inelastic collision response equations from Wikepedia to set they're velocities post-impact.
-			//float c = 0.50f;
-			/*float c = bodyA->mElasticity * bodyB->mElasticity;
-			float ma = bodyA->mMass;
-			float mb = bodyB->mMass;
-			float mt = ma + mb;
-			glm::vec3 vA = bodyA->mVelocity;
-			glm::vec3 vB = bodyB->mVelocity;
-
-			bodyA->mVelocity = (c * mb * (vB - vA) + ma * vA + mb * vB) / mt;
-			bodyB->mVelocity = (c * ma * (vA - vB) + mb * vB + ma * vA) / mt;*/
-
 
 			// 4) Apply a portion of the impulse vector to sphereA's velocity.
 			bodyA->ApplyImpulse(-impulse / 2.0f);

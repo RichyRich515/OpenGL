@@ -12,12 +12,14 @@ class cLight
 {
 public:
 	cLight();
+	cLight(unsigned i, GLuint program);
 	cLight(unsigned i, Json::Value obj, GLuint program);
 	~cLight() {}
 
 	Json::Value serializeJSONObject();
 
 	void updateShaderUniforms();
+	void initShaderUniforms(unsigned i, GLuint program);
 
 	glm::vec4 position;
 	glm::vec4 diffuse;
