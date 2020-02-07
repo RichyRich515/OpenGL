@@ -49,6 +49,7 @@
 
 
 #include <Windows.h>
+#include "Texture/cBasicTextureManager.h"
 
 constexpr char physics_interface_factory_func_name[] = "MakePhysicsFactory";
 typedef nPhysics::iPhysicsFactory* (func_createPhysicsFactory)();
@@ -75,7 +76,8 @@ static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
-void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt);
+
+//void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt);
 
 constexpr float MAX_DELTA_TIME = 0.017f;
 
@@ -387,14 +389,14 @@ int main()
 		}
 	}
 
-	cGameObject* debugSphere = new cGameObject("debugsphere");
-	debugSphere->meshName = "sphere";
-	debugSphere->wireFrame = true;
-	debugSphere->lighting = true;
+	//cGameObject* debugSphere = new cGameObject("debugsphere");
+	//debugSphere->meshName = "sphere";
+	//debugSphere->wireFrame = true;
+	//debugSphere->lighting = true;
 
-	cGameObject* triangle = new cGameObject("triangle");
-	triangle->meshName = "triangle";
-	triangle->scale = 100.0f;
+	//cGameObject* triangle = new cGameObject("triangle");
+	//triangle->meshName = "triangle";
+	//triangle->scale = 100.0f;
 
 	float ratio;
 	int width, height;
@@ -449,53 +451,53 @@ int main()
 	pKeyboardManager = new cKeyboardManager();
 	camera = new cCamera();
 	
-	openSceneFromFile("scene1.json");
+	//openSceneFromFile("scene1.json");
 
 	// Load physics library
-	HMODULE hModule = NULL;
-	{
-		hModule = LoadLibraryA(physics_library_name);
-		if (!hModule)
-		{
-			std::cout << "Error loading " << physics_library_name << std::endl;
-			return EXIT_FAILURE;
-		}
-		// make a Physics factory
-		pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
-		if (pPhysicsFactory == nullptr)
-		{
-			FreeLibrary(hModule);
-			return EXIT_FAILURE;
-		}
-	}
-
-	std::vector<nPhysics::iBallComponent*> balls;
-	auto physWorld = pPhysicsFactory->CreateWorld();
-	// TODO: check
-
-	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f), 0.75f };
-	for (unsigned i = 0; i < 40; ++i)
-	{
-		def.Position.x = -200.0f + (float)rand() / RAND_MAX * 5.0f;
-		def.Position.z = -50.0f + (float)rand() / RAND_MAX * 5.0f ;
-		def.Position.y += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
-		def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
-		def.Mass = def.Radius;
-		balls.push_back(pPhysicsFactory->CreateBall(def));
-		physWorld->AddComponent(balls[i]);
-	}
-
-	glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 30.0f, 0.0f), n), n }));
-
-	n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(256.0f, 0.0f, 0.0f), n), n }));
-	n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-256.0f, 0.0f, 0.0f), n), n }));
-	n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 256.0f), n), n }));
-	n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -256.0f), n), n }));
+	//HMODULE hModule = NULL;
+	//{
+	//	hModule = LoadLibraryA(physics_library_name);
+	//	if (!hModule)
+	//	{
+	//		std::cout << "Error loading " << physics_library_name << std::endl;
+	//		return EXIT_FAILURE;
+	//	}
+	//	// make a Physics factory
+	//	pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
+	//	if (pPhysicsFactory == nullptr)
+	//	{
+	//		FreeLibrary(hModule);
+	//		return EXIT_FAILURE;
+	//	}
+	//}
+	//
+	//std::vector<nPhysics::iBallComponent*> balls;
+	//auto physWorld = pPhysicsFactory->CreateWorld();
+	//// TODO: check
+	//
+	//nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(-200.0f, 65.0f, -50.0f), 0.75f };
+	//for (unsigned i = 0; i < 40; ++i)
+	//{
+	//	def.Position.x = -200.0f + (float)rand() / RAND_MAX * 5.0f;
+	//	def.Position.z = -50.0f + (float)rand() / RAND_MAX * 5.0f ;
+	//	def.Position.y += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
+	//	def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
+	//	def.Mass = def.Radius;
+	//	balls.push_back(pPhysicsFactory->CreateBall(def));
+	//	physWorld->AddComponent(balls[i]);
+	//}
+	//
+	//glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 30.0f, 0.0f), n), n }));
+	//
+	//n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
+	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(256.0f, 0.0f, 0.0f), n), n }));
+	//n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
+	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-256.0f, 0.0f, 0.0f), n), n }));
+	//n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
+	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 256.0f), n), n }));
+	//n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
+	//physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -256.0f), n), n }));
 
 	cWorld::debugMode = true;
 	while (!glfwWindowShouldClose(window))
@@ -544,26 +546,26 @@ int main()
 			{
 				cWorld::debugMode = !cWorld::debugMode;
 			}
-			if (pKeyboardManager->keyPressed(GLFW_KEY_V))
-			{
-				day_time = !day_time;
-				if (day_time)
-				{
-					world->vecLights[0]->diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
-				}
-				else
-				{
-					world->vecLights[0]->diffuse = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
-				}
-				world->vecLights[0]->updateShaderUniforms();
-			}
-
-			if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
-			{
-				std::ostringstream fileName;
-				fileName << "scene_" << time(NULL) << ".json";
-				writeSceneToFile(fileName.str());
-			}
+			//if (pKeyboardManager->keyPressed(GLFW_KEY_V))
+			//{
+			//	day_time = !day_time;
+			//	if (day_time)
+			//	{
+			//		world->vecLights[0]->diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
+			//	}
+			//	else
+			//	{
+			//		world->vecLights[0]->diffuse = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+			//	}
+			//	world->vecLights[0]->updateShaderUniforms();
+			//}
+			//
+			//if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
+			//{
+			//	std::ostringstream fileName;
+			//	fileName << "scene_" << time(NULL) << ".json";
+			//	writeSceneToFile(fileName.str());
+			//}
 
 			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
 			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
@@ -575,92 +577,92 @@ int main()
 
 			int scaleFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
 
-			if (pKeyboardManager->keyPressed(GLFW_KEY_V))
-			{
-				if (shift_pressed)
-				{
-					if (world->vecLights.size())
-						world->vecLights[selectedLight]->param2.x = !world->vecLights[selectedLight]->param2.x;
-				}
-				else
-				{
-					if (world->vecGameObjects.size())
-						world->vecGameObjects[selectedObject]->visible = !world->vecGameObjects[selectedObject]->visible;
-				}
-			}
-			if (pKeyboardManager->keyPressed(GLFW_KEY_B))
-			{
-				if (world->vecGameObjects.size())
-					world->vecGameObjects[selectedObject]->wireFrame = !world->vecGameObjects[selectedObject]->wireFrame;
-			}
-
-			if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
-			{
-				if (shift_pressed)
-				{
-					++selectedLight;
-					if (selectedLight >= world->vecLights.size())
-						selectedLight = 0;
-				}
-				else
-				{
-					++selectedObject;
-					if (selectedObject >= world->vecGameObjects.size())
-						selectedObject = 0;
-				}
-			}
-			else if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
-			{
-				if (shift_pressed)
-				{
-					--selectedLight;
-					if (selectedLight < 0)
-						selectedLight = (int)world->vecLights.size() - 1;
-				}
-				else
-				{
-					--selectedObject;
-					if (selectedObject < 0)
-						selectedObject = (int)world->vecGameObjects.size() - 1;
-				}
-			}
-
-			if (ctrl_pressed)
-			{
-				if (world->vecGameObjects.size())
-				{
-					glm::vec3 velocity = dt * 3.0f * glm::vec3(xMove, yMove, zMove);
-					glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
-					world->vecGameObjects[selectedObject]->translate(velocity);
-					world->vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
-					world->vecGameObjects[selectedObject]->rotate(rotation);
-				}
-			}
-			else if (shift_pressed)
-			{
-				if (world->vecLights.size())
-				{
-					float speed = 3.0f;
-					// Move light if shift pressed
-					world->vecLights[selectedLight]->position.x += xMove * speed * dt;
-					world->vecLights[selectedLight]->position.y += yMove * speed * dt;
-					world->vecLights[selectedLight]->position.z += zMove * speed * dt;
-					world->vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
-
-					world->vecLights[selectedLight]->updateShaderUniforms();
-
-					debugSphere->setPosition(world->vecLights[selectedLight]->position);
-					debugSphere->scale = 1.0f;//0.1f / world->vecLights[selectedLight]->atten.y;
-					debugSphere->color = world->vecLights[selectedLight]->diffuse;
-					debugSphere->wireFrame = true;
-					debugSphere->visible = true;
-					debugSphere->lighting = false;
-					debugSphere->updateMatricis();
-					// Draw light sphere if shift pressed
-					drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-				}
-			}
-			else
+			//if (pKeyboardManager->keyPressed(GLFW_KEY_V))
+			//{
+			//	if (shift_pressed)
+			//	{
+			//		if (world->vecLights.size())
+			//			world->vecLights[selectedLight]->param2.x = !world->vecLights[selectedLight]->param2.x;
+			//	}
+			//	else
+			//	{
+			//		if (world->vecGameObjects.size())
+			//			world->vecGameObjects[selectedObject]->visible = !world->vecGameObjects[selectedObject]->visible;
+			//	}
+			//}
+			//if (pKeyboardManager->keyPressed(GLFW_KEY_B))
+			//{
+			//	if (world->vecGameObjects.size())
+			//		world->vecGameObjects[selectedObject]->wireFrame = !world->vecGameObjects[selectedObject]->wireFrame;
+			//}
+			//
+			//if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
+			//{
+			//	if (shift_pressed)
+			//	{
+			//		++selectedLight;
+			//		if (selectedLight >= world->vecLights.size())
+			//			selectedLight = 0;
+			//	}
+			//	else
+			//	{
+			//		++selectedObject;
+			//		if (selectedObject >= world->vecGameObjects.size())
+			//			selectedObject = 0;
+			//	}
+			//}
+			//else if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
+			//{
+			//	if (shift_pressed)
+			//	{
+			//		--selectedLight;
+			//		if (selectedLight < 0)
+			//			selectedLight = (int)world->vecLights.size() - 1;
+			//	}
+			//	else
+			//	{
+			//		--selectedObject;
+			//		if (selectedObject < 0)
+			//			selectedObject = (int)world->vecGameObjects.size() - 1;
+			//	}
+			//}
+			//
+			//if (ctrl_pressed)
+			//{
+			//	if (world->vecGameObjects.size())
+			//	{
+			//		glm::vec3 velocity = dt * 3.0f * glm::vec3(xMove, yMove, zMove);
+			//		glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
+			//		world->vecGameObjects[selectedObject]->translate(velocity);
+			//		world->vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
+			//		world->vecGameObjects[selectedObject]->rotate(rotation);
+			//	}
+			//}
+			//else if (shift_pressed)
+			//{
+			//	if (world->vecLights.size())
+			//	{
+			//		float speed = 3.0f;
+			//		// Move light if shift pressed
+			//		world->vecLights[selectedLight]->position.x += xMove * speed * dt;
+			//		world->vecLights[selectedLight]->position.y += yMove * speed * dt;
+			//		world->vecLights[selectedLight]->position.z += zMove * speed * dt;
+			//		world->vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
+			//
+			//		world->vecLights[selectedLight]->updateShaderUniforms();
+			//
+			//		debugSphere->setPosition(world->vecLights[selectedLight]->position);
+			//		debugSphere->scale = 1.0f;//0.1f / world->vecLights[selectedLight]->atten.y;
+			//		debugSphere->color = world->vecLights[selectedLight]->diffuse;
+			//		debugSphere->wireFrame = true;
+			//		debugSphere->visible = true;
+			//		debugSphere->lighting = false;
+			//		debugSphere->updateMatricis();
+			//		// Draw light sphere if shift pressed
+			//		drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			//	}
+			//}
+			//else
 			{
 				camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
 				camera->position += -xMove * camera->speed * dt * camera->right;
@@ -672,23 +674,23 @@ int main()
 
 		// shader uniforms
 		{
-		// FOV, aspect ratio, near clip, far clip
-		p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-		v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
+			// FOV, aspect ratio, near clip, far clip
+			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
+			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 
-		glUseProgram(program);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glUseProgram(program);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-		glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-		glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
-		glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
+			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
+			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
+			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
-		waterOffset.s += 0.1f * dt;
-		waterOffset.t += 0.017f * dt;
-		glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
+			waterOffset.s += 0.1f * dt;
+			waterOffset.t += 0.017f * dt;
+			glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
 		}
 
 		// draw Skybox
@@ -708,15 +710,10 @@ int main()
 				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
 				glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
 			}
-			debugSphere->scale = 1.0f;
-			debugSphere->setPosition(camera->position);
-			debugSphere->wireFrame = false;
-			debugSphere->lighting = false;
-			debugSphere->color = glm::vec4(1.0f);
-			debugSphere->visible = true;
-			debugSphere->updateMatricis();
-			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(debugSphere->matWorld));
-			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(debugSphere->inverseTransposeMatWorld));
+			glm::mat4 matWorld(1.0f);
+			matWorld *= glm::translate(glm::mat4(1.0f), camera->position);
+			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
@@ -727,9 +724,9 @@ int main()
 			glDisable(GL_DEPTH);
 			glDisable(GL_DEPTH_TEST);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+		
 			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName(debugSphere->meshName, drawInfo))
+			if (pVAOManager->FindDrawInfoByModelName("sphere", drawInfo))
 			{
 				glBindVertexArray(drawInfo.VAO_ID);
 				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
@@ -741,45 +738,49 @@ int main()
 		}
 
 		
-		// update
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		{
-			world->vecGameObjects[i]->update(dt, totalTime);
-			//world->vecGameObjects[i]->updateMatricis();
-
-			//if (!world->vecGameObjects[i]->visible)
-			//	continue;
-			//drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
-		}
-
-		physWorld->Update(dt);
-
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		{
-			// go->pre
-		}
-		
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		{
-			// go->render
-		}
+		//// update
+		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		//{
+		//	//world->vecGameObjects[i]->update(dt, totalTime);
+		//	//world->vecGameObjects[i]->updateMatricis();
+		//
+		//	//if (!world->vecGameObjects[i]->visible)
+		//	//	continue;
+		//	//drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
+		//}
+		//
+		////physWorld->Update(dt);
+		//
+		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		//{
+		//	// go->pre
+		//}
+		//
+		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+		//{
+		//	// go->render
+		//}
 
 		// draw debug
 		if (cWorld::debugMode)
 		{
-			glm::mat4 mat(1.0f);
-			debugSphere->wireFrame = true;
-			debugSphere->scale = 2.0f;
-			debugSphere->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			cWorld::pDebugRenderer->addLine(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
+			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
 
-			for (auto b : balls)
-			{
-				b->GetTransform(mat);
-				debugSphere->setPosition(mat[3]);
-				debugSphere->updateMatricis();
-				drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			}
-			
+			//glm::mat4 mat(1.0f);
+			//debugSphere->wireFrame = true;
+			//debugSphere->scale = 2.0f;
+			//debugSphere->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			//
+			//for (auto b : balls)
+			//{
+			//	b->GetTransform(mat);
+			//	debugSphere->setPosition(mat[3]);
+			//	debugSphere->updateMatricis();
+			//	drawObject(debugSphere, program, pVAOManager, dt, totalTime);
+			//}
+			//
 			//std::cout << std::to_string(mat[3]) << std::endl;
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
@@ -787,6 +788,34 @@ int main()
 		// Draw frame buffer to screen
 		{
 			glUseProgram(program);
+
+			//{
+			//	glUniform1f(pShader->getUniformLocID("passCount"), 1);
+			//	glDisable(GL_CULL_FACE);
+			//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//	glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			//	glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			//	glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 0.0f, 0.0f);
+			//	glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
+			//
+			//	glm::mat4 matWorld(1.0f);
+			//	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+			//	matWorld *= translation;
+			//	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+			//	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+			//	// 4. draw a single object, (tri or quad)
+			//	sModelDrawInfo drawInfo;
+			//	if (pVAOManager->FindDrawInfoByModelName("cube", drawInfo))
+			//	{
+			//		glBindVertexArray(drawInfo.VAO_ID);
+			//		glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+			//		glBindVertexArray(0);
+			//	}
+			//}
+			
+			glDisable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 			// whole scene is drawn to buffer
 			// 1. disable the FBO
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -798,14 +827,32 @@ int main()
 			glActiveTexture(GL_TEXTURE0 + 40);
 			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
+
 			glUniform1f(pShader->getUniformLocID("passCount"), 2);
 
+			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 0.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
+
+			glm::mat4 matWorld(1.0f);
+			matWorld *= glm::translate(glm::mat4(1.0f), camera->position - camera->forward * -2.0f);
+			matWorld *= glm::mat4(glm::quatLookAt(camera->forward, glm::normalize(glm::cross(camera->forward, camera->right))));
+			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+
 			// 4. draw a single object, (tri or quad)
-			triangle->setPosition(camera->position - camera->forward * -2.0f);
-			triangle->setOrientation(glm::quatLookAt(camera->forward, glm::normalize(glm::cross(camera->forward, camera->right))));
-			triangle->updateMatricis();
-			drawObject(triangle, program, pVAOManager, dt, totalTime);
+			sModelDrawInfo drawInfo;
+			if (pVAOManager->FindDrawInfoByModelName("triangle", drawInfo))
+			{
+				glBindVertexArray(drawInfo.VAO_ID);
+				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
+			glActiveTexture(0);
 
 		}
 
@@ -813,24 +860,24 @@ int main()
 		glfwSwapBuffers(window); // Draws to screen
 
 		// window title
-		if (world->vecGameObjects.size() && world->vecLights.size())
+		//if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(2)
 				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
 				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} ";
 
-			if (selectedObject < world->vecGameObjects.size())
-			{
-				windowTitle << "Obj[" << selectedObject << "]: \"" << world->vecGameObjects[selectedObject]->name << "\" ";
-			}
-			if (shift_pressed)
-			{
-				if (selectedLight < world->vecLights.size())
-				{
-					windowTitle << "Light[" << selectedLight << "]";
-				}
-			}
+			//if (selectedObject < world->vecGameObjects.size())
+			//{
+			//	windowTitle << "Obj[" << selectedObject << "]: \"" << world->vecGameObjects[selectedObject]->name << "\" ";
+			//}
+			//if (shift_pressed)
+			//{
+			//	if (selectedLight < world->vecLights.size())
+			//	{
+			//		windowTitle << "Light[" << selectedLight << "]";
+			//	}
+			//}
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
@@ -858,36 +905,21 @@ int main()
 		delete pTextureManager;
 		delete cWorld::pDebugRenderer;
 
-		delete debugSphere;
+		delete fbo;
 
-		for (auto b : balls)
-			delete b;
+		//delete debugSphere;
+
+		//for (auto b : balls)
+		//	delete b;
 		
-		delete pPhysicsFactory;
+		//delete pPhysicsFactory;
 
-		if (hModule)
-		{
-			FreeLibrary(hModule);
-			hModule = NULL;
-		}
+		//if (hModule)
+		//{
+		//	FreeLibrary(hModule);
+		//	hModule = NULL;
+		//}
 	}
 
 	return 0;
-}
-
-
-// Draw an object
-void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt)
-{
-
-
-
-
-	sModelDrawInfo drawInfo;
-	if (pVAOManager->FindDrawInfoByModelName(go->meshName, drawInfo))
-	{
-		glBindVertexArray(drawInfo.VAO_ID);
-		glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
 }

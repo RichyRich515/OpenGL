@@ -514,13 +514,13 @@ void cGameObject::render()
 {
 	glm::mat4x4 m(1.0f);
 	this->physics->GetTransform(m);
-	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
-	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
-	glUniform4f(pShader->getUniformLocID("params2"),
-		0.0f,
-		go->name == "terrain" ? 1.0f : 0.0f,
-		go->name == "ocean" || go->name == "sand_floor" ? 1.0f : 0.0f,
-		0.0f);
+	//glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(go->matWorld));
+	//glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(go->inverseTransposeMatWorld));
+	//glUniform4f(pShader->getUniformLocID("params2"),
+	//	0.0f,
+	//	go->name == "terrain" ? 1.0f : 0.0f,
+	//	go->name == "ocean" || go->name == "sand_floor" ? 1.0f : 0.0f,
+	//	0.0f);
 
 	this->graphics.render();
 	this->mesh.render();

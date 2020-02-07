@@ -180,8 +180,6 @@
     <ClCompile Include="DebugRenderer\cGLRenderStateHelper.cpp" />
     <ClCompile Include="DebugRenderer\COpenGLError.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="iEntity.cpp" />
-    <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="Lua\cLuaBrain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\json\jsoncpp.cpp" />

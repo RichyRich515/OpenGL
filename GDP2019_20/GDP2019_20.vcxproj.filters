@@ -147,17 +147,11 @@
     <ClCompile Include="cGraphicsComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="JsonHelper.cpp">
-      <Filter>jsoncpp</Filter>
-    </ClCompile>
     <ClCompile Include="cTransformComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="cMeshComponent.cpp">
       <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="iEntity.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cShaderManager.cpp">
       <Filter>Shader</Filter>

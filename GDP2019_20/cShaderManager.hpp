@@ -4,22 +4,26 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "GLCommon.h"
 
 class cShaderManager
 {
 public:
-	class cShader {
+	class cShader
+	{
 	public:
 		cShader();
 		~cShader();
+
 		enum eShaderType
 		{
 			VERTEX_SHADER,
 			FRAGMENT_SHADER,
 			UNKNOWN
 		};
+
 		eShaderType shaderType;
-		std::string getShaderTypeString(void);
+		std::string getShaderTypeString();
 
 		unsigned int ID;	// or "name" from OpenGL
 		std::vector<std::string> vecSource;
@@ -28,12 +32,14 @@ public:
 
 	};
 
-	class cShaderProgram {
+	class cShaderProgram
+	{
 	public:
 		cShaderProgram() : ID(0) {};
 		~cShaderProgram() {};
-		unsigned int ID;	// ID from OpenGL (calls it a "name")
-		std::string friendlyName;	// We give it this name
+
+		unsigned int ID; // ID from OpenGL (calls it a "name")
+		std::string friendlyName; // We give it this name
 
 		std::map<std::string, int> mapUniformName_to_UniformLocation;
 
@@ -43,9 +49,7 @@ public:
 		// Loads all active uniforms to the map
 		void LoadActiveUniforms();
 
-		// finds the uniform
 		int getUniformLocID(std::string uniformname);
-
 	};
 
 	cShaderManager();
@@ -53,18 +57,16 @@ public:
 
 	bool useShaderProgram(unsigned int ID);
 	bool useShaderProgram(std::string friendlyName);
-	bool createProgramFromFile(std::string friendlyName,
-		cShader& vertexShad,
-		cShader& fragShader);
+	bool createProgramFromFile(std::string friendlyName, cShader& vertexShad, cShader& fragShader);
 	void setBasePath(std::string basepath);
 	unsigned int getIDFromFriendlyName(std::string friendlyName);
 
 	// Used to load the uniforms. Returns NULL if not found.
 	cShaderProgram* pGetShaderProgramFromFriendlyName(std::string friendlyName);
 
-
 	// Clears last error
-	std::string getLastError(void);
+	std::string getLastError();
+
 private:
 	// Returns an empty string if it didn't work
 	bool m_loadSourceFromFile(cShader& shader);
@@ -77,8 +79,8 @@ private:
 
 	std::string m_lastError;
 
-	std::map< unsigned int /*ID*/, cShaderProgram > m_ID_to_Shader;
-	std::map< std::string /*name*/, unsigned int /*ID*/ > m_name_to_ID;
+	std::map<unsigned int, cShaderProgram> m_ID_to_Shader;
+	std::map<std::string, unsigned int> m_name_to_ID;
 };
 
 #endif

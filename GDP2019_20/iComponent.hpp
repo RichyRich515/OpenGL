@@ -13,7 +13,7 @@ enum class eComponentType
 class iComponent
 {
 public:
-	virtual ~iComponent() = 0;
+	virtual ~iComponent() {};
 	virtual void init() = 0;
 
 	virtual eComponentType getType() = 0;
