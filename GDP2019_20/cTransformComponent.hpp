@@ -17,6 +17,10 @@ public:
 	virtual void render() override;
 	virtual eComponentType getType() override;
 
+	virtual void instatiateBaseVariables(Json::Value& obj) override;
+
+	virtual void serializeJSONObject(Json::Value& obj) override;
+
 	glm::vec3 position;
 	glm::quat orientation;
 

@@ -7,7 +7,7 @@ cGameObject* cGameObjectFactory::createFromJSON(Json::Value& obj, std::map<std::
 	std::string type = obj["type"].asString();
 	if (type == "basic")
 	{
-		return new cGameObject(obj, mapMeshes);
+		return new cGameObject(obj);
 	}
 	return nullptr;
 }

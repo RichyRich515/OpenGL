@@ -8,7 +8,10 @@ cGraphicsComponent::cGraphicsComponent() :
 	lighting(false),
 	wireFrame(false),
 	color(glm::vec4(1.0f)),
-	specular(glm::vec4(1.0f))
+	specular(glm::vec4(1.0f)),
+	dt(0.0f),
+	tt(0.0f),
+	pShader(nullptr)
 {
 }
 
@@ -19,6 +22,9 @@ cGraphicsComponent::cGraphicsComponent(const Json::Value& obj)
 	wireFrame = obj["wireFrame"] ? obj["wireFrame"].asBool() : false;
 	color = obj["color"] ? Json::toVec4(obj["color"]) : glm::vec4(1.0f);
 	specular = obj["specular"] ? Json::toVec4(obj["specular"]) : glm::vec4(1.0f);
+	dt = 0;
+	tt = 0;
+	pShader = nullptr;
 }
 
 cGraphicsComponent::~cGraphicsComponent()
@@ -170,4 +176,14 @@ void cGraphicsComponent::render()
 eComponentType cGraphicsComponent::getType()
 {
 	return eComponentType::Graphics;
+}
+
+void cGraphicsComponent::instatiateBaseVariables(Json::Value& obj)
+{
+
+}
+
+void cGraphicsComponent::serializeJSONObject(Json::Value& obj)
+{
+	// TODO: this
 }

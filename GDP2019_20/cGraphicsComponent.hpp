@@ -24,6 +24,10 @@ public:
 	virtual void render() override;
 	virtual eComponentType getType() override;
 
+	virtual void instatiateBaseVariables(Json::Value& obj) override;
+
+	virtual void serializeJSONObject(Json::Value& obj) override;
+
 	glm::vec4 color;
 	glm::vec4 specular; // RGB is color A is shininess, from 1 to 10000+
 

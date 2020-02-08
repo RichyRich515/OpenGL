@@ -334,7 +334,7 @@ int main()
 		char NUB_name[NUB_NAME_BUFFERSIZE] = { 0, };
 		int charactersGLWrote = 0;
 		glGetActiveUniformBlockName(pShader->ID, 0, NUB_NAME_BUFFERSIZE, &charactersGLWrote, NUB_name);
-		// TODO: more nub stuff
+		// TODO: more Named Uniform Blocks stuff
 
 		pShader->LoadActiveUniforms();
 		//glUseProgram(program);
@@ -391,15 +391,6 @@ int main()
 			}
 		}
 	}
-
-	//cGameObject* debugSphere = new cGameObject("debugsphere");
-	//debugSphere->meshName = "sphere";
-	//debugSphere->wireFrame = true;
-	//debugSphere->lighting = true;
-	//
-	//cGameObject* triangle = new cGameObject("triangle");
-	//triangle->meshName = "triangle";
-	//triangle->scale = 100.0f;
 
 	float ratio;
 	int width, height;
@@ -481,8 +472,8 @@ int main()
 		return EXIT_FAILURE;
 	}
 	
-	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(0.0f, 65.0f, 0.0f), 0.75f };
-	for (unsigned i = 0; i < 30; ++i)
+	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(0.0f, 75.0f, 0.0f), 0.75f };
+	for (unsigned i = 0; i < 20; ++i)
 	{
 		def.Position.x = (float)rand() / RAND_MAX * 5.0f;
 		def.Position.z = (float)rand() / RAND_MAX * 5.0f ;
@@ -516,7 +507,7 @@ int main()
 	plane->graphics.lighting = true;
 	plane->graphics.wireFrame = false;
 	plane->graphics.pShader = pShader;
-	plane->graphics.textures[0].fileName = "sand.bmp";
+	plane->graphics.textures[0].fileName = "terrain_texture.bmp";
 	plane->graphics.textures[0].blend = 1.0f;
 	plane->graphics.textures[0].tiling = 4.0f;
 	plane->graphics.textures[0].xOffset = 0.0f;
@@ -546,22 +537,22 @@ int main()
 	world->vecLights.push_back(new cLight(0, pShader->ID));
 	world->vecLights[0]->position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	world->vecLights[0]->atten = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	world->vecLights[0]->diffuse = glm::vec4(0.85);
+	world->vecLights[0]->diffuse = glm::vec4(0.85f);
 	world->vecLights[0]->specular = glm::vec4(0.0f);
 	world->vecLights[0]->direction = glm::vec4(1.0, -1.0, -0.5, 1.0);
 	world->vecLights[0]->param1 = glm::vec4(2.0f, 0.0f, 0.0f, 0.0f);
 	world->vecLights[0]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 	world->vecLights[0]->updateShaderUniforms();
 
-	world->vecLights.push_back(new cLight(1, pShader->ID));
-	world->vecLights[1]->position = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	world->vecLights[1]->atten = glm::vec4(0.0f, 0.1f, 0.0f, 10000.0f);
-	world->vecLights[1]->diffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	world->vecLights[1]->specular = glm::vec4(0.0f);
-	world->vecLights[1]->direction = glm::vec4(0.0f);
-	world->vecLights[1]->param1 = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	world->vecLights[1]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-	world->vecLights[1]->updateShaderUniforms();
+	//world->vecLights.push_back(new cLight(1, pShader->ID));
+	//world->vecLights[1]->position = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	//world->vecLights[1]->atten = glm::vec4(0.0f, 0.1f, 0.0f, 10000.0f);
+	//world->vecLights[1]->diffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	//world->vecLights[1]->specular = glm::vec4(0.0f);
+	//world->vecLights[1]->direction = glm::vec4(0.0f);
+	//world->vecLights[1]->param1 = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	//world->vecLights[1]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	//world->vecLights[1]->updateShaderUniforms();
 
 
 	//cWorld::debugMode = true;
@@ -928,9 +919,10 @@ int main()
 		//if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
-			windowTitle << std::fixed << std::setprecision(2)
+			windowTitle << std::fixed << std::setprecision(3)
 				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
-				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} ";
+				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} "
+				<< "dt: " << dt;
 
 			//if (selectedObject < world->vecGameObjects.size())
 			//{

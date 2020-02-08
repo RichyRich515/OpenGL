@@ -215,14 +215,14 @@ namespace phys
 			// 3) Apply some energy loss (to the velocity) in the direction of the plane's normal vector.
 			// TODO: THIS CORRECTLY
 			glm::vec3 projected = glm::proj(sphereBody->mVelocity, planeShape->GetNormal());
-			if (glm::dot(projected, sphereBody->mVelocity) > 0.0f)
-			{
+			//if (glm::dot(projected, sphereBody->mVelocity) > 0.0f)
+			//{
 				sphereBody->mVelocity -= projected * (1.0f - sphereBody->mElasticity);
-			}
-			else
-			{
-				// TODO: idk
-			}
+			//}
+			//else
+			//{
+			//	// TODO: idk
+			//}
 
 			// 4) Re-integrate the sphere with its new velocity over the remaining portion of the timestep.
 			this->IntegrateRigidBody(sphereBody, this->mDt - time_to_collision);

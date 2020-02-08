@@ -86,11 +86,14 @@ namespace phys
 
 		// The delta time input cached during each Update(dt) call.
 		float mDt;
+
 		// Our handy dandy integrator.
 		cIntegrator mIntegrator;
+
 		// Acceleration due to gravity applied to each rigid body
 		// during each timestep.
 		glm::vec3 mGravity;
+
 		// All the rigid bodies currently in the world.
 		// Not owned by cWorld, will not be deleted in the destructor.
 		std::vector<cRigidBody*> mBodies;

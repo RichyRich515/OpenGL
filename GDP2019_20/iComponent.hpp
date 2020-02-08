@@ -1,5 +1,7 @@
 #pragma once
 
+#include <json/json.h>
+
 enum class eComponentType
 {
 	None = 0,
@@ -13,7 +15,7 @@ enum class eComponentType
 class iComponent
 {
 public:
-	virtual ~iComponent() {};
+	virtual ~iComponent() {}
 	virtual void init() = 0;
 
 	virtual eComponentType getType() = 0;
@@ -21,4 +23,10 @@ public:
 	virtual void preFrame() = 0;
 	virtual void update(float dt, float tt) = 0;
 	virtual void render() = 0;
+	
+	virtual void instatiateBaseVariables(Json::Value& obj) {}
+	virtual void instatiateUniqueVariables(Json::Value& obj) {}
+
+	virtual void serializeJSONObject(Json::Value& obj) {}
+	virtual void serializeUniqueVariables(Json::Value& obj) {}
 };

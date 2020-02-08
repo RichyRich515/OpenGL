@@ -1,22 +1,25 @@
 #pragma once
 
-// TODO:
-// A single include header for everything
-// 
-// Also a handy place to put a general comments
-// and information about this library. For example: 
-// - What this library is
-// - Who created this library
-// - Dependencies of this library (ahem... I mean, glm)
-// - Why this library was created
-// - The general approach to creating this library
-//     - Are we really going for super efficiency?
-//     - Perhaps we're just going for understandability and learning..?
-// - Notes on usage
-// - Notes about any good-to-know factos or gotchas, perhaps tidbits like:
-//       "cWorld will never delete a cRigidBody"
-//       "shapes can be shared between multiple cRigidBody instances"
-//
+/* 
+    - MyPhysicsLib
+        - A simple physics simulation library
+        - Created by Richard Woods
+        - Depends on glm
+        - Created for the GDP program at Fanshawe College
+        - Collision detection code used from Christer Ericson's "Real-Time Collision Detection" textbook
+
+    - The general approach to creating this library
+        - This library was not created with super efficiency in mind
+        - It is for learning and understanding how physics simulation libraries *could* be implemented
+
+    - Notes on usage
+        - Intended to be used with my GDP project
+            - Custom wrapper code created for this specific case
+        - cWorld will never delete a cRigidBody
+            - Must be handled either in the wrapper or the game code, depending on your implementation
+        - Shapes *can* be shared between multiple cRigidBody instances
+            - In my implementation of a wrapper I gave each physics object it's own shape
+ */
 
 // All the files required to make full use of this library:
 #include "eShapeType.h"  // enum class for all supported shape types
