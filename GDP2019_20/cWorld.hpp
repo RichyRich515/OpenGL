@@ -15,18 +15,18 @@ class cWorld : iMessageable
 public:
 	virtual sMessage message(sMessage const& msg);
 
-	void addGameObject(cGameObject* go);
+	void addGameObject(iGameObject* go);
 	void addLight(cLight* light);
 
 	static cWorld* getWorld();
 
-	std::vector<cGameObject*> vecGameObjects;
+	std::vector<iGameObject*> vecGameObjects;
 	std::vector<cLight*> vecLights;
 
 	iGameObjectFactory* gameObjectFactory;
 
-	void deferredAddGameObject(cGameObject* go);
-	void deferredDeleteGameObject(cGameObject* go);
+	void deferredAddGameObject(iGameObject* go);
+	void deferredDeleteGameObject(iGameObject* go);
 
 
 	void doDeferredActions();
@@ -37,8 +37,8 @@ public:
 private:
 	cWorld();
 	
-	std::set<cGameObject*> deferred_deletes;
-	std::set<cGameObject*> deferred_adds;
+	std::set<iGameObject*> deferred_deletes;
+	std::set<iGameObject*> deferred_adds;
 
 	static cWorld _world;
 };

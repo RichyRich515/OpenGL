@@ -45,7 +45,7 @@ void cMeshComponent::render()
 void cMeshComponent::instatiateBaseVariables(const Json::Value& obj)
 {
 	this->meshName = obj["meshName"] ? obj["meshName"].asString() : "";
-	this->scale = scale;
+	this->scale = obj["scale"] ? obj["scale"].asFloat() : 1.0f;
 }
 
 void cMeshComponent::serializeJSONObject(Json::Value& obj)

@@ -31,6 +31,7 @@
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 
+#include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
 #include "cLight.hpp"
@@ -47,14 +48,9 @@
 
 #include "cFBO.h"
 
-#include <iPhysicsFactory.h>
+#include "cPhysicsManager.hpp"
 
-
-#include <Windows.h>
 #include "Texture/cBasicTextureManager.h"
-
-constexpr char physics_interface_factory_func_name[] = "MakePhysicsFactory";
-typedef nPhysics::iPhysicsFactory* (func_createPhysicsFactory)();
 
 #define MY_PHYSICS
 
@@ -64,7 +60,7 @@ constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
 constexpr char physics_library_name[] = "BulletWrapper.dll";
 #endif
 
-nPhysics::iPhysicsFactory* pPhysicsFactory;
+cPhysicsManager* pPhysicsManager;
 
 namespace std
 {
@@ -166,20 +162,21 @@ void openSceneFromFile(std::string filename)
 	for (unsigned i = 0; i < 3; ++i)
 	{
 		camera->position[i] = camera_node["cameraEye"][i].asFloat();
-		gravity[i] = world_node["gravity"][i].asFloat();
+		//gravity[i] = world_node["gravity"][i].asFloat();
 	}
 	camera->pitch = camera_node["pitch"].asFloat();
 	camera->yaw = camera_node["yaw"].asFloat();
 	camera->speed = camera_node["cameraSpeed"].asFloat();
 
-	Json::Value ambienceobj = world_node["ambience"];
-	for (unsigned i = 0; i < 4; ++i) // vec 4s
-	{
-		ambience[i] = ambienceobj[i].asFloat();
-	}
+	//Json::Value ambienceobj = world_node["ambience"];
+	//for (unsigned i = 0; i < 4; ++i) // vec 4s
+	//{
+	//	ambience[i] = ambienceobj[i].asFloat();
+	//}
 
 	if (pGameObjectFactory)
 		delete pGameObjectFactory;
+
 	pGameObjectFactory = cFactoryManager::getObjectFactory(world_node["factoryType"].asString());
 	if (!pGameObjectFactory)
 	{
@@ -190,6 +187,7 @@ void openSceneFromFile(std::string filename)
 
 	for (auto g : world->vecGameObjects)
 		delete g;
+
 	world->vecGameObjects.clear();
 
 	for (auto l : world->vecLights)
@@ -210,7 +208,7 @@ void openSceneFromFile(std::string filename)
 	int idCounter = 0;
 	for (unsigned i = 0; i < gameObjects.size(); ++i, ++idCounter)
 	{
-		cGameObject* go = pGameObjectFactory->createFromJSON(gameObjects[i], mapMeshes);
+		iGameObject* go = pGameObjectFactory->createFromJSON(gameObjects[i], mapMeshes);
 		go->id = idCounter;
 		world->vecGameObjects.push_back(go);
 	}
@@ -333,10 +331,10 @@ int main()
 		cShaderManager::setCurrentShader(pShader);
 		// NUB
 
-		const int NUB_NAME_BUFFERSIZE = 1000;
-		char NUB_name[NUB_NAME_BUFFERSIZE] = { 0, };
-		int charactersGLWrote = 0;
-		glGetActiveUniformBlockName(pShader->ID, 0, NUB_NAME_BUFFERSIZE, &charactersGLWrote, NUB_name);
+		//const int NUB_NAME_BUFFERSIZE = 1000;
+		//char NUB_name[NUB_NAME_BUFFERSIZE] = { 0, };
+		//int charactersGLWrote = 0;
+		//glGetActiveUniformBlockName(pShader->ID, 0, NUB_NAME_BUFFERSIZE, &charactersGLWrote, NUB_name);
 		// TODO: more Named Uniform Blocks stuff
 
 		pShader->LoadActiveUniforms();
@@ -446,41 +444,24 @@ int main()
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
 	camera = new cCamera();
-	
-	openSceneFromFile("assets/scenes/scene1.json");
 
-	// TODO: phyysics manager
+	// TODO: physics manager
 	// Load physics library
-	HMODULE hModule = NULL;
-	{
-		hModule = LoadLibraryA(physics_library_name);
-		if (!hModule)
-		{
-			std::cout << "Error loading " << physics_library_name << std::endl;
-			return EXIT_FAILURE;
-		}
-		// make a Physics factory
-		pPhysicsFactory = ((func_createPhysicsFactory*)GetProcAddress(hModule, physics_interface_factory_func_name))();
-		if (pPhysicsFactory == nullptr)
-		{
-			FreeLibrary(hModule);
-			return EXIT_FAILURE;
-		}
-	}
+
+	pPhysicsManager = new cPhysicsManager(physics_library_name);
+
+
+	openSceneFromFile("assets/scenes/scene1.json");
 	
-	auto physWorld = pPhysicsFactory->CreateWorld();
-	if (physWorld == nullptr)
-	{
-		FreeLibrary(hModule);
-		return EXIT_FAILURE;
-	}
-	
+	auto pPhysicsFactory = cPhysicsManager::getFactory();
+	auto physWorld = cPhysicsManager::getWorld();
+
 	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(0.0f, 75.0f, 0.0f), 0.75f };
 	for (unsigned i = 0; i < 20; ++i)
 	{
 		def.Position.x = (float)rand() / RAND_MAX * 5.0f;
-		def.Position.z = (float)rand() / RAND_MAX * 5.0f ;
-		def.Position.y += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
+		def.Position.z = (float)rand() / RAND_MAX * 5.0f;
+		def.Position.y  += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
 		def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
 		def.Mass = def.Radius;
 		nPhysics::iPhysicsComponent* physBall = pPhysicsFactory->CreateBall(def);
@@ -488,76 +469,34 @@ int main()
 		physWorld->AddComponent(physBall);
 
 		cPhysicsGameObject* ball = new cPhysicsGameObject();
-		ball->graphics.color = glm::vec4(1.0f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 0.5f  + (float)rand() / RAND_MAX - 0.5f, 1.0f);
+		ball->graphics.color = glm::vec4(1.0f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 1.0f);
 		ball->graphics.lighting = true;
 		ball->graphics.wireFrame = false;
 		ball->graphics.pShader = pShader;
-		
+
 		ball->mesh.meshName = "sphere";
 		ball->mesh.scale = def.Radius * 2;
 		ball->physics = physBall;
 
 		world->addGameObject(ball);
 	}
+
 	glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-	auto physPlane = pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 0.0f), n), n});
+	auto physPlane = pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 0.0f), n), n });
 	physWorld->AddComponent(physPlane);
 
-	cGameObject* plane = new cGameObject();
-	plane->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	plane->graphics.specular = glm::vec4(1.0f);
-	plane->graphics.lighting = true;
-	plane->graphics.wireFrame = false;
-	plane->graphics.pShader = pShader;
-	plane->graphics.textures[0].fileName = "terrain_texture.bmp";
-	plane->graphics.textures[0].blend = 1.0f;
-	plane->graphics.textures[0].tiling = 4.0f;
-	plane->graphics.textures[0].xOffset = 0.0f;
-	plane->graphics.textures[0].yOffset = 0.0f;
-	plane->mesh.meshName = "plane";
-	plane->name = "plane";
-	plane->id = 1;
-	plane->mesh.scale = 0.5f;
-	plane->physics = physPlane;
-	world->addGameObject(plane);
-
 	n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(128.0f * plane->mesh.scale, 0.0f, 0.0f), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(64.0f, 0.0f, 0.0f), n), n }));
 
 	n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-128.0f * plane->mesh.scale, 0.0f, 0.0f), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-64.0f, 0.0f, 0.0f), n), n }));
 
 	n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 128.0f * plane->mesh.scale), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 64.0f), n), n }));
 
 	n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -128.0f * plane->mesh.scale), n), n }));
+	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -64.0f), n), n }));
 
-
-
-	glUseProgram(pShader->ID);
-	world->vecLights.push_back(new cLight(0, pShader->ID));
-	world->vecLights[0]->position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	world->vecLights[0]->atten = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	world->vecLights[0]->diffuse = glm::vec4(0.85f);
-	world->vecLights[0]->specular = glm::vec4(0.0f);
-	world->vecLights[0]->direction = glm::vec4(1.0, -1.0, -0.5, 1.0);
-	world->vecLights[0]->param1 = glm::vec4(2.0f, 0.0f, 0.0f, 0.0f);
-	world->vecLights[0]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-	world->vecLights[0]->updateShaderUniforms();
-
-	//world->vecLights.push_back(new cLight(1, pShader->ID));
-	//world->vecLights[1]->position = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	//world->vecLights[1]->atten = glm::vec4(0.0f, 0.1f, 0.0f, 10000.0f);
-	//world->vecLights[1]->diffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//world->vecLights[1]->specular = glm::vec4(0.0f);
-	//world->vecLights[1]->direction = glm::vec4(0.0f);
-	//world->vecLights[1]->param1 = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	//world->vecLights[1]->param2 = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-	//world->vecLights[1]->updateShaderUniforms();
-
-
-	//cWorld::debugMode = true;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Timing
@@ -782,7 +721,7 @@ int main()
 			glDisable(GL_DEPTH);
 			glDisable(GL_DEPTH_TEST);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		
+
 			sModelDrawInfo drawInfo;
 			if (pVAOManager->FindDrawInfoByModelName("sphere", drawInfo))
 			{
@@ -795,28 +734,24 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		
 		// update
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
-			//world->vecGameObjects[i]->updateMatricis();
-		
-			//if (!world->vecGameObjects[i]->visible)
-			//	continue;
-			//drawObject(world->vecGameObjects[i], program, pVAOManager, dt, totalTime);
 		}
-		
+
 		physWorld->Update(dt);
-		
-		//for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-		//{
-		//	// go->pre
-		//}
-		//
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+
+		// pre frame, then render
 		{
-			world->vecGameObjects[i]->render();
+			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+			{
+				world->vecGameObjects[i]->preFrame();
+			}
+			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+			{
+				world->vecGameObjects[i]->render();
+			}
 		}
 
 		// draw debug
@@ -826,20 +761,6 @@ int main()
 			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
 
-			//glm::mat4 mat(1.0f);
-			//debugSphere->wireFrame = true;
-			//debugSphere->scale = 2.0f;
-			//debugSphere->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-			//
-			//for (auto b : balls)
-			//{
-			//	b->GetTransform(mat);
-			//	debugSphere->setPosition(mat[3]);
-			//	debugSphere->updateMatricis();
-			//	drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//}
-			//
-			//std::cout << std::to_string(mat[3]) << std::endl;
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
@@ -847,30 +768,6 @@ int main()
 		{
 			glUseProgram(program);
 
-			//{
-			//	glUniform1f(pShader->getUniformLocID("passCount"), 1);
-			//	glDisable(GL_CULL_FACE);
-			//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//	glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			//	glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			//	glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 0.0f, 0.0f);
-			//	glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
-			//
-			//	glm::mat4 matWorld(1.0f);
-			//	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-			//	matWorld *= translation;
-			//	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
-			//	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
-			//	// 4. draw a single object, (tri or quad)
-			//	sModelDrawInfo drawInfo;
-			//	if (pVAOManager->FindDrawInfoByModelName("cube", drawInfo))
-			//	{
-			//		glBindVertexArray(drawInfo.VAO_ID);
-			//		glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-			//		glBindVertexArray(0);
-			//	}
-			//}
-			
 			glDisable(GL_CULL_FACE);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -966,18 +863,7 @@ int main()
 
 		delete fbo;
 
-		//delete debugSphere;
-
-		//for (auto b : balls)
-		//	delete b;
-		
-		delete pPhysicsFactory;
-
-		if (hModule)
-		{
-			FreeLibrary(hModule);
-			hModule = NULL;
-		}
+		delete pPhysicsManager;
 	}
 
 	return 0;

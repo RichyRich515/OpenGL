@@ -42,12 +42,8 @@ void cGameObject::instatiateBaseVariables(const Json::Value& obj)
 	if (obj["mesh"])
 		this->mesh.instatiateBaseVariables(obj["mesh"]);
 
-	if (obj["physics"])
-	{
-		// TODO: physics
-
-		//this->physics = cPhysicsManager::getCurrentFactory()->create
-	}
+	if (obj["transform"])
+		this->transform.instatiateBaseVariables(obj["transform"]);
 }
 
 void cGameObject::instatiateUniqueVariables(const Json::Value& obj)
@@ -86,8 +82,10 @@ void cGameObject::preFrame()
 
 void cGameObject::render()
 {
-	glm::mat4 m(1.0f);
-	this->transform->GetTransform(m);
+	if (!this->graphics.visible)
+		return;
+
+	glm::mat4 m = this->transform.matWorld;
 	m *= glm::scale(glm::mat4(1.0), glm::vec3(mesh.scale));
 	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));

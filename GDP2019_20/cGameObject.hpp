@@ -7,22 +7,15 @@
 
 #include <json/json.h>
 
-#include "iMessageable.hpp"
-
-#include "iComponent.hpp"
+#include "iGameObject.hpp"
 #include <iPhysicsComponent.h>
 #include "cGraphicsComponent.hpp"
 #include "cMeshComponent.hpp"
 #include "cTransformComponent.hpp"
 
-class cGameObject : public iMessageable, public iComponent
+class cGameObject : public iGameObject
 {
 public:
-	unsigned id;
-
-	std::string name;
-	std::string type;
-
 	cGameObject();
 	cGameObject(std::string name);
 	cGameObject(Json::Value& obj);

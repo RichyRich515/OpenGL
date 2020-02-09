@@ -41,7 +41,7 @@ void cGraphicsComponent::update(float dt, float tt)
 void cGraphicsComponent::render()
 {
 	// TODO: move this to the game object?
-	cShaderManager::setCurrentShader(this->pShader);
+	this->pShader = cShaderManager::getCurrentShader();
 	// Tie textures
 	{
 		cBasicTextureManager* pTextureManager = cBasicTextureManager::getTextureManager();
@@ -177,7 +177,7 @@ void cGraphicsComponent::instatiateBaseVariables(const Json::Value& obj)
 	lighting = obj["lighting"] ? obj["lighting"].asBool() : false;
 	wireFrame = obj["wireFrame"] ? obj["wireFrame"].asBool() : false;
 	color = obj["color"] ? Json::toVec4(obj["color"]) : glm::vec4(1.0f);
-	specular = obj["specular"] ? Json::toVec4(obj["specular"]) : glm::vec4(0.0f);
+	specular = obj["specular"] ? Json::toVec4(obj["specular"]) : glm::vec4(1.0f);
 
 	if (obj["texture"])
 	{

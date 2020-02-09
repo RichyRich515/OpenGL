@@ -34,9 +34,6 @@
     <Filter Include="Messageable">
       <UniqueIdentifier>{3fc45f69-4627-4ab8-a84c-90411b0141a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameObjectFactory">
-      <UniqueIdentifier>{d4d8f2ee-c1eb-45aa-87d8-12493619d252}</UniqueIdentifier>
-    </Filter>
     <Filter Include="CustomObjects">
       <UniqueIdentifier>{dc176671-d0b7-4d6e-bce0-9b7f402a3428}</UniqueIdentifier>
     </Filter>
@@ -69,6 +66,12 @@
     </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{c8296e07-0d4e-400a-96ba-25ba4d7014e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Factories">
+      <UniqueIdentifier>{d4d8f2ee-c1eb-45aa-87d8-12493619d252}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Managers">
+      <UniqueIdentifier>{25c5a69a-1678-4291-956d-14e49396f68a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,10 +115,10 @@
       <Filter>World</Filter>
     </ClCompile>
     <ClCompile Include="cGameObjectFactory.cpp">
-      <Filter>GameObjectFactory</Filter>
+      <Filter>Factories</Filter>
     </ClCompile>
     <ClCompile Include="cFactoryManager.cpp">
-      <Filter>GameObjectFactory</Filter>
+      <Filter>Factories</Filter>
     </ClCompile>
     <ClCompile Include="Texture\C24BitBMPpixel.cpp">
       <Filter>Textures</Filter>
@@ -162,6 +165,9 @@
     <ClCompile Include="cGameObject.cpp">
       <Filter>GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="cPhysicsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -204,13 +210,13 @@
       <Filter>World</Filter>
     </ClInclude>
     <ClInclude Include="iGameObjectFactory.hpp">
-      <Filter>GameObjectFactory</Filter>
+      <Filter>Factories</Filter>
     </ClInclude>
     <ClInclude Include="cGameObjectFactory.hpp">
-      <Filter>GameObjectFactory</Filter>
+      <Filter>Factories</Filter>
     </ClInclude>
     <ClInclude Include="cFactoryManager.hpp">
-      <Filter>GameObjectFactory</Filter>
+      <Filter>Factories</Filter>
     </ClInclude>
     <ClInclude Include="Texture\C24BitBMPpixel.h">
       <Filter>Textures</Filter>
@@ -262,6 +268,12 @@
     </ClInclude>
     <ClInclude Include="cGameObject.hpp">
       <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="iGameObject.hpp">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="cPhysicsManager.hpp">
+      <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

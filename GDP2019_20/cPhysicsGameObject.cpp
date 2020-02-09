@@ -2,7 +2,9 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <iostream>
 #include "GLCommon.h"
+#include "cPhysicsManager.hpp"
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
+#include "JsonHelper.hpp"
 
 cPhysicsGameObject::cPhysicsGameObject()
 {
@@ -28,7 +30,8 @@ cPhysicsGameObject::cPhysicsGameObject(Json::Value& obj, std::map<std::string, c
 
 cPhysicsGameObject::~cPhysicsGameObject()
 {
-
+	if (this->physics)
+		delete this->physics;
 }
 
 void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
@@ -44,9 +47,29 @@ void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
 
 	if (obj["physics"])
 	{
-		// TODO: physics
+		std::string type = obj["physics"]["type"] ? obj["physics"]["type"].asString() : "";
+		if (type == "ball")
+		{
+			nPhysics::sBallDef def;
+			def.Elasticity = obj["physics"]["elasticity"] ? obj["physics"]["elasticity"].asFloat() : 0.0f;
+			def.Radius = obj["physics"]["radius"] ? obj["physics"]["radius"].asFloat() : 1.0f;
+			def.Mass = obj["physics"]["mass"] ? obj["physics"]["mass"].asFloat() : 0.0f;
+			def.Position = obj["physics"]["position"] ? Json::toVec3(obj["physics"]["position"]) : glm::vec3(0.0f);
 
-		//this->physics = cPhysicsManager::getCurrentFactory()->create
+			this->physics = cPhysicsManager::getFactory()->CreateBall(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
+		else if (type == "plane")
+		{
+			glm::vec3 point = obj["physics"]["point"] ? Json::toVec3(obj["physics"]["point"]) : glm::vec3(0.0f);
+
+			nPhysics::sPlaneDef def;
+			def.Normal = obj["physics"]["normal"] ? Json::toVec3(obj["physics"]["normal"]) : glm::vec3(0.0f);
+			def.Constant = glm::dot(def.Normal, point);
+
+			this->physics = cPhysicsManager::getFactory()->CreatePlane(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
 	}
 }
 
@@ -86,6 +109,9 @@ void cPhysicsGameObject::preFrame()
 
 void cPhysicsGameObject::render()
 {
+	if (!this->graphics.visible)
+		return;
+
 	glm::mat4 m(1.0f);
 	this->physics->GetTransform(m);
 	m *= glm::scale(glm::mat4(1.0), glm::vec3(mesh.scale));

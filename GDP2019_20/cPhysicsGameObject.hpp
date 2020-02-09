@@ -7,21 +7,14 @@
 
 #include <json/json.h>
 
-#include "iMessageable.hpp"
-
-#include "iComponent.hpp"
+#include "iGameObject.hpp"
 #include <iPhysicsComponent.h>
 #include "cGraphicsComponent.hpp"
 #include "cMeshComponent.hpp"
 
-class cPhysicsGameObject : public iMessageable, public iComponent
+class cPhysicsGameObject : public iGameObject
 {
 public:
-	unsigned id;
-
-	std::string name;
-	std::string type;
-
 	cPhysicsGameObject();
 	cPhysicsGameObject(std::string name);
 	cPhysicsGameObject(Json::Value& obj);
@@ -48,5 +41,4 @@ public:
 	cMeshComponent mesh;
 	cGraphicsComponent graphics;
 	nPhysics::iPhysicsComponent* physics;
-	
 };

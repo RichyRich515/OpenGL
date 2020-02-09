@@ -5,6 +5,7 @@
 #include <json/json.h>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Json
 {
@@ -26,5 +27,15 @@ namespace Json
 	inline glm::vec4 toVec4(const Value& v)
 	{
 		return glm::vec4(v[0].asFloat(), v[1].asFloat(), v[2].asFloat(), v[3].asFloat());
+	}
+
+	inline glm::quat toQuat(const Value& v)
+	{
+		return glm::quat(v[0].asFloat(), v[1].asFloat(), v[2].asFloat(), v[3].asFloat());
+	}
+
+	inline Value fromQuat(const glm::quat& q)
+	{
+		return Value().append(q.w).append(q.x).append(q.y).append(q.z);
 	}
 }

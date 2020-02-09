@@ -142,7 +142,7 @@ namespace phys
 			case eShapeType::plane:
 				return CollideSpherePlane(bodyA, (cSphere*)bodyA->GetShape(), bodyB, (cPlane*)bodyB->GetShape());
 			case eShapeType::sphere:
-				return CollideSphereSphere(bodyA, (cSphere*)bodyB->GetShape(), bodyB, (cSphere*)bodyB->GetShape());
+				return CollideSphereSphere(bodyA, (cSphere*)bodyA->GetShape(), bodyB, (cSphere*)bodyB->GetShape());
 			default:
 				return false;
 			}
@@ -156,7 +156,7 @@ namespace phys
 		// From our textbook, REAL-TIME COLLISION DETECTION, ERICSON
 		float t = 0.0f;
 		glm::vec3 q(0.0f);
-		int result = nCollide::intersect_moving_sphere_plane(sphereBody->mPosition, sphereShape->GetRadius(), sphereBody->mPosition - sphereBody->mPreviousPosition, planeShape->GetNormal(), planeShape->GetConstant(), t, q);
+		int result = nCollide::intersect_moving_sphere_plane(sphereBody->mPreviousPosition, sphereShape->GetRadius(), sphereBody->mPosition - sphereBody->mPreviousPosition, planeShape->GetNormal(), planeShape->GetConstant(), t, q);
 
 		// case A: The sphere did not collide during the timestep.
 		//		Return false to indicate no collision happened.
@@ -238,7 +238,10 @@ namespace phys
 	{
 		// From our textbook, REAL-TIME COLLISION DETECTION, ERICSON
 		float t = 0.0f;
-		int res = nCollide::intersect_moving_sphere_sphere(bodyA->mPosition, shapeA->GetRadius(), bodyA->mPosition - bodyA->mPreviousPosition, bodyB->mPosition, shapeB->GetRadius(), bodyB->mPosition - bodyB->mPreviousPosition, t);
+		int res = nCollide::intersect_moving_sphere_sphere(
+			bodyA->mPreviousPosition, shapeA->GetRadius(), bodyA->mPosition - bodyA->mPreviousPosition, 
+			bodyB->mPreviousPosition, shapeB->GetRadius(), bodyB->mPosition - bodyB->mPreviousPosition,
+			t);
 
 		// case A: The spheres don't collide during the timestep.
 		//		Return false to indicate no collision happened.

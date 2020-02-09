@@ -1,4 +1,5 @@
 #include "cTransformComponent.hpp"
+#include "JsonHelper.hpp"
 
 void cTransformComponent::setPosition(glm::vec3 const& pos)
 {
@@ -82,9 +83,21 @@ eComponentType cTransformComponent::getType()
 
 void cTransformComponent::instatiateBaseVariables(const Json::Value& obj)
 {
-
+	this->position = obj["position"] ? Json::toVec3(obj["position"]) : glm::vec3(0.0f);
+	this->orientation = obj["orientation"] ? Json::toQuat(obj["orientation"]) : glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	this->updateMatricis();
 }
 
 void cTransformComponent::serializeJSONObject(Json::Value& obj)
 {
+}
+
+void cTransformComponent::updateMatricis()
+{
+	this->matWorld = glm::mat4(1.0f);
+
+	this->matWorld *= glm::translate(glm::mat4(1.0f), this->position);
+	this->matWorld *= glm::mat4(this->orientation);
+	this->inverseTransposeMatWorld = glm::inverse(glm::transpose(this->matWorld));
+	//this->matWorld *= this->scale;
 }

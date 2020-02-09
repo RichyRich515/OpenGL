@@ -24,6 +24,11 @@ public:
 	glm::vec3 position;
 	glm::quat orientation;
 
+	void updateMatricis();
+
+	glm::mat4 matWorld;
+	glm::mat4 inverseTransposeMatWorld;
+
 	void setPosition(glm::vec3 const& pos);
 	void setPosition(float x, float y, float z);
 	glm::vec3 getPosition();
