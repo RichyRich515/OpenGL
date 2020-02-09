@@ -9,6 +9,12 @@ nPhysics::cPhysicsWorld::cPhysicsWorld()
 	world->SetGravity(glm::vec3(0.0f, -9.8f, 0.0f));
 }
 
+nPhysics::cPhysicsWorld::~cPhysicsWorld()
+{
+	if (this->world != nullptr)
+		delete this->world;
+}
+
 void nPhysics::cPhysicsWorld::Update(float dt)
 {
 	this->world->Update(dt);

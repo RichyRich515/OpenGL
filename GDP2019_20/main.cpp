@@ -23,15 +23,17 @@
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 #include <json/json.h>
+#include "JsonHelper.hpp"
 
 #include "cCamera.hpp"
 #include "cMesh.hpp"
 #include "cModelLoader.hpp"
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
+
 #include "cGameObject.hpp"
+#include "cPhysicsGameObject.hpp"
 #include "cLight.hpp"
-#include "Physics.hpp"
 #include "cKeyboardManager.hpp"
 
 #include "iGameObjectFactory.hpp"
@@ -118,6 +120,7 @@ void writeSceneToFile(std::string filename)
 	root["gameObjects"] = Json::arrayValue;
 	root["lights"] = Json::arrayValue;
 
+	// TODO: rewrite?
 	for (unsigned i = 0; i < 3; ++i) // vec 3s
 	{
 		root["camera"]["cameraEye"][i] = camera->position[i];
@@ -134,8 +137,8 @@ void writeSceneToFile(std::string filename)
 	root["camera"]["yaw"] = camera->yaw;
 	root["camera"]["cameraSpeed"] = camera->speed;
 
-	for (auto g : world->vecGameObjects)
-		root["gameObjects"].append(g->serializeJSONObject());
+	/*for (auto g : world->vecGameObjects)
+		root["gameObjects"].append(g->serializeJSONObject());*/
 
 	for (auto l : world->vecLights)
 		root["lights"].append(l->serializeJSONObject());
@@ -444,8 +447,9 @@ int main()
 	pKeyboardManager = new cKeyboardManager();
 	camera = new cCamera();
 	
-	//openSceneFromFile("scene1.json");
+	openSceneFromFile("assets/scenes/scene1.json");
 
+	// TODO: phyysics manager
 	// Load physics library
 	HMODULE hModule = NULL;
 	{
@@ -464,7 +468,6 @@ int main()
 		}
 	}
 	
-	std::vector<nPhysics::iPhysicsComponent*> balls;
 	auto physWorld = pPhysicsFactory->CreateWorld();
 	if (physWorld == nullptr)
 	{
@@ -481,11 +484,10 @@ int main()
 		def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
 		def.Mass = def.Radius;
 		nPhysics::iPhysicsComponent* physBall = pPhysicsFactory->CreateBall(def);
-		balls.push_back(physBall);
 
 		physWorld->AddComponent(physBall);
 
-		cGameObject* ball = new cGameObject();
+		cPhysicsGameObject* ball = new cPhysicsGameObject();
 		ball->graphics.color = glm::vec4(1.0f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 0.5f  + (float)rand() / RAND_MAX - 0.5f, 1.0f);
 		ball->graphics.lighting = true;
 		ball->graphics.wireFrame = false;
@@ -969,13 +971,13 @@ int main()
 		//for (auto b : balls)
 		//	delete b;
 		
-		//delete pPhysicsFactory;
+		delete pPhysicsFactory;
 
-		//if (hModule)
-		//{
-		//	FreeLibrary(hModule);
-		//	hModule = NULL;
-		//}
+		if (hModule)
+		{
+			FreeLibrary(hModule);
+			hModule = NULL;
+		}
 	}
 
 	return 0;

@@ -13,9 +13,8 @@
 #include <iPhysicsComponent.h>
 #include "cGraphicsComponent.hpp"
 #include "cMeshComponent.hpp"
-#include "cTransformComponent.hpp"
 
-class cGameObject : public iMessageable, public iComponent
+class cPhysicsGameObject : public iMessageable, public iComponent
 {
 public:
 	unsigned id;
@@ -23,11 +22,11 @@ public:
 	std::string name;
 	std::string type;
 
-	cGameObject();
-	cGameObject(std::string name);
-	cGameObject(Json::Value& obj);
-	cGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
-	virtual ~cGameObject();
+	cPhysicsGameObject();
+	cPhysicsGameObject(std::string name);
+	cPhysicsGameObject(Json::Value& obj);
+	cPhysicsGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
+	virtual ~cPhysicsGameObject();
 
 	virtual eComponentType getType() override;
 
@@ -48,5 +47,6 @@ public:
 
 	cMeshComponent mesh;
 	cGraphicsComponent graphics;
-	cTransformComponent transform;
+	nPhysics::iPhysicsComponent* physics;
+	
 };

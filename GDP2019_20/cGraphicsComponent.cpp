@@ -17,14 +17,7 @@ cGraphicsComponent::cGraphicsComponent() :
 
 cGraphicsComponent::cGraphicsComponent(const Json::Value& obj)
 {
-	visible = obj["visible"] ? obj["visible"].asBool() : true;
-	lighting = obj["lighting"] ? obj["lighting"].asBool() : false;
-	wireFrame = obj["wireFrame"] ? obj["wireFrame"].asBool() : false;
-	color = obj["color"] ? Json::toVec4(obj["color"]) : glm::vec4(1.0f);
-	specular = obj["specular"] ? Json::toVec4(obj["specular"]) : glm::vec4(1.0f);
-	dt = 0;
-	tt = 0;
-	pShader = nullptr;
+	instatiateBaseVariables(obj);
 }
 
 cGraphicsComponent::~cGraphicsComponent()
@@ -178,9 +171,41 @@ eComponentType cGraphicsComponent::getType()
 	return eComponentType::Graphics;
 }
 
-void cGraphicsComponent::instatiateBaseVariables(Json::Value& obj)
+void cGraphicsComponent::instatiateBaseVariables(const Json::Value& obj)
 {
+	visible = obj["visible"] ? obj["visible"].asBool() : true;
+	lighting = obj["lighting"] ? obj["lighting"].asBool() : false;
+	wireFrame = obj["wireFrame"] ? obj["wireFrame"].asBool() : false;
+	color = obj["color"] ? Json::toVec4(obj["color"]) : glm::vec4(1.0f);
+	specular = obj["specular"] ? Json::toVec4(obj["specular"]) : glm::vec4(0.0f);
 
+	if (obj["texture"])
+	{
+		if (obj["texture"]["textures"])
+		{
+			Json::Value obj_textures = obj["texture"]["textures"];
+
+			for (unsigned i = 0; i < obj["texture"]["textures"].size() && i < MAX_TEXTURES; ++i)
+			{
+				textures[i].fileName = obj_textures[i]["name"] ? obj_textures[i]["name"].asString() : "";
+				textures[i].blend = obj_textures[i]["blend"] ? obj_textures[i]["blend"].asFloat() : 1.0f;
+				textures[i].tiling = obj_textures[i]["tiling"] ? obj_textures[i]["tiling"].asFloat() : 1.0f;
+				textures[i].xOffset = obj_textures[i]["xOffset"] ? obj_textures[i]["xOffset"].asFloat() : 0.0f;
+				textures[i].yOffset = obj_textures[i]["yOffset"] ? obj_textures[i]["yOffset"].asFloat() : 0.0f;
+			}
+		}
+		if (obj["texture"]["discardmap"])
+		{
+			discardmap.fileName = obj["texture"]["discardmap"]["name"] ? obj["texture"]["discardmap"]["name"].asString() : "";
+			discardmap.blend = obj["texture"]["discardmap"]["blend"] ? obj["texture"]["discardmap"]["blend"].asFloat() : 1.0f;
+			discardmap.tiling = obj["texture"]["discardmap"]["tiling"] ? obj["texture"]["discardmap"]["tiling"].asFloat() : 1.0f;
+			discardmap.xOffset = obj["texture"]["discardmap"]["xOffset"] ? obj["texture"]["discardmap"]["xOffset"].asFloat() : 0.0f;
+			discardmap.yOffset = obj["texture"]["discardmap"]["yOffset"] ? obj["texture"]["discardmap"]["yOffset"].asFloat() : 0.0f;
+		}
+	}
+	dt = 0;
+	tt = 0;
+	pShader = nullptr;
 }
 
 void cGraphicsComponent::serializeJSONObject(Json::Value& obj)

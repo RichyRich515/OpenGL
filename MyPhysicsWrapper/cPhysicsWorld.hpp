@@ -10,6 +10,7 @@ namespace nPhysics
 		phys::cWorld* world;
 	public:
 		cPhysicsWorld();
+		virtual ~cPhysicsWorld();
 
 		virtual void Update(float dt) override;
 		virtual bool AddComponent(iPhysicsComponent* component) override;

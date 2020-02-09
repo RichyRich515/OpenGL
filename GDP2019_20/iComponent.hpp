@@ -24,8 +24,8 @@ public:
 	virtual void update(float dt, float tt) = 0;
 	virtual void render() = 0;
 	
-	virtual void instatiateBaseVariables(Json::Value& obj) {}
-	virtual void instatiateUniqueVariables(Json::Value& obj) {}
+	virtual void instatiateBaseVariables(const Json::Value& obj) {}
+	virtual void instatiateUniqueVariables(const Json::Value& obj) {}
 
 	virtual void serializeJSONObject(Json::Value& obj) {}
 	virtual void serializeUniqueVariables(Json::Value& obj) {}

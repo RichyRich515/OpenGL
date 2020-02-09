@@ -15,6 +15,15 @@ namespace nPhysics
 		this->body = new phys::cRigidBody(bodydef, this->shape);
 	}
 
+	cBallComponent::~cBallComponent()
+	{
+		if (this->body != nullptr)
+			delete this->body;
+
+		if (this->shape != nullptr)
+			delete this->shape;
+	}
+
 	void cBallComponent::GetTransform(glm::mat4& transformOut)
 	{
 		this->body->GetTransform(transformOut);

@@ -102,9 +102,6 @@
     <ClCompile Include="DebugRenderer\COpenGLError.cpp">
       <Filter>DebugRenderer</Filter>
     </ClCompile>
-    <ClCompile Include="cGameObject.cpp">
-      <Filter>GameObject</Filter>
-    </ClCompile>
     <ClCompile Include="cLight.cpp">
       <Filter>Lights</Filter>
     </ClCompile>
@@ -159,6 +156,12 @@
     <ClCompile Include="cShader.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
+    <ClCompile Include="cPhysicsGameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="cGameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cModelLoader.hpp">
@@ -172,9 +175,6 @@
     </ClInclude>
     <ClInclude Include="GLCommon.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cGameObject.hpp">
-      <Filter>GameObject</Filter>
     </ClInclude>
     <ClInclude Include="DebugRenderer\cDebugRenderer.h">
       <Filter>DebugRenderer</Filter>
@@ -257,6 +257,12 @@
     <ClInclude Include="cShaderManager.hpp">
       <Filter>Shader</Filter>
     </ClInclude>
+    <ClInclude Include="cPhysicsGameObject.hpp">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="cGameObject.hpp">
+      <Filter>GameObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl">
@@ -264,9 +270,6 @@
     </None>
     <None Include="assets\shaders\vertexShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="scene1.json">
-      <Filter>Resource Files\Scenes</Filter>
     </None>
     <None Include="assets\LuaScripts\init.lua" />
     <None Include="assets\LuaScripts\init_pelican.lua" />
@@ -276,6 +279,9 @@
     </None>
     <None Include="assets\textures.json">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\scenes\scene1.json">
+      <Filter>Resource Files\Scenes</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

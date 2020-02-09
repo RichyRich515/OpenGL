@@ -1,22 +1,42 @@
 {
 	"camera": {
 		"cameraEye": [
-			-243.26025390625,
-			58.974327087402344,
-			-49.563774108886719
+			0.0,
+			20.0,
+			-127.0
 		],
 		"pitch": 0.0,
-		"yaw": 0.0,
-		"cameraSpeed": 50.0
+		"yaw": 90.0,
+		"cameraSpeed": 20.0
 	},
 	"gameObjects": [
 		{
-			"color": [
-				1.0,
-				1.0,
-				1.0,
-				1.0
-			],
+			"graphics": {
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "sand.bmp",
+							"tiling": 50.0
+						},
+						{
+							"blend": 1.0,
+							"name": "terrain_texture.bmp",
+							"tiling": 50.0
+						},
+						{
+							"blend": 1.0,
+							"name": "rocky.bmp",
+							"tiling": 50.0
+						},
+						{
+							"blend": 1.0,
+							"name": "water_height.bmp",
+							"tiling": 5.0
+						}
+					]
+				}
+			},
 			"meshName": "terrain",
 			"name": "terrain",
 			"position": [
@@ -31,36 +51,6 @@
 				1.0
 			],
 			"scale": 1.0,
-			"specular": [
-				1.0,
-				1.0,
-				1.0,
-				10000.0
-			],
-			"texture": {
-				"textures": [
-					{
-						"blend": 1.0,
-						"name": "sand.bmp",
-						"tiling": 50.0
-					},
-					{
-						"blend": 1.0,
-						"name": "terrain_texture.bmp",
-						"tiling": 50.0
-					},
-					{
-						"blend": 1.0,
-						"name": "rocky.bmp",
-						"tiling": 50.0
-					},
-					{
-						"blend": 1.0,
-						"name": "water_height.bmp",
-						"tiling": 5.0
-					}
-				]
-			},
 			"type": "basic"
 		},
 		{

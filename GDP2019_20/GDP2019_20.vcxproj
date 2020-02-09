@@ -162,6 +162,7 @@
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
     <ClCompile Include="cGameObject.cpp" />
+    <ClCompile Include="cPhysicsGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
     <ClCompile Include="cGraphicsComponent.cpp" />
     <ClCompile Include="cKeyboardManager.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.h" />
     <ClInclude Include="cGameObject.hpp" />
+    <ClInclude Include="cPhysicsGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
     <ClInclude Include="cMeshComponent.hpp" />
     <ClInclude Include="cParticle.hpp" />
@@ -226,10 +228,10 @@
     <None Include="assets\LuaScripts\init_pelican.lua" />
     <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\models.json" />
+    <None Include="assets\scenes\scene1.json" />
     <None Include="assets\shaders\fragmentShader01.glsl" />
     <None Include="assets\shaders\vertexShader01.glsl" />
     <None Include="assets\textures.json" />
-    <None Include="scene1.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />

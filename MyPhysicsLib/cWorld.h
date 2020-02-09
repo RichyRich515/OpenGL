@@ -15,8 +15,7 @@ namespace phys
 	// cWorld will operate on the contained cRigidBody's during timesteps
 	// triggered by calls to cWorld::Update(dt)
 	// 
-	// cWorld does not own cRigidBody pointers, and will not
-	// delete them when it is deleted.
+	// cWorld does not own cRigidBody pointers, and will not delete them when it is deleted.
 	class cWorld
 	{
 	public:

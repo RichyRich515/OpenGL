@@ -1,39 +1,39 @@
-#include "cGameObject.hpp"
+#include "cPhysicsGameObject.hpp"
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <iostream>
 #include "GLCommon.h"
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
-cGameObject::cGameObject()
+cPhysicsGameObject::cPhysicsGameObject()
 {
 	this->name = "";
 	this->type = "basic";
 }
 
-cGameObject::cGameObject(std::string name)
+cPhysicsGameObject::cPhysicsGameObject(std::string name)
 {
 	this->name = name;
 	this->type = "basic";
 }
 
-cGameObject::cGameObject(Json::Value& obj)
+cPhysicsGameObject::cPhysicsGameObject(Json::Value& obj)
 {
 	this->instatiateBaseVariables(obj);
 }
 
-cGameObject::cGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
+cPhysicsGameObject::cPhysicsGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes)
 {
 	this->instatiateBaseVariables(obj);
 }
 
-cGameObject::~cGameObject()
+cPhysicsGameObject::~cPhysicsGameObject()
 {
 
 }
 
-void cGameObject::instatiateBaseVariables(const Json::Value& obj)
+void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
 {
-	this->name = obj["name"] ? obj["name"].asString() : "";
+	this->name = obj["name"] ? obj["name"].asString() : ""; 
 	this->type = obj["type"] ? obj["type"].asString() : "";
 
 	if (obj["graphics"])
@@ -50,12 +50,12 @@ void cGameObject::instatiateBaseVariables(const Json::Value& obj)
 	}
 }
 
-void cGameObject::instatiateUniqueVariables(const Json::Value& obj)
+void cPhysicsGameObject::instatiateUniqueVariables(const Json::Value& obj)
 {
 	// None for base game object
 }
 
-void cGameObject::serializeJSONObject(Json::Value& obj)
+void cPhysicsGameObject::serializeJSONObject(Json::Value& obj)
 {
 	obj = Json::objectValue;
 	obj["name"] = this->name;
@@ -65,29 +65,29 @@ void cGameObject::serializeJSONObject(Json::Value& obj)
 	serializeUniqueVariables(obj);
 }
 
-void cGameObject::serializeUniqueVariables(Json::Value& obj)
+void cPhysicsGameObject::serializeUniqueVariables(Json::Value& obj)
 {
 	// None for base game object
 }
 
 
-void cGameObject::init()
+void cPhysicsGameObject::init()
 {
 }
 
-eComponentType cGameObject::getType()
+eComponentType cPhysicsGameObject::getType()
 {
 	return eComponentType::GameObject;
 }
 
-void cGameObject::preFrame()
+void cPhysicsGameObject::preFrame()
 {
 }
 
-void cGameObject::render()
+void cPhysicsGameObject::render()
 {
 	glm::mat4 m(1.0f);
-	this->transform->GetTransform(m);
+	this->physics->GetTransform(m);
 	m *= glm::scale(glm::mat4(1.0), glm::vec3(mesh.scale));
 	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
@@ -102,13 +102,13 @@ void cGameObject::render()
 	this->mesh.render();
 }
 
-void cGameObject::update(float dt, float tt)
+void cPhysicsGameObject::update(float dt, float tt)
 {
 	this->graphics.update(dt, tt);
 	this->mesh.update(dt, tt);
 }
 
-sMessage cGameObject::message(sMessage const& msg)
+sMessage cPhysicsGameObject::message(sMessage const& msg)
 {
 	return sMessage();
 }

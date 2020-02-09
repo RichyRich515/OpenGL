@@ -27,7 +27,7 @@ namespace phys
 
 	cRigidBody::~cRigidBody()
 	{
-		// TODO: Is there any clean-up required here?
+
 	}
 
 	void cRigidBody::GetTransform(glm::mat4& transformOut)
@@ -36,9 +36,6 @@ namespace phys
 		transformOut *= glm::translate(glm::mat4(1.0f), this->mPosition);
 		// TODO: rotation
 		//transformOut *= rotation;
-
-		// TODO: scale?
-		//transformOut *= scale;
 	}
 
 	void cRigidBody::ApplyForce(const glm::vec3& force)

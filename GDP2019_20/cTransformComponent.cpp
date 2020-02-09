@@ -80,4 +80,11 @@ eComponentType cTransformComponent::getType()
 	return eComponentType::Transform;
 }
 
+void cTransformComponent::instatiateBaseVariables(const Json::Value& obj)
+{
 
+}
+
+void cTransformComponent::serializeJSONObject(Json::Value& obj)
+{
+}

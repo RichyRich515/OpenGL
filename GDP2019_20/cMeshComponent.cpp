@@ -41,3 +41,14 @@ void cMeshComponent::render()
 		glBindVertexArray(0);
 	}
 }
+
+void cMeshComponent::instatiateBaseVariables(const Json::Value& obj)
+{
+	this->meshName = obj["meshName"] ? obj["meshName"].asString() : "";
+	this->scale = scale;
+}
+
+void cMeshComponent::serializeJSONObject(Json::Value& obj)
+{
+
+}
