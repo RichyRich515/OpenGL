@@ -329,13 +329,6 @@ int main()
 
 
 		cShaderManager::setCurrentShader(pShader);
-		// NUB
-
-		//const int NUB_NAME_BUFFERSIZE = 1000;
-		//char NUB_name[NUB_NAME_BUFFERSIZE] = { 0, };
-		//int charactersGLWrote = 0;
-		//glGetActiveUniformBlockName(pShader->ID, 0, NUB_NAME_BUFFERSIZE, &charactersGLWrote, NUB_name);
-		// TODO: more Named Uniform Blocks stuff
 
 		pShader->LoadActiveUniforms();
 		//glUseProgram(program);
@@ -445,9 +438,7 @@ int main()
 	pKeyboardManager = new cKeyboardManager();
 	camera = new cCamera();
 
-	// TODO: physics manager
 	// Load physics library
-
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
 
 

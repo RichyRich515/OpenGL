@@ -21,9 +21,6 @@
 		}
 	],
 	"textures": [
-		"water_height.bmp",
-		"terrain_texture.bmp",
-		"sand.bmp",
-		"rocky.bmp"
+		"terrain_texture.bmp"
 	]
 }

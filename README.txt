@@ -28,8 +28,9 @@ Scene is defined in /assets/scenes/scene1.json
 
 
 Notes: 
-	- The currently controller ball is colored white
+	- The currently controlled ball is colored white
 
+	- I was unable to finish an RK4 integrator for this project so I have used semi-implicit euler instead
 
 Controls:
 	- W A S D 

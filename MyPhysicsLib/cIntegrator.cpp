@@ -21,7 +21,6 @@ namespace phys
 
 	void cIntegrator::Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, const glm::vec3& appliedAcc, float dt)
 	{
-		// TODO: confirm this?
 		acc += appliedAcc; 
 
 		vel.x += acc.x * dt;
