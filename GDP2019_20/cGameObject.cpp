@@ -76,6 +76,11 @@ eComponentType cGameObject::getType()
 	return eComponentType::GameObject;
 }
 
+glm::vec3 cGameObject::getPosition()
+{
+	return this->transform.position;
+}
+
 void cGameObject::preFrame()
 {
 }

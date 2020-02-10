@@ -12,4 +12,6 @@ public:
 	std::string type;
 
 	virtual ~iGameObject() {}
+
+	virtual glm::vec3 getPosition() = 0;
 };

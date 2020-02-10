@@ -23,3 +23,8 @@ void nPhysics::cPlaneComponent::GetTransform(glm::mat4& transformOut)
 {
 	return this->body->GetTransform(transformOut);
 }
+
+void nPhysics::cPlaneComponent::ApplyForce(const glm::vec3& force)
+{
+	// do nothing
+}

@@ -9,6 +9,18 @@ cDebugRenderer* cWorld::pDebugRenderer;
 
 sMessage cWorld::message(sMessage const& msg)
 {
+	if (msg.name == "Get Balls")
+	{
+		auto v = (std::vector<iGameObject*>*) msg.data.vp;
+		
+		for (auto go : vecGameObjects)
+		{
+			if (go->name.substr(0, 4) == "ball")
+			{
+				v->push_back(go);
+			}
+		}
+	}
 	return sMessage();
 }
 

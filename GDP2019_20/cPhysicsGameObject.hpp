@@ -23,6 +23,8 @@ public:
 
 	virtual eComponentType getType() override;
 
+	virtual glm::vec3 getPosition();
+
 	virtual void init();
 
 	virtual void preFrame() override;

@@ -453,49 +453,28 @@ int main()
 
 	openSceneFromFile("assets/scenes/scene1.json");
 	
+	std::vector<cPhysicsGameObject*> balls;
+
+	world->message(sMessage("Get Balls", (void*)&balls));
+	int current_ball_idx = 8;
+
+	float cam_rot = 0.0f;
+	float zoom_amount = 0.0f;
+	constexpr float MAX_ZOOM_IN = -32.0f;
+	constexpr float MAX_ZOOM_OUT = 32.0f;
+
+	constexpr float force_amount = 20.0f;
+
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
 
-	nPhysics::sBallDef def = nPhysics::sBallDef{ 1.0f, 1.0f, glm::vec3(0.0f, 75.0f, 0.0f), 0.75f };
-	for (unsigned i = 0; i < 20; ++i)
-	{
-		def.Position.x = (float)rand() / RAND_MAX * 5.0f;
-		def.Position.z = (float)rand() / RAND_MAX * 5.0f;
-		def.Position.y  += 5.0f + (float)rand() / RAND_MAX * 5.0f - 2.5f;
-		def.Radius = 1.0f + (float)rand() / RAND_MAX * 1.0f - 0.5f;
-		def.Mass = def.Radius;
-		nPhysics::iPhysicsComponent* physBall = pPhysicsFactory->CreateBall(def);
+	float cam_dist = 64.0f + 1.0f * zoom_amount;
+	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
+	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
+	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos - camera->position);
 
-		physWorld->AddComponent(physBall);
-
-		cPhysicsGameObject* ball = new cPhysicsGameObject();
-		ball->graphics.color = glm::vec4(1.0f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 0.5f + (float)rand() / RAND_MAX - 0.5f, 1.0f);
-		ball->graphics.lighting = true;
-		ball->graphics.wireFrame = false;
-		ball->graphics.pShader = pShader;
-
-		ball->mesh.meshName = "sphere";
-		ball->mesh.scale = def.Radius * 2;
-		ball->physics = physBall;
-
-		world->addGameObject(ball);
-	}
-
-	glm::vec3 n = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-	auto physPlane = pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 0.0f), n), n });
-	physWorld->AddComponent(physPlane);
-
-	n = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(64.0f, 0.0f, 0.0f), n), n }));
-
-	n = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(-64.0f, 0.0f, 0.0f), n), n }));
-
-	n = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, 64.0f), n), n }));
-
-	n = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
-	physWorld->AddComponent(pPhysicsFactory->CreatePlane(nPhysics::sPlaneDef{ glm::dot(glm::vec3(0.0f, 0.0f, -64.0f), n), n }));
+	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
+	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -516,154 +495,67 @@ int main()
 
 		// Camera orientation movement
 		{
-			glfwGetCursorPos(window, &cursorX, &cursorY);
+			float cam_dist = -64.0f + 1.0f * zoom_amount;
+			ball_pos = balls[current_ball_idx]->getPosition();
+			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
+			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
 
-			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
-			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
-			lastcursorX = (float)cursorX;
-			lastcursorY = (float)cursorY;
-
-			// Lock pitch
-			if (camera->pitch > 89.9f)
-				camera->pitch = 89.9f;
-			else if (camera->pitch < -89.9f)
-				camera->pitch = -89.9f;
-
-			// debugging camera
-			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
-			camera->forward.y = sin(glm::radians(camera->pitch));
-			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
-			camera->forward = glm::normalize(camera->forward);
+			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
+			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 		}
 
 		// keyboard inputs
 		{
 			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-			{
 				cWorld::debugMode = !cWorld::debugMode;
-			}
-			//if (pKeyboardManager->keyPressed(GLFW_KEY_V))
-			//{
-			//	day_time = !day_time;
-			//	if (day_time)
-			//	{
-			//		world->vecLights[0]->diffuse = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
-			//	}
-			//	else
-			//	{
-			//		world->vecLights[0]->diffuse = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
-			//	}
-			//	world->vecLights[0]->updateShaderUniforms();
-			//}
-			//
-			//if (pKeyboardManager->keyPressed(GLFW_KEY_F1))
-			//{
-			//	std::ostringstream fileName;
-			//	fileName << "scene_" << time(NULL) << ".json";
-			//	writeSceneToFile(fileName.str());
-			//}
 
-			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
-			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+			int ymov = 0;
+			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
 
-			int xRot = pKeyboardManager->keyDown(GLFW_KEY_I) - pKeyboardManager->keyDown(GLFW_KEY_K);
-			int yRot = pKeyboardManager->keyDown(GLFW_KEY_U) - pKeyboardManager->keyDown(GLFW_KEY_O);
-			int zRot = pKeyboardManager->keyDown(GLFW_KEY_J) - pKeyboardManager->keyDown(GLFW_KEY_L);
-
-			int scaleFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-
-			//if (pKeyboardManager->keyPressed(GLFW_KEY_V))
-			//{
-			//	if (shift_pressed)
-			//	{
-			//		if (world->vecLights.size())
-			//			world->vecLights[selectedLight]->param2.x = !world->vecLights[selectedLight]->param2.x;
-			//	}
-			//	else
-			//	{
-			//		if (world->vecGameObjects.size())
-			//			world->vecGameObjects[selectedObject]->visible = !world->vecGameObjects[selectedObject]->visible;
-			//	}
-			//}
-			//if (pKeyboardManager->keyPressed(GLFW_KEY_B))
-			//{
-			//	if (world->vecGameObjects.size())
-			//		world->vecGameObjects[selectedObject]->wireFrame = !world->vecGameObjects[selectedObject]->wireFrame;
-			//}
-			//
-			//if (pKeyboardManager->keyPressed(GLFW_KEY_PERIOD))
-			//{
-			//	if (shift_pressed)
-			//	{
-			//		++selectedLight;
-			//		if (selectedLight >= world->vecLights.size())
-			//			selectedLight = 0;
-			//	}
-			//	else
-			//	{
-			//		++selectedObject;
-			//		if (selectedObject >= world->vecGameObjects.size())
-			//			selectedObject = 0;
-			//	}
-			//}
-			//else if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
-			//{
-			//	if (shift_pressed)
-			//	{
-			//		--selectedLight;
-			//		if (selectedLight < 0)
-			//			selectedLight = (int)world->vecLights.size() - 1;
-			//	}
-			//	else
-			//	{
-			//		--selectedObject;
-			//		if (selectedObject < 0)
-			//			selectedObject = (int)world->vecGameObjects.size() - 1;
-			//	}
-			//}
-			//
-			//if (ctrl_pressed)
-			//{
-			//	if (world->vecGameObjects.size())
-			//	{
-			//		glm::vec3 velocity = dt * 3.0f * glm::vec3(xMove, yMove, zMove);
-			//		glm::vec3 rotation = dt * 0.5f * glm::vec3(xRot, yRot, zRot);
-			//		world->vecGameObjects[selectedObject]->translate(velocity);
-			//		world->vecGameObjects[selectedObject]->scale *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // change by 1%
-			//		world->vecGameObjects[selectedObject]->rotate(rotation);
-			//	}
-			//}
-			//else if (shift_pressed)
-			//{
-			//	if (world->vecLights.size())
-			//	{
-			//		float speed = 3.0f;
-			//		// Move light if shift pressed
-			//		world->vecLights[selectedLight]->position.x += xMove * speed * dt;
-			//		world->vecLights[selectedLight]->position.y += yMove * speed * dt;
-			//		world->vecLights[selectedLight]->position.z += zMove * speed * dt;
-			//		world->vecLights[selectedLight]->atten.y *= (scaleFactor ? (scaleFactor * 0.01f + 1.0f) : 1.0f); // Linear
-			//
-			//		world->vecLights[selectedLight]->updateShaderUniforms();
-			//
-			//		debugSphere->setPosition(world->vecLights[selectedLight]->position);
-			//		debugSphere->scale = 1.0f;//0.1f / world->vecLights[selectedLight]->atten.y;
-			//		debugSphere->color = world->vecLights[selectedLight]->diffuse;
-			//		debugSphere->wireFrame = true;
-			//		debugSphere->visible = true;
-			//		debugSphere->lighting = false;
-			//		debugSphere->updateMatricis();
-			//		// Draw light sphere if shift pressed
-			//		drawObject(debugSphere, program, pVAOManager, dt, totalTime);
-			//	}
-			//}
-			//else
+			if (xmov || ymov || zmov)
 			{
-				camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
-				camera->position += -xMove * camera->speed * dt * camera->right;
-				camera->position += yMove * camera->speed * dt * camera->up;
+				// move the ball relative to the camera
+				balls[current_ball_idx]->physics->ApplyForce(
+					(glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
+
+			}
+
+			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
+			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
+
+			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
+			zoom_amount += zoomFactor * camera->speed * dt;
+
+			if (zoom_amount > MAX_ZOOM_OUT)
+				zoom_amount = MAX_ZOOM_OUT;
+			else if (zoom_amount < MAX_ZOOM_IN)
+				zoom_amount = MAX_ZOOM_IN;
+
+
+			/*if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
+			{
+				balls[current_ball_idx]->graphics.color = old_color;
+
+				--current_ball_idx;
+				if (current_ball_idx < 0)
+					current_ball_idx = balls.size() - 1;
+
+				old_color = balls[current_ball_idx]->graphics.color;
+
+				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+			}
+			else */if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
+			{
+				balls[current_ball_idx]->graphics.color = old_color;
+				++current_ball_idx;
+				if (current_ball_idx >= balls.size())
+					current_ball_idx = 0;
+
+				old_color = balls[current_ball_idx]->graphics.color;
+
+				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
 			}
 		}
 

@@ -103,6 +103,20 @@ eComponentType cPhysicsGameObject::getType()
 	return eComponentType::GameObject;
 }
 
+glm::vec3 cPhysicsGameObject::getPosition()
+{
+	if (this->physics)
+	{
+		glm::mat4 transform;
+		this->physics->GetTransform(transform);
+		return transform[3];
+	}
+	else
+	{
+		return glm::vec3(0.0f);
+	}
+}
+
 void cPhysicsGameObject::preFrame()
 {
 }

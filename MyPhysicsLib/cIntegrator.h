@@ -11,12 +11,6 @@ namespace phys
 	class cIntegrator
 	{
 	private:
-		// TODO: Define any structs used internally for specific schemes.
-		//       Such as,
-		struct State;
-		struct Derivative;
-		struct sRK4State;
-		// TODO: Define any methods used interally for specific schemes.
 
 	public:
 

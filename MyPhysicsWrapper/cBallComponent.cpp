@@ -28,4 +28,9 @@ namespace nPhysics
 	{
 		this->body->GetTransform(transformOut);
 	}
+
+	void cBallComponent::ApplyForce(const glm::vec3& force)
+	{
+		this->body->ApplyForce(force);
+	}
 }

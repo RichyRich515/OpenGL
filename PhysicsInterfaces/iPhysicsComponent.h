@@ -12,6 +12,8 @@ namespace nPhysics
 
 		virtual void GetTransform(glm::mat4& transformOut) = 0;
 
+		virtual void ApplyForce(const glm::vec3& force) = 0;
+
 	protected:
 		iPhysicsComponent(ePhysicsComponentType componentType)
 			: mComponentType(componentType) {}

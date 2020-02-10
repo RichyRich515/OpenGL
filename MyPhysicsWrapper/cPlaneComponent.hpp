@@ -19,5 +19,8 @@ namespace nPhysics
 		virtual ~cPlaneComponent();
 
 		virtual void GetTransform(glm::mat4& transformOut) override;
+
+		// Inherited via iPlaneComponent
+		virtual void ApplyForce(const glm::vec3& force) override;
 	};
 }

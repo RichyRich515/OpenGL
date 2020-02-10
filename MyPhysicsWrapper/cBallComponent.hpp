@@ -19,5 +19,7 @@ namespace nPhysics
 		virtual ~cBallComponent();
 
 		virtual void GetTransform(glm::mat4& transformOut) override;
+
+		virtual void ApplyForce(const glm::vec3& force) override;
 	};
 }
