@@ -30,6 +30,7 @@ cPhysicsGameObject::cPhysicsGameObject(Json::Value& obj, std::map<std::string, c
 
 cPhysicsGameObject::~cPhysicsGameObject()
 {
+	cPhysicsManager::getWorld()->RemoveComponent(this->physics);
 	if (this->physics)
 		delete this->physics;
 }

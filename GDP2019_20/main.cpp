@@ -52,12 +52,12 @@
 
 #include "Texture/cBasicTextureManager.h"
 
-#define MY_PHYSICS
+//#define MY_PHYSICS
 
 #ifdef MY_PHYSICS
 constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
-#elif
-constexpr char physics_library_name[] = "BulletWrapper.dll";
+#else
+constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
 #endif
 
 cPhysicsManager* pPhysicsManager;
