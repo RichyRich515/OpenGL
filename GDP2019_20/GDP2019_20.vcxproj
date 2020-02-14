@@ -162,6 +162,7 @@
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
     <ClCompile Include="cGameObject.cpp" />
+    <ClCompile Include="cMesh.cpp" />
     <ClCompile Include="cPhysicsGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
     <ClCompile Include="cGraphicsComponent.cpp" />
@@ -173,6 +174,7 @@
     <ClCompile Include="cPhysicsManager.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
+    <ClCompile Include="cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp" />
     <ClCompile Include="cTransformComponent.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="cWorld.cpp" />
@@ -201,6 +203,7 @@
     <ClInclude Include="cParticleEmitter.hpp" />
     <ClInclude Include="cCommand.hpp" />
     <ClInclude Include="cPhysicsManager.hpp" />
+    <ClInclude Include="cSimpleAssimpSkinnedMeshLoader_OneMesh.h" />
     <ClInclude Include="cTransformComponent.hpp" />
     <ClInclude Include="iComponent.hpp" />
     <ClInclude Include="iGameObject.hpp" />

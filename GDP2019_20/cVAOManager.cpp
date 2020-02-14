@@ -24,42 +24,43 @@ sModelDrawInfo::sModelDrawInfo()
 	this->numberOfTriangles = 0;
 
 	// The "local" (i.e. "CPU side" temporary array)
-	this->pVertices = NULL;
-	this->pIndices = NULL;
+	this->pVertices = nullptr;
+	this->pIndices = nullptr;
 
 	// You could store the max and min values of the 
 	//  vertices here (determined when you load them):
 	glm::vec3 maxValues;
 	glm::vec3 minValues;
 
-//	scale = 5.0/maxExtent;		-> 5x5x5
+	//	scale = 5.0/maxExtent;		-> 5x5x5
 	float maxExtent;
 
 	return;
 }
 
 
+cVAOManager::~cVAOManager()
+{
+	for (auto v : this->m_map_ModelName_to_VAOID)
+	{
+		delete v.second.pIndices;
+	}
+}
+
 bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int shaderProgramID)
 {
 	sModelDrawInfo drawInfo;
 	drawInfo.meshName = name;
-	drawInfo.numberOfVertices = mesh->vecVertices.size();
-	drawInfo.pVertices = new sVertex[drawInfo.numberOfVertices];
-	for (unsigned i = 0; i != drawInfo.numberOfVertices; ++i)
-		drawInfo.pVertices[i] = sVertex{
-			mesh->vecVertices[i].x, mesh->vecVertices[i].y, mesh->vecVertices[i].z, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			mesh->vecVertices[i].nx, mesh->vecVertices[i].ny, mesh->vecVertices[i].nz, 1.0f,
-			mesh->vecVertices[i].u, mesh->vecVertices[i].v, 1.0f, 1.0f };
-
-	drawInfo.numberOfTriangles = mesh->vecTriangles.size();
-	drawInfo.numberOfIndices = mesh->vecTriangles.size() * 3;
+	drawInfo.numberOfVertices = mesh->numberOfVertices;
+	drawInfo.pVertices = mesh->vertices;
+	drawInfo.numberOfTriangles = mesh->numberOfTriangles;
+	drawInfo.numberOfIndices = drawInfo.numberOfTriangles * 3;
 	drawInfo.pIndices = new unsigned[drawInfo.numberOfIndices];
-	for (unsigned i = 0, j = 0; i != mesh->vecTriangles.size(); ++i, j += 3)
+	for (unsigned i = 0, j = 0; i != drawInfo.numberOfTriangles; ++i, j += 3)
 	{
-		drawInfo.pIndices[j + 0] = mesh->vecTriangles[i].vert_index_1;
-		drawInfo.pIndices[j + 1] = mesh->vecTriangles[i].vert_index_2;
-		drawInfo.pIndices[j + 2] = mesh->vecTriangles[i].vert_index_3;
+		drawInfo.pIndices[j + 0] = mesh->triangles[i].vert_index_1;
+		drawInfo.pIndices[j + 1] = mesh->triangles[i].vert_index_2;
+		drawInfo.pIndices[j + 2] = mesh->triangles[i].vert_index_3;
 	}
 
 
@@ -77,7 +78,7 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	glGenBuffers(1, &(drawInfo.VertexBufferID));
 
 	glBindBuffer(GL_ARRAY_BUFFER, drawInfo.VertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(sVertex) * drawInfo.numberOfVertices, (GLvoid*) drawInfo.pVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cVertex) * drawInfo.numberOfVertices, (GLvoid*)drawInfo.pVertices, GL_DYNAMIC_DRAW);
 
 	// Copy the index buffer into the video card, too
 	// Create an index buffer.
@@ -93,18 +94,35 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	GLint vnorm_location = glGetAttribLocation(shaderProgramID, "vNormal");
 	GLint vUV_location = glGetAttribLocation(shaderProgramID, "vUVx2");
 
+	GLint vTangent_location = glGetAttribLocation(shaderProgramID, "vTangent");
+	GLint vBiNormal_location = glGetAttribLocation(shaderProgramID, "vBiNormal");
+	GLint vBoneID_location = glGetAttribLocation(shaderProgramID, "vBoneID");
+	GLint vBoneWeight_location = glGetAttribLocation(shaderProgramID, "vBoneWeight");
+
 	// Set the vertex attributes for this shader
 	glEnableVertexAttribArray(vpos_location);
-	glVertexAttribPointer(vpos_location, 4,	GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, x)));
+	glVertexAttribPointer(vpos_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, x)));
 
 	glEnableVertexAttribArray(vcol_location);
-	glVertexAttribPointer(vcol_location, 4, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, r)));
+	glVertexAttribPointer(vcol_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, r)));
 
 	glEnableVertexAttribArray(vnorm_location);
-	glVertexAttribPointer(vnorm_location, 4, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, nx)));
+	glVertexAttribPointer(vnorm_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, nx)));
 
 	glEnableVertexAttribArray(vUV_location);
-	glVertexAttribPointer(vUV_location, 4, GL_FLOAT, GL_FALSE, sizeof(sVertex), (void*)(offsetof(sVertex, u0)));
+	glVertexAttribPointer(vUV_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, u0)));
+
+	glEnableVertexAttribArray(vTangent_location);
+	glVertexAttribPointer(vTangent_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, tx)));
+
+	glEnableVertexAttribArray(vBiNormal_location);
+	glVertexAttribPointer(vBiNormal_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, bx)));
+
+	glEnableVertexAttribArray(vBoneID_location);
+	glVertexAttribPointer(vBoneID_location, NUMBER_OF_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneID[0])));
+
+	glEnableVertexAttribArray(vBoneWeight_location);
+	glVertexAttribPointer(vBoneWeight_location, NUMBER_OF_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneWeights[0])));
 
 	// Now that all the parts are set up, set the VAO to zero
 	glBindVertexArray(0);
@@ -114,31 +132,27 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 
 	glDisableVertexAttribArray(vpos_location);
 	glDisableVertexAttribArray(vcol_location);
+	glDisableVertexAttribArray(vnorm_location);
+	glDisableVertexAttribArray(vUV_location);
+
+	glDisableVertexAttribArray(vTangent_location);
+	glDisableVertexAttribArray(vBiNormal_location);
+	glDisableVertexAttribArray(vBoneID_location);
+	glDisableVertexAttribArray(vBoneWeight_location);
 
 	this->m_map_ModelName_to_VAOID[drawInfo.meshName] = drawInfo;
 
 	return true;
 }
 
-// We don't want to return an int, likely
-bool cVAOManager::FindDrawInfoByModelName(
-		std::string filename,
-		sModelDrawInfo &drawInfo) 
+bool cVAOManager::FindDrawInfoByModelName(std::string filename, sModelDrawInfo& drawInfo)
 {
-	std::map< std::string /*model name*/,
-			sModelDrawInfo /* info needed to draw*/ >::iterator 
-		itDrawInfo = this->m_map_ModelName_to_VAOID.find( filename );
-
-	// Find it? 
-	if ( itDrawInfo == this->m_map_ModelName_to_VAOID.end() )
+	auto itDrawInfo = this->m_map_ModelName_to_VAOID.find(filename);
+	if (itDrawInfo != this->m_map_ModelName_to_VAOID.end())
 	{
-		// Nope
-		return false;
+		drawInfo = itDrawInfo->second;
+		return true;
 	}
+	return false;
 
-	// Else we found the thing to draw
-	// ...so 'return' that information
-	drawInfo = itDrawInfo->second;
-	return true;
 }
-

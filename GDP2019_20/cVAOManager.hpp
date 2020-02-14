@@ -10,13 +10,6 @@
 
 #include "cMesh.hpp" // model from file
 
-struct sVertex
-{
-	float x, y, z, w; // w coordinate	
-	float r, g, b, a; // a = alpha (transparency)
-	float nx, ny, nz, nw;
-	float u0, v0, u1, v1;
-};
 
 struct sModelDrawInfo
 {
@@ -36,7 +29,7 @@ struct sModelDrawInfo
 	unsigned int numberOfTriangles;
 
 	// The "local" (i.e. "CPU side" temporary array)
-	sVertex* pVertices;	//  = 0;
+	cVertex* pVertices;	//  = 0;
 	// The index buffer (CPU side)
 	unsigned* pIndices;
 };
@@ -45,6 +38,9 @@ struct sModelDrawInfo
 class cVAOManager
 {
 public:
+	cVAOManager() {}
+	~cVAOManager();
+
 
 	// Takes cMesg object and loads into GPU (as a VAO)
 	bool LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int shaderProgramID);

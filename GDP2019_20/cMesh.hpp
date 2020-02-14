@@ -5,18 +5,32 @@
 
 #pragma once
 
-#include <vector>
+#include <string>
 
-// Matches ply file format
-struct sPlyVertex
+static const unsigned int NUMBER_OF_BONES_PER_VERTEX = 4;
+
+class cVertex
 {
-	float x, y, z;
-	float nx, ny, nz;
-	float u, v;
+public:
+	cVertex();
+	~cVertex() {}
+	float x, y, z, w;
+	float r, g, b, a;
+	float nx, ny, nz, nw;
+	float u0, v0, u1, v1;
+	float tx, ty, tz, tw;
+	float bx, by, bz, bw;
+
+	float boneID[NUMBER_OF_BONES_PER_VERTEX];
+	float boneWeights[NUMBER_OF_BONES_PER_VERTEX];
 };
 
-struct sPlyTriangle
+class cIndexedTriangle
 {
+public:
+	cIndexedTriangle();
+	~cIndexedTriangle() {}
+
 	unsigned vert_index_1;
 	unsigned vert_index_2;
 	unsigned vert_index_3;
@@ -25,9 +39,14 @@ struct sPlyTriangle
 class cMesh
 {
 public:
-	cMesh() {}
-	~cMesh() {}
+	cMesh();
+	~cMesh();
 
-	std::vector<sPlyVertex> vecVertices;
-	std::vector<sPlyTriangle> vecTriangles;
+	std::string name;
+
+	unsigned numberOfVertices;
+	cVertex* vertices;
+
+	unsigned numberOfTriangles;
+	cIndexedTriangle* triangles;
 };

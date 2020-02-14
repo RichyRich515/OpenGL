@@ -18,7 +18,7 @@ cModelLoader::~cModelLoader()
 {
 }
 
-bool cModelLoader::loadModel(std::string filename, cMesh* mesh)
+bool cModelLoader::loadModel_ply(std::string filename, cMesh* mesh)
 {
 	std::ifstream infile(filename);
 	if (!infile)
@@ -39,21 +39,21 @@ bool cModelLoader::loadModel(std::string filename, cMesh* mesh)
 
 	while (infile >> t && t != "end_header");
 
-	mesh->vecVertices.resize(verts);
-	mesh->vecTriangles.resize(faces);
+	mesh->vertices = new cVertex[verts];
+	mesh->triangles = new cIndexedTriangle[faces];
 
 	for (unsigned i = 0; i < verts; ++i)
 	{
-		infile >> mesh->vecVertices[i].x >> mesh->vecVertices[i].y >> mesh->vecVertices[i].z
-			>> mesh->vecVertices[i].nx >> mesh->vecVertices[i].ny >> mesh->vecVertices[i].nz;
+		infile >> mesh->vertices[i].x >> mesh->vertices[i].y >> mesh->vertices[i].z
+			>> mesh->vertices[i].nx >> mesh->vertices[i].ny >> mesh->vertices[i].nz;
 		if (UVs)
-			infile >> mesh->vecVertices[i].u >> mesh->vecVertices[i].v;
+			infile >> mesh->vertices[i].u0 >> mesh->vertices[i].v0;
 	}
 
 	unsigned v; // Ignore the first number
 	for (unsigned i = 0; i < faces; ++i)
 	{
-		infile >> v >> mesh->vecTriangles[i].vert_index_1 >> mesh->vecTriangles[i].vert_index_2 >> mesh->vecTriangles[i].vert_index_3;
+		infile >> v >> mesh->triangles[i].vert_index_1 >> mesh->triangles[i].vert_index_2 >> mesh->triangles[i].vert_index_3;
 	}
 
 	return true;
@@ -76,7 +76,7 @@ bool cModelLoader::loadModel_assimp(std::string filename, cMesh* mesh, std::stri
 
 	errors.clear();
 	errors.append(mImporter.GetErrorString());
-	if (errors != "")
+	if (errors.length() > 0)
 	{
 		delete pScene;
 		return false;
@@ -84,59 +84,40 @@ bool cModelLoader::loadModel_assimp(std::string filename, cMesh* mesh, std::stri
 
 	if (pScene->HasMeshes())
 	{
-		mesh->vecVertices.reserve(pScene->mMeshes[0]->mNumVertices);
-		if (pScene->mMeshes[0]->HasTextureCoords(0))
+		mesh->numberOfVertices = pScene->mMeshes[0]->mNumVertices;
+		mesh->vertices = new cVertex[mesh->numberOfVertices];
+		bool has_normals = pScene->mMeshes[0]->HasNormals();
+		bool has_UV0 = pScene->mMeshes[0]->HasTextureCoords(0);
+
+		for (size_t i = 0; i < mesh->numberOfVertices; ++i)
 		{
-			for (size_t i = 0; i < pScene->mMeshes[0]->mNumVertices; ++i)
+			// Vert XYZ
+			mesh->vertices[i].x = pScene->mMeshes[0]->mVertices[i].x;
+			mesh->vertices[i].y = pScene->mMeshes[0]->mVertices[i].y;
+			mesh->vertices[i].z = pScene->mMeshes[0]->mVertices[i].z;
+
+			if (has_normals)
 			{
-				mesh->vecVertices.push_back(sPlyVertex{
-					// Vert XYZ
-					pScene->mMeshes[0]->mVertices[i].x,
-					pScene->mMeshes[0]->mVertices[i].y,
-					pScene->mMeshes[0]->mVertices[i].z,
+				mesh->vertices[i].nx = pScene->mMeshes[0]->mNormals[i].x;
+				mesh->vertices[i].ny = pScene->mMeshes[0]->mNormals[i].y;
+				mesh->vertices[i].nz = pScene->mMeshes[0]->mNormals[i].z;
+			}
 
-					// Normal XYZ
-					pScene->mMeshes[0]->mNormals[i].x,
-					pScene->mMeshes[0]->mNormals[i].y,
-					pScene->mMeshes[0]->mNormals[i].z,
-
-					// Texture coords ST/UV
-					pScene->mMeshes[0]->mTextureCoords[0][i].x,
-					pScene->mMeshes[0]->mTextureCoords[0][i].y
-					});
+			if (has_UV0)
+			{
+				// Texture coords ST/UV
+				mesh->vertices[i].u0 = pScene->mMeshes[0]->mTextureCoords[0][i].x;
+				mesh->vertices[i].v0 = pScene->mMeshes[0]->mTextureCoords[0][i].y;
 			}
 		}
-		else
+
+		mesh->numberOfTriangles = pScene->mMeshes[0]->mNumFaces;
+		mesh->triangles = new cIndexedTriangle[mesh->numberOfTriangles];
+		for (size_t i = 0; i < mesh->numberOfTriangles; ++i)
 		{
-			for (size_t i = 0; i < pScene->mMeshes[0]->mNumVertices; ++i)
-			{
-				mesh->vecVertices.push_back(sPlyVertex{
-					// Vert XYZ
-					pScene->mMeshes[0]->mVertices[i].x,
-					pScene->mMeshes[0]->mVertices[i].y,
-					pScene->mMeshes[0]->mVertices[i].z,
-
-					// Normal XYZ
-					pScene->mMeshes[0]->mNormals[i].x,
-					pScene->mMeshes[0]->mNormals[i].y,
-					pScene->mMeshes[0]->mNormals[i].z,
-
-					// Texture coords ST/UV
-					0.0f,
-					0.0f
-					});
-			}
-		}
-		
-
-		mesh->vecTriangles.reserve(pScene->mMeshes[0]->mNumFaces);
-		for (size_t i = 0; i < pScene->mMeshes[0]->mNumFaces; ++i)
-		{
-			mesh->vecTriangles.push_back(sPlyTriangle{
-				pScene->mMeshes[0]->mFaces[i].mIndices[0],
-				pScene->mMeshes[0]->mFaces[i].mIndices[1],
-				pScene->mMeshes[0]->mFaces[i].mIndices[2]
-				});
+			mesh->triangles[i].vert_index_1 = pScene->mMeshes[0]->mFaces[i].mIndices[0];
+			mesh->triangles[i].vert_index_2 = pScene->mMeshes[0]->mFaces[i].mIndices[1];
+			mesh->triangles[i].vert_index_3 = pScene->mMeshes[0]->mFaces[i].mIndices[2];
 		}
 	}
 	else
@@ -144,6 +125,5 @@ bool cModelLoader::loadModel_assimp(std::string filename, cMesh* mesh, std::stri
 		errors = "No meshes";
 	}
 
-	//delete pScene;
 	return true;
 }
