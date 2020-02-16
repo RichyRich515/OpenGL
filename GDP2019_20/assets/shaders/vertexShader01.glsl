@@ -96,7 +96,5 @@ void main()
 		fColour = vColour;
 		fUVx2 = vUVx2;
 		
-	}//if (isSkinnedMesh)
-
-  
+	}
 }

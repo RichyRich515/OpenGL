@@ -34,6 +34,7 @@
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
+#include "cAnimatedGameObject.hpp"
 #include "cLight.hpp"
 #include "cKeyboardManager.hpp"
 
@@ -251,6 +252,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main()
 {
+	std::cout << "start" << std::endl;
 	srand(time(NULL));
 	GLFWwindow* window;
 
@@ -467,6 +469,32 @@ int main()
 	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
 	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
 
+
+	cAnimatedGameObject* ago = new cAnimatedGameObject();
+
+	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.FBX");
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG-Character Walk.fbx");
+
+	ago->graphics.pShader = pShader;
+	ago->graphics.color = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
+	ago->graphics.visible = true;
+	ago->graphics.wireFrame = false;
+	ago->graphics.lighting = true;
+	ago->graphics.specular = glm::vec4(1.0f);
+
+	ago->mesh.meshName = "RPGCharacter";
+	ago->mesh.scale = 0.1f;
+
+	ago->transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	ago->transform.setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+	ago->transform.updateMatricis();
+
+	// Get the draw info, to load into the VAO
+	cMesh* pMesh = ago->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
+
+	if (pMesh)
+		pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Timing
@@ -601,7 +629,6 @@ int main()
 			glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 			glUniform1i(pShader->getUniformLocID("daytime"), day_time);
 			glDisable(GL_CULL_FACE);
-			glDisable(GL_DEPTH);
 			glDisable(GL_DEPTH_TEST);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -613,7 +640,6 @@ int main()
 				glBindVertexArray(0);
 			}
 			glEnable(GL_CULL_FACE);
-			glEnable(GL_DEPTH);
 			glEnable(GL_DEPTH_TEST);
 		}
 
@@ -635,6 +661,10 @@ int main()
 			{
 				world->vecGameObjects[i]->render();
 			}
+
+			ago->update(dt, totalTime);
+			ago->preFrame();
+			ago->render();
 		}
 
 		// draw debug
@@ -690,8 +720,6 @@ int main()
 			}
 
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
-			glActiveTexture(0);
-
 		}
 
 
@@ -743,6 +771,7 @@ int main()
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
+		delete ago;
 
 		delete fbo;
 

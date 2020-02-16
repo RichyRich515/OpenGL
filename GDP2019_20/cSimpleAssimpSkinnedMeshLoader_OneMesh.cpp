@@ -25,6 +25,7 @@ glm::mat4 AIMatrixToGLMMatrix(const aiMatrix4x4& mat)
 cSimpleAssimpSkinnedMesh::cSimpleAssimpSkinnedMesh(void)
 {
 	this->pScene = 0;
+	this->mImporter = 0;
 	this->mNumBones = 0;
 
 	this->m_numberOfVertices = 0;
@@ -33,7 +34,7 @@ cSimpleAssimpSkinnedMesh::cSimpleAssimpSkinnedMesh(void)
 
 	//this->m_VAO_ID = 0;				// Vertex Array Object
 	//this->m_VBO_ID = 0;				// Vertex buffer object 
-	//this->m_indexBuf_ID = 0;		// Index buffer referring to VBO
+	//this->m_indexBuf_ID = 0;			// Index buffer referring to VBO
 	//this->m_bVAO_created = false;
 	//this->m_shaderIDMatchingVAO = 0;
 
@@ -56,7 +57,9 @@ void cSimpleAssimpSkinnedMesh::ShutErDown(void)
 	//	delete [] this->m_pVertexData;
 	//}
 	// TODO: Delete the OpenGL buffers, too??
-
+	
+	if (this->mImporter)
+		delete this->mImporter;
 	return;
 }
 
@@ -70,7 +73,10 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string& friendlyName,
 		aiProcess_GenNormals |
 		aiProcess_CalcTangentSpace;
 
-	this->pScene = this->mImporter.ReadFile(filename.c_str(), Flags);
+	this->mImporter = new Assimp::Importer();
+
+	this->mImporter->ReadFile(filename.c_str(), Flags);
+	this->pScene = this->mImporter->GetOrphanedScene();
 
 	//aiMesh* pM0 = this->pScene->mMeshes[0];
 	////aiMesh* pM1 = this->mpScene->mMeshes[1];
@@ -79,18 +85,15 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string& friendlyName,
 	if (this->pScene)
 	{
 		this->fileName = filename;
-		// Assume the friendlyName is the same as the file, for now
 		this->friendlyName = friendlyName;
 
 		this->mGlobalInverseTransformation = AIMatrixToGLMMatrix(pScene->mRootNode->mTransformation);
 		this->mGlobalInverseTransformation = glm::inverse(this->mGlobalInverseTransformation);
 
-		// Calcualte all the bone things
+		// Calculate all the bone things
 		if (!this->Initialize())
-		{	// There was an issue doing this calculation
 			return false;
-		}
-	}//if ( this->pScene )
+	} 
 
 	return true;
 }
@@ -99,47 +102,28 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string& friendlyName,
 // Looks in the animation map and returns the total time
 float cSimpleAssimpSkinnedMesh::FindAnimationTotalTime(std::string animationName)
 {
-	//std::map< std::string /*animationfile*/,
-	//	const aiScene* >::iterator itAnimation = this->mapAnimationNameTo_pScene.find(animationName);
-	std::map< std::string /*animation FRIENDLY name*/,
-		sAnimationInfo >::iterator itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
-
-	// Found it? 
+	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
 	if (itAnimation == this->mapAnimationFriendlyNameTo_pScene.end())
-	{	// Nope.
 		return 0.0f;
-	}
 
 	// This is scaling the animation from 0 to 1
 	return (float)itAnimation->second.pAIScene->mAnimations[0]->mDuration;
 }
 
 
-bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string& friendlyName,
-	const std::string& filename)	// Only want animations
+bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string& friendlyName, const std::string& filename)
 {
 	// Already loaded this? 
-	std::map< std::string /*animation FRIENDLY name*/,
-		sAnimationInfo >::iterator itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(friendlyName);
-
-	// Found it? 
+	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(friendlyName);
 	if (itAnimation != this->mapAnimationFriendlyNameTo_pScene.end())
-	{	// Yup. So we already loaded it.
 		return false;
-	}
-
-
-	//	std::map< std::string /*animationfile*/,
-	//		      const aiScene* > mapAnimationNameTo_pScene;		// Animations
 
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_JoinIdenticalVertices;
 
-	Assimp::Importer* pImporter = new Assimp::Importer();
-	//	const aiScene* pAniScene = pImporter->ReadFile(filename.c_str(), Flags);
 	sAnimationInfo animInfo;
 	animInfo.friendlyName = friendlyName;
 	animInfo.fileName = filename;
-	animInfo.pAIScene = pImporter->ReadFile(animInfo.fileName.c_str(), Flags);
+	animInfo.pAIScene = this->mImporter->ReadFile(animInfo.fileName.c_str(), Flags);
 
 	if (!animInfo.pAIScene)
 	{
@@ -167,14 +151,6 @@ void cSimpleAssimpSkinnedMesh::GetListOfBoneIDandNames(std::vector<std::string>&
 	}
 	return;
 }
-
-
-
-//const aiScene* pScene;		// "pretty" mesh we update and draw
-//Assimp::Importer mImporter;
-
-//std::map< std::string /*animationfile*/,
-//	      const aiScene* > mapAnimationNameTo_pScene;		// Animations
 
 
 bool cSimpleAssimpSkinnedMesh::Initialize(void)
@@ -213,8 +189,7 @@ void cSimpleAssimpSkinnedMesh::BoneTransform(float TimeInSeconds,
 {
 	glm::mat4 Identity(1.0f);
 
-	float TicksPerSecond = static_cast<float>(this->pScene->mAnimations[0]->mTicksPerSecond != 0 ?
-		this->pScene->mAnimations[0]->mTicksPerSecond : 25.0);
+	float TicksPerSecond = static_cast<float>(this->pScene->mAnimations[0]->mTicksPerSecond != 0 ? this->pScene->mAnimations[0]->mTicksPerSecond : 25.0);
 
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
 	float AnimationTime = fmod(TimeInTicks, (float)this->pScene->mAnimations[0]->mDuration);
@@ -336,10 +311,7 @@ void cSimpleAssimpSkinnedMesh::ReadNodeHeirarchy(float AnimationTime,
 	const aiAnimation* pAnimation = this->pScene->mAnimations[0];
 
 	// Search for the animation we want... 
-	std::map< std::string /*animation FRIENDLY name*/,
-		sAnimationInfo >::iterator itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);		// Animations
-
-// Did we find it? 
+	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
 	if (itAnimation != this->mapAnimationFriendlyNameTo_pScene.end())
 	{
 		// Yes, there is an animation called that...

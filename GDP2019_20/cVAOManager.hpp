@@ -42,7 +42,7 @@ public:
 	~cVAOManager();
 
 
-	// Takes cMesg object and loads into GPU (as a VAO)
+	// Takes cMesh object and loads into GPU (as a VAO)
 	bool LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int shaderProgramID);
 
 	// We don't want to return an int, likely

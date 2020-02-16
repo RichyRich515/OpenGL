@@ -157,6 +157,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cAnimatedGameObject.cpp" />
     <ClCompile Include="cCamera.cpp" />
     <ClCompile Include="cCommand.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp" />
+    <ClCompile Include="cSkinMeshComponent.cpp" />
     <ClCompile Include="cTransformComponent.cpp" />
     <ClCompile Include="cVAOManager.cpp" />
     <ClCompile Include="cWorld.cpp" />
@@ -192,6 +194,7 @@
     <ClCompile Include="Texture\CTextureFromBMP.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cAnimatedGameObject.hpp" />
     <ClInclude Include="cCamera.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.h" />
@@ -204,6 +207,7 @@
     <ClInclude Include="cCommand.hpp" />
     <ClInclude Include="cPhysicsManager.hpp" />
     <ClInclude Include="cSimpleAssimpSkinnedMeshLoader_OneMesh.h" />
+    <ClInclude Include="cSkinMeshComponent.hpp" />
     <ClInclude Include="cTransformComponent.hpp" />
     <ClInclude Include="iComponent.hpp" />
     <ClInclude Include="iGameObject.hpp" />

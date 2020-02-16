@@ -85,7 +85,6 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	glGenBuffers(1, &(drawInfo.IndexBufferID));
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawInfo.IndexBufferID);
-
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * drawInfo.numberOfIndices, (GLvoid*)drawInfo.pIndices, GL_STATIC_DRAW);
 
 	// Set the vertex attributes.
@@ -119,10 +118,10 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	glVertexAttribPointer(vBiNormal_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, bx)));
 
 	glEnableVertexAttribArray(vBoneID_location);
-	glVertexAttribPointer(vBoneID_location, NUMBER_OF_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneID[0])));
+	glVertexAttribPointer(vBoneID_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneID[0])));
 
 	glEnableVertexAttribArray(vBoneWeight_location);
-	glVertexAttribPointer(vBoneWeight_location, NUMBER_OF_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneWeights[0])));
+	glVertexAttribPointer(vBoneWeight_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneWeights[0])));
 
 	// Now that all the parts are set up, set the VAO to zero
 	glBindVertexArray(0);

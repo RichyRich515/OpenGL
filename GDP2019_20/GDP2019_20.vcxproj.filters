@@ -84,9 +84,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cVAOManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\json\jsoncpp.cpp">
       <Filter>jsoncpp</Filter>
     </ClCompile>
@@ -177,11 +174,17 @@
     <ClCompile Include="cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp">
       <Filter>MeshModel</Filter>
     </ClCompile>
+    <ClCompile Include="cSkinMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="cAnimatedGameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="cVAOManager.cpp">
+      <Filter>MeshModel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cVAOManager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GLCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -285,6 +288,15 @@
       <Filter>MeshModel</Filter>
     </ClInclude>
     <ClInclude Include="cSimpleAssimpSkinnedMeshLoader_OneMesh.h">
+      <Filter>MeshModel</Filter>
+    </ClInclude>
+    <ClInclude Include="cAnimatedGameObject.hpp">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="cSkinMeshComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cVAOManager.hpp">
       <Filter>MeshModel</Filter>
     </ClInclude>
   </ItemGroup>

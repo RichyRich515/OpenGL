@@ -1,5 +1,4 @@
-#ifndef _cSimpleAssimpSkinnedMesh_HG
-#define _cSimpleAssimpSkinnedMesh_HG
+#pragma once
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -72,14 +71,14 @@ public:
 	bool LoadMeshAnimation(const std::string& friendlyName,
 		const std::string& filename);	// Only want animations
 
-// Added to assist with the forward kinematics (id and bone names)
+	// Added to assist with the forward kinematics (id and bone names)
 	void GetListOfBoneIDandNames(std::vector<std::string>& vecBoneNames);
 
 	std::string fileName;
 	std::string friendlyName;
 
 	const aiScene* pScene;
-	Assimp::Importer mImporter;
+	Assimp::Importer* mImporter;
 
 	struct sAnimationInfo
 	{
@@ -88,12 +87,11 @@ public:
 		const aiScene* pAIScene;
 	};
 
-	std::map< std::string /*animation FRIENDLY name*/,
-		sAnimationInfo > mapAnimationFriendlyNameTo_pScene;		// Animations
 
-// Looks in the animation map and returns the total time
+	std::map<std::string, sAnimationInfo> mapAnimationFriendlyNameTo_pScene;
+
+	// Looks in the animation map and returns the total time
 	float FindAnimationTotalTime(std::string animationName);
-
 
 	// Returns NULL (0) if there is no mesh at that index
 	cMesh* CreateMeshObjectFromCurrentModel(unsigned int meshIndex = 0);
@@ -149,5 +147,3 @@ public:
 	unsigned int mNumBones;	//mNums;
 
 };
-
-#endif
