@@ -6,6 +6,7 @@ OpenGL 3D engine physics simulation, spheres and planes
 Compile and run in Visual Studio 2019 Community
 for best performance use Release x64
 
+To change the physics library you must 
 
 Scene is defined in /assets/scenes/scene1.json
 
@@ -26,11 +27,11 @@ Scene is defined in /assets/scenes/scene1.json
 - MyPhysicsInterfaces
 	the interface code my game code sees to connect to the physics engine
 
+- BulletPhysicsWrapper
+	the wrapper code for Bullet's physics library
 
 Notes: 
 	- The currently controlled ball is colored white
-
-	- I was unable to finish an RK4 integrator for this project so I have used semi-implicit euler instead
 
 Controls:
 	- W A S D 
@@ -44,7 +45,3 @@ Controls:
 
 	- R F
 		Zoom in and out
-
-
-
-My favourite thing to do is get control of the smallest ball and fling it around the scene at insane speed.
