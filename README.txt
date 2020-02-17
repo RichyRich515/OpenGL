@@ -6,7 +6,9 @@ OpenGL 3D engine physics simulation, spheres and planes
 Compile and run in Visual Studio 2019 Community
 for best performance use Release x64
 
-To change the physics library you must 
+To change the physics library you must edit line 55 of main.cpp
+from: //#define MY_PHYSICS
+to: #define MY_PHYSICS
 
 Scene is defined in /assets/scenes/scene1.json
 
