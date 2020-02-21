@@ -472,8 +472,9 @@ int main()
 
 	cAnimatedGameObject* ago = new cAnimatedGameObject();
 
-	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.FBX");
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG-Character Walk.fbx");
+	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG-Character Walk2.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/Running.fbx", 1);
 
 	ago->graphics.pShader = pShader;
 	ago->graphics.color = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);

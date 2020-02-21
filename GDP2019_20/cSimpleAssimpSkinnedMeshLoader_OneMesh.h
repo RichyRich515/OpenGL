@@ -66,10 +66,8 @@ public:
 	cSimpleAssimpSkinnedMesh(void);
 	virtual ~cSimpleAssimpSkinnedMesh(void);
 
-	bool LoadMeshFromFile(const std::string& friendlyName,
-		const std::string& filename);		// mesh we draw
-	bool LoadMeshAnimation(const std::string& friendlyName,
-		const std::string& filename);	// Only want animations
+	bool LoadMeshFromFile(const std::string& friendlyName, const std::string& filename);
+	bool LoadMeshAnimation(const std::string& friendlyName, const std::string& filename, unsigned index = 0);
 
 	// Added to assist with the forward kinematics (id and bone names)
 	void GetListOfBoneIDandNames(std::vector<std::string>& vecBoneNames);
@@ -82,6 +80,7 @@ public:
 
 	struct sAnimationInfo
 	{
+		unsigned index;
 		std::string friendlyName;
 		std::string fileName;
 		const aiScene* pAIScene;
@@ -96,13 +95,7 @@ public:
 	// Returns NULL (0) if there is no mesh at that index
 	cMesh* CreateMeshObjectFromCurrentModel(unsigned int meshIndex = 0);
 
-
-	void BoneTransform(float TimeInSeconds,
-		std::string animationName, // Now we can pick the animation
-		std::vector<glm::mat4>& FinalTransformation,
-		std::vector<glm::mat4>& Globals,
-		std::vector<glm::mat4>& Offsets);
-
+	void BoneTransform(float TimeInSeconds, std::string animationName, std::vector<glm::mat4>& FinalTransformation, std::vector<glm::mat4>& Globals, std::vector<glm::mat4>& Offsets);
 
 	unsigned int GetNums(void) const { return this->mNumBones; }
 
@@ -127,23 +120,15 @@ public:
 	unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
 	const aiNodeAnim* FindNodeAnimationChannel(const aiAnimation* pAnimation, aiString nodeOrBoneName);
-
-	//void ReadNodeHeirarchy(float AnimationTime, 
-	//					   const aiNode* pNode, 
-	//					   const glm::mat4 &parentTransformMatrix);
-
-	void ReadNodeHeirarchy(float AnimationTime,
-		std::string animationName,		// Now with more "choose animation"
-		const aiNode* pNode,
-		const glm::mat4& parentTransformMatrix);
+	
+	void ReadNodeHeirarchy(float AnimationTime, const aiAnimation* pAnimation, const aiNode* pNode, const glm::mat4& parentTransformMatrix);
 
 	void LoadBones(const aiMesh* Mesh, std::vector<sVertexBoneData>& Bones);
 
 	void ShutErDown(void);
 
-	//	std::vector<sMeshEntry> mMeshEntries;
-	std::map<std::string /*BoneName*/, unsigned int /*BoneIndex*/> m_mapBoneNameToBoneIndex;	//mMapping;
+	std::map<std::string, unsigned int> m_mapBoneNameToBoneIndex;
 	std::vector<sBoneInfo> mBoneInfo;
-	unsigned int mNumBones;	//mNums;
+	unsigned int mNumBones;
 
 };

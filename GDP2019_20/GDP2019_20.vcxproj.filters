@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="GameObject">
-      <UniqueIdentifier>{dbde3a81-1d90-485f-b444-96e039676226}</UniqueIdentifier>
-    </Filter>
     <Filter Include="jsoncpp">
       <UniqueIdentifier>{dffef3b6-dc4a-4ef9-bd7a-2b5e7d8339af}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,9 @@
     </Filter>
     <Filter Include="MeshModel">
       <UniqueIdentifier>{63caf887-6922-404f-a097-32a1ef6da249}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObjects">
+      <UniqueIdentifier>{dbde3a81-1d90-485f-b444-96e039676226}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -154,10 +154,10 @@
       <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="cPhysicsGameObject.cpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="cGameObject.cpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="cFBO.cpp">
       <Filter>Source Files</Filter>
@@ -178,7 +178,7 @@
       <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="cAnimatedGameObject.cpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="cVAOManager.cpp">
       <Filter>MeshModel</Filter>
@@ -267,13 +267,13 @@
       <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="cPhysicsGameObject.hpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="cGameObject.hpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="iGameObject.hpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="cPhysicsManager.hpp">
       <Filter>Managers</Filter>
@@ -291,7 +291,7 @@
       <Filter>MeshModel</Filter>
     </ClInclude>
     <ClInclude Include="cAnimatedGameObject.hpp">
-      <Filter>GameObject</Filter>
+      <Filter>GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="cSkinMeshComponent.hpp">
       <Filter>Components</Filter>

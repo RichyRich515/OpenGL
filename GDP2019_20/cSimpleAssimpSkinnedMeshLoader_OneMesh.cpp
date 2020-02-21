@@ -60,11 +60,22 @@ void cSimpleAssimpSkinnedMesh::ShutErDown(void)
 	
 	if (this->mImporter)
 		delete this->mImporter;
+
+	if (this->pScene)
+		delete this->pScene;
+
+	if (this->mapAnimationFriendlyNameTo_pScene.size())
+	{
+		for (auto a : this->mapAnimationFriendlyNameTo_pScene)
+		{
+			delete a.second.pAIScene;
+		}
+	}
+
 	return;
 }
 
-bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string& friendlyName,
-	const std::string& filename)		// mesh we draw
+bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string& friendlyName, const std::string& filename)
 {
 	unsigned int Flags = aiProcess_Triangulate |
 		aiProcess_OptimizeMeshes |
@@ -111,7 +122,7 @@ float cSimpleAssimpSkinnedMesh::FindAnimationTotalTime(std::string animationName
 }
 
 
-bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string& friendlyName, const std::string& filename)
+bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string& friendlyName, const std::string& filename, unsigned index)
 {
 	// Already loaded this? 
 	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(friendlyName);
@@ -121,9 +132,11 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string& friendlyName
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_JoinIdenticalVertices;
 
 	sAnimationInfo animInfo;
+	animInfo.index = index;
 	animInfo.friendlyName = friendlyName;
 	animInfo.fileName = filename;
-	animInfo.pAIScene = this->mImporter->ReadFile(animInfo.fileName.c_str(), Flags);
+	this->mImporter->ReadFile(animInfo.fileName.c_str(), Flags);
+	animInfo.pAIScene = this->mImporter->GetOrphanedScene();
 
 	if (!animInfo.pAIScene)
 	{
@@ -189,14 +202,23 @@ void cSimpleAssimpSkinnedMesh::BoneTransform(float TimeInSeconds,
 {
 	glm::mat4 Identity(1.0f);
 
-	float TicksPerSecond = static_cast<float>(this->pScene->mAnimations[0]->mTicksPerSecond != 0 ? this->pScene->mAnimations[0]->mTicksPerSecond : 25.0);
+	// Original version picked the "main scene" animation...
+	const aiAnimation* pAnimation = this->pScene->mAnimations[0];
+
+	// Search for the animation we want... 
+	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
+	if (itAnimation != this->mapAnimationFriendlyNameTo_pScene.end())
+		pAnimation = reinterpret_cast<const aiAnimation*>(itAnimation->second.pAIScene->mAnimations[itAnimation->second.index]);
+
+
+	float TicksPerSecond = static_cast<float>(pAnimation->mTicksPerSecond != 0 ? pAnimation->mTicksPerSecond : 25.0);
 
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
-	float AnimationTime = fmod(TimeInTicks, (float)this->pScene->mAnimations[0]->mDuration);
+	float AnimationTime = fmod(TimeInTicks, (float)pAnimation->mDuration);
 
 	// use the "animation" file to look up these nodes
 	// (need the matOffset information from the animation file)
-	this->ReadNodeHeirarchy(AnimationTime, animationName, this->pScene->mRootNode, Identity);
+	this->ReadNodeHeirarchy(AnimationTime, pAnimation, this->pScene->mRootNode, Identity);
 
 	FinalTransformation.resize(this->mNumBones);
 	Globals.resize(this->mNumBones);
@@ -301,24 +323,11 @@ unsigned int cSimpleAssimpSkinnedMesh::FindScaling(float AnimationTime, const ai
 }
 
 void cSimpleAssimpSkinnedMesh::ReadNodeHeirarchy(float AnimationTime,
-	std::string animationName,
+	const aiAnimation* pAnimation,
 	const aiNode* pNode,
 	const glm::mat4& ParentTransformMatrix)
 {
 	aiString NodeName(pNode->mName.data);
-
-	// Original version picked the "main scene" animation...
-	const aiAnimation* pAnimation = this->pScene->mAnimations[0];
-
-	// Search for the animation we want... 
-	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
-	if (itAnimation != this->mapAnimationFriendlyNameTo_pScene.end())
-	{
-		// Yes, there is an animation called that...
-		// ...replace the animation with the one we found
-		pAnimation = reinterpret_cast<const aiAnimation*>(itAnimation->second.pAIScene->mAnimations[0]);
-	}
-
 
 	//aiMatrix4x4 NodeTransformation;
 
@@ -377,7 +386,7 @@ void cSimpleAssimpSkinnedMesh::ReadNodeHeirarchy(float AnimationTime,
 
 	for (unsigned int ChildIndex = 0; ChildIndex != pNode->mNumChildren; ChildIndex++)
 	{
-		this->ReadNodeHeirarchy(AnimationTime, animationName,
+		this->ReadNodeHeirarchy(AnimationTime, pAnimation,
 			pNode->mChildren[ChildIndex], ObjectBoneTransformation);
 	}
 
