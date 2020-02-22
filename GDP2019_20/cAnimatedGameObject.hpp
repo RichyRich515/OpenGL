@@ -26,4 +26,6 @@ public:
 	cGraphicsComponent graphics;
 	cTransformComponent transform;
 
+	glm::vec3 velocity;
+
 };

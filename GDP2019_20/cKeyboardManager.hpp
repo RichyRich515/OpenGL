@@ -5,20 +5,21 @@
 
 class cKeyboardManager
 {
-	int current_keys[GLFW_KEY_LAST];
-	int previous_keys[GLFW_KEY_LAST];
-	int current_mods;
-	int previous_mods;
+	static int current_keys[GLFW_KEY_LAST];
+	static int previous_keys[GLFW_KEY_LAST];
+	static int current_mods;
+	static int previous_mods;
 
 public:
-	void handleKeyboardInput(int key, int scancode, int action, int mods);
+	static void handleKeyboardInput(int key, int scancode, int action, int mods);
+	static void update();
 
-	int keyStatus(int key);
+	static int keyStatus(int key);
 
-	bool keyUp(int key);
-	bool keyDown(int key);
-	bool keyRepeating(int key);
-		 
-	bool keyPressed(int key);
-	bool keyReleased(int key);
+	static bool keyUp(int key);
+	static bool keyDown(int key);
+	static bool keyRepeating(int key);
+
+	static bool keyPressed(int key);
+	static bool keyReleased(int key);
 };

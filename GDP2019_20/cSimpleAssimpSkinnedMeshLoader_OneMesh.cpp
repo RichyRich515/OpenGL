@@ -208,7 +208,12 @@ void cSimpleAssimpSkinnedMesh::BoneTransform(float TimeInSeconds,
 	// Search for the animation we want... 
 	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
 	if (itAnimation != this->mapAnimationFriendlyNameTo_pScene.end())
-		pAnimation = reinterpret_cast<const aiAnimation*>(itAnimation->second.pAIScene->mAnimations[itAnimation->second.index]);
+	{
+		unsigned idx = 0;
+		if (itAnimation->second.index < itAnimation->second.pAIScene->mNumAnimations)
+			idx = itAnimation->second.index;
+		pAnimation = reinterpret_cast<const aiAnimation*>(itAnimation->second.pAIScene->mAnimations[idx]);
+	}
 
 
 	float TicksPerSecond = static_cast<float>(pAnimation->mTicksPerSecond != 0 ? pAnimation->mTicksPerSecond : 25.0);

@@ -473,8 +473,13 @@ int main()
 	cAnimatedGameObject* ago = new cAnimatedGameObject();
 
 	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG-Character Walk2.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/Running.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/RPG Strafe Right.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
 
 	ago->graphics.pShader = pShader;
 	ago->graphics.color = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
@@ -750,6 +755,7 @@ int main()
 		}
 
 		world->doDeferredActions();
+		cKeyboardManager::update();
 	}
 
 	glfwDestroyWindow(window);
