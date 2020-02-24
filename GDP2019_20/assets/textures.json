@@ -21,6 +21,8 @@
 		}
 	],
 	"textures": [
-		"terrain_texture.bmp"
+		"terrain_texture.bmp",
+		"rocky.bmp",
+		"streetlamp.bmp"
 	]
 }

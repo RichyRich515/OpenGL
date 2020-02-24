@@ -22,7 +22,14 @@ void cSkinMeshComponent::update(float dt, float tt)
 
 	if (anim_time > total_animation_time)
 	{
-		startNextAnimation();
+		if (this->looping)
+		{
+			// nothing, loop
+		}
+		else
+		{
+			startNextAnimation();
+		}
 	}
 }
 
@@ -40,11 +47,11 @@ void cSkinMeshComponent::render()
 	glUniformMatrix4fv(pShader->getUniformLocID("matBonesArray[0]"), numBonesUsed, GL_FALSE, glm::value_ptr(vecFinalTransformation[0]));
 }
 
-void cSkinMeshComponent::queueAnimation(std::string animationName, int type)
+void cSkinMeshComponent::queueAnimation(std::string animationName, bool loop)
 {
 	if (this->animation_queue.size() < MAX_ANIMATION_QUEUE_SIZE)
 	{
-		this->animation_queue.push(std::make_pair(animationName, type));
+		this->animation_queue.push(std::make_pair(animationName, loop));
 	}
 }
 
@@ -53,10 +60,13 @@ void cSkinMeshComponent::forceNextAnimation()
 	startNextAnimation();
 }
 
-void cSkinMeshComponent::forceAnimation(std::string animationName, int type)
+void cSkinMeshComponent::forceAnimation(std::string animationName, bool loop, bool resetTime)
 {
 	this->current_animation = animationName;
-	//this->anim_time = 0.0f;
+	this->looping = loop;
+	if (resetTime)
+		this->anim_time = 0.0f;
+	this->total_animation_time = this->skinmesh.FindAnimationTotalTime(animationName);
 }
 
 void cSkinMeshComponent::startNextAnimation()
@@ -64,6 +74,8 @@ void cSkinMeshComponent::startNextAnimation()
 	if (!this->animation_queue.empty())
 	{
 		this->current_animation = this->animation_queue.front().first;
+		this->looping = this->animation_queue.front().second;
+		this->total_animation_time = this->skinmesh.FindAnimationTotalTime(this->animation_queue.front().first);
 		this->animation_queue.pop();
 		this->anim_time = 0.0f;
 	}

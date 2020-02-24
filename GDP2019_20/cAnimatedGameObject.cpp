@@ -56,53 +56,92 @@ void cAnimatedGameObject::render()
 
 void cAnimatedGameObject::update(float dt, float tt)
 {
-	if (cKeyboardManager::keyDown('W'))
+	this->action_timer -= dt;
+
+	if (active)
 	{
-		if (cKeyboardManager::keyDown(GLFW_KEY_LEFT_SHIFT)) 
+		bool running = false;
+		bool walking = false;
+		int strafe_dir = 0;
+		if (cKeyboardManager::keyDown('W'))
 		{
-			this->velocity = glm::vec3(0.0f, 0.0f, 80.0f);
-			this->skinmesh.forceAnimation("Run", 0);
+			if (cKeyboardManager::keyDown(GLFW_KEY_LEFT_SHIFT)) 
+			{
+				this->velocity = this->forward * glm::vec3(0.0f, 0.0f, 80.0f);
+				running = true;
+			}
+			else
+			{
+				this->velocity = this->forward * glm::vec3(0.0f, 0.0f, 22.0f);
+				walking = true;
+			}
+		}
+		else if (cKeyboardManager::keyDown('A'))
+		{
+			this->velocity = this->forward * glm::vec3(40.0f, 0.0f, 0.0f);
+			strafe_dir = -1;
+		}
+		else if (cKeyboardManager::keyDown('D'))
+		{
+			this->velocity = this->forward * glm::vec3(-40.0f, 0.0f, 0.0f);
+			strafe_dir = 1;
 		}
 		else
 		{
-			this->velocity = glm::vec3(0.0f, 0.0f, 22.0f);
-			this->skinmesh.forceAnimation("Walk", 0);
+			this->velocity = glm::vec3(0.0f);
 		}
-	}
-	else if (cKeyboardManager::keyDown('A'))
-	{
-		this->velocity = glm::vec3(40.0f, 0.0f, 0.0f);
-		this->skinmesh.forceAnimation("Strafe Left", 0);
-	}
-	else if (cKeyboardManager::keyDown('D'))
-	{
-		this->velocity.x = -40.0f;
-		this->skinmesh.forceAnimation("Strafe Right", 0);
-	}
-	else
-	{
-		this->skinmesh.queueAnimation("Idle", 1);
-		this->velocity = glm::vec3(0.0f);
-	}
 
-	if (cKeyboardManager::keyPressed('E'))
-	{
-		this->skinmesh.forceAnimation("Punch", 1);
-	}
-	else if (cKeyboardManager::keyPressed(GLFW_KEY_SPACE))
-	{
-		this->skinmesh.forceAnimation("Jump", 1);
-	}
-	
+		if (this->action_timer <= 0.0f)
+		{
+			if (running)
+			{
+				this->skinmesh.forceAnimation("Run", false);
+			}
+			else if (strafe_dir == 1)
+			{
+				this->skinmesh.forceAnimation("Strafe Right", false);
+			}
+			else if (strafe_dir == -1)
+			{
+				this->skinmesh.forceAnimation("Strafe Left", false);
+			}
+			else if (walking)
+			{
+				this->skinmesh.forceAnimation("Walk", false);
+			}
+			else
+			{
+				this->skinmesh.forceAnimation("Idle", 1);
+			}
 
-	if (glm::length(this->velocity) > 0.0f)
-	{
-		this->transform.setOrientation(
-			glm::quatLookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::quat(glm::vec3(0.0f, glm::radians(180.0f), 0.0f)));
+			if (cKeyboardManager::keyPressed('E'))
+			{
+				this->skinmesh.forceAnimation("Punch", false, true);
+				this->action_timer = this->skinmesh.skinmesh.FindAnimationTotalTime("Punch"); // fps
+			}
+			else if (cKeyboardManager::keyPressed(GLFW_KEY_SPACE))
+			{
+				this->skinmesh.forceAnimation("Jump", false, true);
+				this->action_timer = this->skinmesh.skinmesh.FindAnimationTotalTime("Jump"); // fps
+			}
 
+		}
+
+		this->transform.position += this->velocity * dt;
+
+		if (this->transform.position.x > 250.0f)
+			this->transform.position.x = 250.0f;
+		else if (this->transform.position.x < -250.0f)
+			this->transform.position.x = -250.0f;
+
+		if (this->transform.position.z > 250.0f)
+			this->transform.position.z = 250.0f;
+		else if (this->transform.position.z < -250.0f)
+			this->transform.position.z = -250.0f;
+
+
+		this->transform.setOrientation(this->forward);
 	}
-		
-	this->transform.position += this->velocity * dt;
 
 	this->graphics.update(dt, tt);
 	this->skinmesh.update(dt, tt);

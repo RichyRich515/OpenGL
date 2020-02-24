@@ -13,7 +13,7 @@ private:
 	std::string default_animation;
 	std::string current_animation;
 
-	std::queue<std::pair<std::string, int>> animation_queue;
+	std::queue<std::pair<std::string, bool>> animation_queue;
 
 	void startNextAnimation();
 
@@ -21,6 +21,7 @@ private:
 	float total_animation_time;
 
 	bool must_finish_animation;
+	bool looping;
 public:
 	// Inherited via iComponent
 	virtual void init() override;
@@ -31,7 +32,7 @@ public:
 
 	cSimpleAssimpSkinnedMesh skinmesh;
 
-	void queueAnimation(std::string animationName, int type);
+	void queueAnimation(std::string animationName, bool loop);
 	void forceNextAnimation();
-	void forceAnimation(std::string animationName, int type);
+	void forceAnimation(std::string animationName, bool loop, bool resetTime = false);
 };

@@ -27,5 +27,9 @@ public:
 	cTransformComponent transform;
 
 	glm::vec3 velocity;
+	glm::quat forward;
 
+	float action_timer = 0.0f;
+
+	bool active = false;
 };

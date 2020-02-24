@@ -86,7 +86,6 @@ public:
 		const aiScene* pAIScene;
 	};
 
-
 	std::map<std::string, sAnimationInfo> mapAnimationFriendlyNameTo_pScene;
 
 	// Looks in the animation map and returns the total time

@@ -22,5 +22,5 @@ public:
 	*/
 	bool loadModel_ply(std::string filename, cMesh* mesh);
 
-	bool loadModel_assimp(std::string filename, cMesh* mesh, std::string errors);
+	bool loadModel_assimp(std::string filename, cMesh* mesh, std::string& errors);
 };

@@ -53,7 +53,7 @@
 
 #include "Texture/cBasicTextureManager.h"
 
-//#define MY_PHYSICS
+#define MY_PHYSICS
 
 #ifdef MY_PHYSICS
 constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
@@ -445,30 +445,13 @@ int main()
 
 
 	openSceneFromFile("assets/scenes/scene1.json");
-	
+
 	std::vector<cPhysicsGameObject*> balls;
 
 	world->message(sMessage("Get Balls", (void*)&balls));
-	int current_ball_idx = 8;
-
-	float cam_rot = 0.0f;
-	float zoom_amount = 0.0f;
-	constexpr float MAX_ZOOM_IN = -32.0f;
-	constexpr float MAX_ZOOM_OUT = 32.0f;
-
-	constexpr float force_amount = 20.0f;
 
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
-
-	float cam_dist = 64.0f + 1.0f * zoom_amount;
-	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
-	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos - camera->position);
-
-	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
-	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-
 
 	cAnimatedGameObject* ago = new cAnimatedGameObject();
 
@@ -482,7 +465,7 @@ int main()
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
 
 	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
+	ago->graphics.color = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
 	ago->graphics.visible = true;
 	ago->graphics.wireFrame = false;
 	ago->graphics.lighting = true;
@@ -494,12 +477,48 @@ int main()
 	ago->transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	ago->transform.setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 	ago->transform.updateMatricis();
+	cAnimatedGameObject* ago1 = ago;
+
+	ago = new cAnimatedGameObject();
+
+	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/RPG Strafe Right.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
+
+	ago->graphics.pShader = pShader;
+	ago->graphics.color = glm::vec4(0.6f, 1.0f, 0.6f, 1.0f);
+	ago->graphics.visible = true;
+	ago->graphics.wireFrame = false;
+	ago->graphics.lighting = true;
+	ago->graphics.specular = glm::vec4(1.0f);
+
+	ago->mesh.meshName = "RPGCharacter";
+	ago->mesh.scale = 0.1f;
+
+	ago->transform.position = glm::vec3(20.0f, 0.0f, 0.0f);
+	cAnimatedGameObject* ago2 = ago;
+
+	ago = ago1;
+	ago->active = true;
+	ago1->skinmesh.queueAnimation("Idle", 1);
+	ago2->skinmesh.queueAnimation("Idle", 1);
+
 
 	// Get the draw info, to load into the VAO
-	cMesh* pMesh = ago->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
-
+	cMesh* pMesh = ago1->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
 	if (pMesh)
 		pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
+
+	double mouseX, mouseY;
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+	double oldMouseX = mouseX, oldMouseY = mouseY;
+
+	float camera_rotation = glm::radians(180.0f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -520,71 +539,46 @@ int main()
 
 		// Camera orientation movement
 		{
-			float cam_dist = -64.0f + 1.0f * zoom_amount;
-			ball_pos = balls[current_ball_idx]->getPosition();
-			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+			glfwGetCursorPos(window, &mouseX, &mouseY);
+			double xDiff = mouseX - oldMouseX;
+			double yDiff = mouseY - oldMouseY;
+			oldMouseX = mouseX;
+			oldMouseY = mouseY;
 
-			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
-			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
+			camera_rotation += -xDiff * 0.25f * dt;
+
+			camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
+			camera->forward = glm::normalize(ago->transform.getPosition() + glm::vec3(0.0f, 20.0f, 0.0f) - camera->position);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
+			
+			ago->forward = glm::quatLookAt(glm::normalize(glm::cross(camera->up, -camera->right)), camera->up);
 		}
 
 		// keyboard inputs
 		{
-			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-				cWorld::debugMode = !cWorld::debugMode;
-
-			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-			int ymov = 0;
-			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
-
-			if (xmov || ymov || zmov)
+			if (cKeyboardManager::keyPressed('1'))
 			{
-				// move the ball relative to the camera
-				balls[current_ball_idx]->physics->ApplyForce(
-					(glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
-
+				ago = ago1;
+				ago1->active = true;
+				ago2->active = false;
+				ago2->skinmesh.queueAnimation("Idle", 1);
+				camera->forward = glm::normalize(ago->transform.getOrientation() * glm::vec3(0.0f, 0.0f, -1.0f));
+				camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
+				camera_rotation = atan2f(camera->forward.x, camera->forward.z);
+				camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
 			}
-
-			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
-
-			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-			zoom_amount += zoomFactor * camera->speed * dt;
-
-			if (zoom_amount > MAX_ZOOM_OUT)
-				zoom_amount = MAX_ZOOM_OUT;
-			else if (zoom_amount < MAX_ZOOM_IN)
-				zoom_amount = MAX_ZOOM_IN;
-
-
-			/*if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
+			else if (cKeyboardManager::keyPressed('2'))
 			{
-				balls[current_ball_idx]->graphics.color = old_color;
-
-				--current_ball_idx;
-				if (current_ball_idx < 0)
-					current_ball_idx = balls.size() - 1;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-			}
-			else */if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
-			{
-				balls[current_ball_idx]->graphics.color = old_color;
-				++current_ball_idx;
-				if (current_ball_idx >= balls.size())
-					current_ball_idx = 0;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+				ago = ago2;
+				ago1->active = false;
+				ago1->skinmesh.queueAnimation("Idle", 1);
+				ago2->active = true;
+				camera->forward = glm::normalize(ago->transform.getOrientation() * glm::vec3(0.0f, 0.0f, -1.0f));
+				camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
+				camera_rotation = atan2f(camera->forward.x, camera->forward.z);
+				camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
 			}
 		}
-
-		{ /* thanks Visual studio */ }
 
 		// shader uniforms
 		{
@@ -668,9 +662,13 @@ int main()
 				world->vecGameObjects[i]->render();
 			}
 
-			ago->update(dt, totalTime);
-			ago->preFrame();
-			ago->render();
+			ago1->update(dt, totalTime);
+			ago1->preFrame();
+			ago1->render();
+
+			ago2->update(dt, totalTime);
+			ago2->preFrame();
+			ago2->render();
 		}
 
 		// draw debug
@@ -778,7 +776,8 @@ int main()
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
-		delete ago;
+		delete ago1;
+		delete ago2;
 
 		delete fbo;
 

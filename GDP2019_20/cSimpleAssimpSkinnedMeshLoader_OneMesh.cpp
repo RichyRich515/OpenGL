@@ -118,7 +118,10 @@ float cSimpleAssimpSkinnedMesh::FindAnimationTotalTime(std::string animationName
 		return 0.0f;
 
 	// This is scaling the animation from 0 to 1
-	return (float)itAnimation->second.pAIScene->mAnimations[0]->mDuration;
+	return (float)itAnimation->second.pAIScene->mAnimations[itAnimation->second.index]->mDuration 
+		/ (itAnimation->second.pAIScene->mAnimations[itAnimation->second.index]->mTicksPerSecond
+			? itAnimation->second.pAIScene->mAnimations[itAnimation->second.index]->mTicksPerSecond 
+			: 25.0);
 }
 
 
@@ -203,8 +206,8 @@ void cSimpleAssimpSkinnedMesh::BoneTransform(float TimeInSeconds,
 	glm::mat4 Identity(1.0f);
 
 	// Original version picked the "main scene" animation...
-	const aiAnimation* pAnimation = this->pScene->mAnimations[0];
-
+	const aiAnimation* pAnimation = this->pScene->mNumAnimations ? this->pScene->mAnimations[0] : nullptr;
+	
 	// Search for the animation we want... 
 	auto itAnimation = this->mapAnimationFriendlyNameTo_pScene.find(animationName);
 	if (itAnimation != this->mapAnimationFriendlyNameTo_pScene.end())
@@ -214,14 +217,15 @@ void cSimpleAssimpSkinnedMesh::BoneTransform(float TimeInSeconds,
 			idx = itAnimation->second.index;
 		pAnimation = reinterpret_cast<const aiAnimation*>(itAnimation->second.pAIScene->mAnimations[idx]);
 	}
-
+	if (pAnimation == nullptr)
+		return;
 
 	float TicksPerSecond = static_cast<float>(pAnimation->mTicksPerSecond != 0 ? pAnimation->mTicksPerSecond : 25.0);
 
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
 	float AnimationTime = fmod(TimeInTicks, (float)pAnimation->mDuration);
 
-	// use the "animation" file to look up these nodes
+	// use the "animation" file to look up these nodes 
 	// (need the matOffset information from the animation file)
 	this->ReadNodeHeirarchy(AnimationTime, pAnimation, this->pScene->mRootNode, Identity);
 
