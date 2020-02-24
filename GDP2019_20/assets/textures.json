@@ -23,6 +23,7 @@
 	"textures": [
 		"terrain_texture.bmp",
 		"rocky.bmp",
-		"streetlamp.bmp"
+		"scope.bmp",
+		"noise.bmp"
 	]
 }

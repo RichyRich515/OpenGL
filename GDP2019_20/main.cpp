@@ -90,6 +90,7 @@ GLuint program = 0;
 std::map<std::string, cMesh*> mapMeshes;
 
 cFBO* fbo = nullptr;
+cFBO* fbo2 = nullptr;
 
 // factory for any game object
 iGameObjectFactory* pGameObjectFactory;
@@ -105,7 +106,6 @@ cWorld* world = cWorld::getWorld();
 
 glm::vec3 gravity;
 glm::vec4 ambience = glm::vec4(0.25f);
-
 
 void writeSceneToFile(std::string filename)
 {
@@ -143,8 +143,6 @@ void writeSceneToFile(std::string filename)
 	ofs << root;
 	std::cout << "Saved scene to " << filename << std::endl;
 }
-
-
 void openSceneFromFile(std::string filename)
 {
 	glUseProgram(program);
@@ -220,11 +218,9 @@ void openSceneFromFile(std::string filename)
 	std::cout << "Opened scene " << filename << std::endl;
 }
 
-
 bool ctrl_pressed = false, shift_pressed = false;
 
 cKeyboardManager* pKeyboardManager = NULL;
-
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -401,7 +397,6 @@ int main()
 	glEnable(GL_DEPTH);			// Enable depth
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
 	glEnable(GL_BLEND);
-	//glEnable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -430,6 +425,13 @@ int main()
 			std::cout << "FBO init error: " << fboError << std::endl;
 		}
 
+		fbo2 = new cFBO();
+		// Usually make this the size of the screen which we can get from opengl
+		if (!fbo->init(width, height, fboError))
+		{
+			std::cout << "FBO init error: " << fboError << std::endl;
+		}
+
 		// for resizing
 		//fbo->reset();
 	}
@@ -443,82 +445,34 @@ int main()
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
 
-
 	openSceneFromFile("assets/scenes/scene1.json");
 
 	std::vector<cPhysicsGameObject*> balls;
 
-	world->message(sMessage("Get Balls", (void*)&balls));
-
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
 
-	cAnimatedGameObject* ago = new cAnimatedGameObject();
+	glfwGetCursorPos(window, &cursorX, &cursorY);
+	lastcursorX = cursorX;
+	lastcursorY = cursorY;
 
-	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/RPG Strafe Right.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
+	cGameObject* goTVBody = new cGameObject();
+	goTVBody->mesh.meshName = "TV_body";
+	goTVBody->mesh.scale = 1.0f;
+	goTVBody->transform.position = glm::vec3(0.0f);
+	goTVBody->transform.orientation = glm::quat(0.707f, -0.707f, 0.0f, 0.0f);
+	goTVBody->transform.updateMatricis();
+	goTVBody->graphics.visible = true;
+	goTVBody->graphics.color = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
+	goTVBody->graphics.lighting = true;
 
-	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
-	ago->graphics.visible = true;
-	ago->graphics.wireFrame = false;
-	ago->graphics.lighting = true;
-	ago->graphics.specular = glm::vec4(1.0f);
+	glActiveTexture(GL_TEXTURE0 + 55);
+	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("noise.bmp"));
+	glUniform1i(pShader->getUniformLocID("noiseSamp"), 55);
 
-	ago->mesh.meshName = "RPGCharacter";
-	ago->mesh.scale = 0.1f;
-
-	ago->transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	ago->transform.setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-	ago->transform.updateMatricis();
-	cAnimatedGameObject* ago1 = ago;
-
-	ago = new cAnimatedGameObject();
-
-	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/RPG Strafe Right.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
-
-	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(0.6f, 1.0f, 0.6f, 1.0f);
-	ago->graphics.visible = true;
-	ago->graphics.wireFrame = false;
-	ago->graphics.lighting = true;
-	ago->graphics.specular = glm::vec4(1.0f);
-
-	ago->mesh.meshName = "RPGCharacter";
-	ago->mesh.scale = 0.1f;
-
-	ago->transform.position = glm::vec3(20.0f, 0.0f, 0.0f);
-	cAnimatedGameObject* ago2 = ago;
-
-	ago = ago1;
-	ago->active = true;
-	ago1->skinmesh.queueAnimation("Idle", 1);
-	ago2->skinmesh.queueAnimation("Idle", 1);
-
-
-	// Get the draw info, to load into the VAO
-	cMesh* pMesh = ago1->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
-	if (pMesh)
-		pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
-
-	double mouseX, mouseY;
-	glfwGetCursorPos(window, &mouseX, &mouseY);
-	double oldMouseX = mouseX, oldMouseY = mouseY;
-
-	float camera_rotation = glm::radians(180.0f);
+	glActiveTexture(GL_TEXTURE0 + 56);
+	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("scope.bmp"));
+	glUniform1i(pShader->getUniformLocID("scopeSamp"), 56);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -537,54 +491,43 @@ int main()
 
 		glfwPollEvents();
 
-		// Camera orientation movement
+		// Camera orientation
 		{
-			glfwGetCursorPos(window, &mouseX, &mouseY);
-			double xDiff = mouseX - oldMouseX;
-			double yDiff = mouseY - oldMouseY;
-			oldMouseX = mouseX;
-			oldMouseY = mouseY;
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
+			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
+			lastcursorX = (float)cursorX;
+			lastcursorY = (float)cursorY;
 
-			camera_rotation += -xDiff * 0.25f * dt;
+			// Lock pitch
+			if (camera->pitch > 89.9f)
+				camera->pitch = 89.9f;
+			else if (camera->pitch < -89.9f)
+				camera->pitch = -89.9f;
 
-			camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
-			camera->forward = glm::normalize(ago->transform.getPosition() + glm::vec3(0.0f, 20.0f, 0.0f) - camera->position);
+			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward.y = sin(glm::radians(camera->pitch));
+			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward = glm::normalize(camera->forward);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
-			
-			ago->forward = glm::quatLookAt(glm::normalize(glm::cross(camera->up, -camera->right)), camera->up);
 		}
 
 		// keyboard inputs
 		{
-			if (cKeyboardManager::keyPressed('1'))
-			{
-				ago = ago1;
-				ago1->active = true;
-				ago2->active = false;
-				ago2->skinmesh.queueAnimation("Idle", 1);
-				camera->forward = glm::normalize(ago->transform.getOrientation() * glm::vec3(0.0f, 0.0f, -1.0f));
-				camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
-				camera_rotation = atan2f(camera->forward.x, camera->forward.z);
-				camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
-			}
-			else if (cKeyboardManager::keyPressed('2'))
-			{
-				ago = ago2;
-				ago1->active = false;
-				ago1->skinmesh.queueAnimation("Idle", 1);
-				ago2->active = true;
-				camera->forward = glm::normalize(ago->transform.getOrientation() * glm::vec3(0.0f, 0.0f, -1.0f));
-				camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
-				camera_rotation = atan2f(camera->forward.x, camera->forward.z);
-				camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
-			}
+			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+
+			camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
+			camera->position += -xMove * camera->speed * dt * camera->right;
+			camera->position += yMove * camera->speed * dt * camera->up;
 		}
 
 		// shader uniforms
 		{
 			// FOV, aspect ratio, near clip, far clip
 			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
+			v = glm::lookAt(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, 5.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 
@@ -593,11 +536,11 @@ int main()
 
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
+			glUniform4f(eyeLocation_loc, 0.0f, 0.0f, 0.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
-			waterOffset.s += 0.1f * dt;
-			waterOffset.t += 0.017f * dt;
+			waterOffset.s += rand() / (float)RAND_MAX * 10.0f;
+			waterOffset.t += rand() / (float)RAND_MAX * 10.0f;
 			glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
 		}
 
@@ -619,7 +562,7 @@ int main()
 				glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
 			}
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), camera->position);
+			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
@@ -648,7 +591,7 @@ int main()
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
 		}
-
+		goTVBody->update(dt, totalTime);
 		physWorld->Update(dt);
 
 		// pre frame, then render
@@ -661,14 +604,6 @@ int main()
 			{
 				world->vecGameObjects[i]->render();
 			}
-
-			ago1->update(dt, totalTime);
-			ago1->preFrame();
-			ago1->render();
-
-			ago2->update(dt, totalTime);
-			ago2->preFrame();
-			ago2->render();
 		}
 
 		// draw debug
@@ -681,26 +616,115 @@ int main()
 			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
-		// Draw frame buffer to screen
+		// Draw frame buffer to TV screen
 		{
 			glUseProgram(program);
 
 			glDisable(GL_CULL_FACE);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			// whole scene is drawn to buffer
-			// 1. disable the FBO
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-			// 2. clear actual screen buffer
+			// switch to fbo2
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo2->ID);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			glUniform1f(pShader->getUniformLocID("passCount"), 1);
+
+			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
+			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+
+			// draw Skybox
+			{
+				// Tie texture
+				GLuint texture_ul = pTextureManager->getTextureIDFromName("nighttime");
+				if (texture_ul)
+				{
+					glActiveTexture(GL_TEXTURE10);
+					glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
+					glUniform1i(pShader->getUniformLocID("skyboxSamp00"), 10);
+				}
+				texture_ul = pTextureManager->getTextureIDFromName("daytime");
+				if (texture_ul)
+				{
+					glActiveTexture(GL_TEXTURE11);
+					glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
+					glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
+				}
+				glm::mat4 matWorld(1.0f);
+				matWorld *= glm::translate(glm::mat4(1.0f), camera->position);
+				glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+				glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+				glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
+				glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
+				glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
+				glUniform4f(pShader->getUniformLocID("params2"), 1.0f, 0.0f, 0.0f, 0.0f);
+				glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
+				glUniform1i(pShader->getUniformLocID("daytime"), day_time);
+				glDisable(GL_CULL_FACE);
+				glDisable(GL_DEPTH_TEST);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+				sModelDrawInfo drawInfo;
+				if (pVAOManager->FindDrawInfoByModelName("sphere", drawInfo))
+				{
+					glBindVertexArray(drawInfo.VAO_ID);
+					glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+					glBindVertexArray(0);
+				}
+				glEnable(GL_CULL_FACE);
+				glEnable(GL_DEPTH_TEST);
+			}
+
+			goTVBody->render();
 			// 3. use the FBO colour texture as the texture on the quad
 			glActiveTexture(GL_TEXTURE0 + 40);
 			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
-
 			glUniform1f(pShader->getUniformLocID("passCount"), 2);
+
+			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 0.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
+
+			glm::mat4 matWorld(1.0f);
+			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+			matWorld *= glm::mat4(glm::quat(0.707f, -0.707f, 0.0f, 0.0f));
+			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+
+			// 4. draw a single object, (tri or quad)
+			sModelDrawInfo drawInfo;
+			if (pVAOManager->FindDrawInfoByModelName("TV_screen", drawInfo))
+			{
+				glBindVertexArray(drawInfo.VAO_ID);
+				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+
+			glUniform1f(pShader->getUniformLocID("passCount"), 1);
+		}
+
+		
+
+		// render fbo2 to tri
+		{
+			glUseProgram(program);
+
+			glDisable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			// switch to fbo2
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// 3. use the FBO colour texture as the texture on the quad
+			glActiveTexture(GL_TEXTURE0 + 41);
+			glBindTexture(GL_TEXTURE_2D, fbo2->colourTexture_0_ID);
+			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 41);
+
+			glUniform1f(pShader->getUniformLocID("passCount"), 3);
 
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -725,6 +749,7 @@ int main()
 
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
+
 
 
 		glfwSwapBuffers(window); // Draws to screen
@@ -776,10 +801,10 @@ int main()
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
-		delete ago1;
-		delete ago2;
+		delete goTVBody;
 
 		delete fbo;
+		delete fbo2;
 
 		delete pPhysicsManager;
 	}

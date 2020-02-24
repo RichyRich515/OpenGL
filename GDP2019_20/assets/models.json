@@ -16,7 +16,12 @@
 		"location": "assets/models/triangle.ply"
 	},
 	{
-		"name": "streetlamp",
-		"location": "assets/models/streetlamp.obj"
+		"name": "TV_body",
+		"location": "assets/models/TV_body.ply"
+	},
+	{
+		"name": "TV_screen",
+		"location": "assets/models/TV_screen.ply"
 	}
+
 ]

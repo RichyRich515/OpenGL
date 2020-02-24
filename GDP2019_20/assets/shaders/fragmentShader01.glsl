@@ -63,6 +63,8 @@ uniform bool daytime;
 
 uniform vec2 waterOffset;
 
+uniform sampler2D noiseSamp;
+uniform sampler2D scopeSamp;
 
 out vec4 pixelColour; // RGB A (0 to 1) 
 
@@ -94,14 +96,26 @@ void main()
 {
 	if (passCount == 2)
 	{
-		// TODO: pass viewport size
-		float s = gl_FragCoord.x / 1920;
-		float t = gl_FragCoord.y / 1080;
-
-		pixelColour = texture(secondPassSamp, vec2(s, t));
+		// HACK TV has weird UV
+		vec2 newST = vec2(fUVx2.s * 1.45f, fUVx2.t);
+		pixelColour = texture(secondPassSamp, newST);
+		pixelColour.rgb *= texture(scopeSamp, newST).g;
+		if (texture(noiseSamp, newST + waterOffset).r < 0.5)
+		{
+			pixelColour.rgb *= 0.75;
+		}
 
 		return;
 	}
+	else if (passCount == 3)
+	{
+
+		// TODO: pass viewport size
+		float s = gl_FragCoord.x / 1920;
+		float t = gl_FragCoord.y / 1080;
+		pixelColour = texture(secondPassSamp, vec2(s, t));
+	}
+
 	vec3 norm = normalize(fNormal.xyz);
 	if (params1.w != 0.0) // normals as color
 	{
