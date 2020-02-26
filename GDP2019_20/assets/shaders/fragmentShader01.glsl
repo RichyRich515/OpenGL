@@ -18,7 +18,7 @@ uniform vec4 specularColour;
 uniform vec4 params1;
 
 // x: is skybox 
-// y: is terrain 
+// y: reflect/refract skybox 
 // z: 
 // w: 
 uniform vec4 params2;
@@ -157,86 +157,28 @@ void main()
 		return;
 	}
 	
+	vec3 color = diffuseColour.rgb;
+
 	// terrain mesh
 	if (params2.y != 0.0)
 	{
-		vec2 dx00 = dFdx(fUVx2.st * textparams00.w + textparams00.xy);
-		vec2 dy00 = dFdy(fUVx2.st * textparams00.w + textparams00.xy);
-
-		vec2 dx01 = dFdx(fUVx2.st * textparams01.w + textparams01.xy);
-		vec2 dy01 = dFdy(fUVx2.st * textparams01.w + textparams01.xy);
-
-		vec2 dx02 = dFdx(fUVx2.st * textparams02.w + textparams02.xy);
-		vec2 dy02 = dFdy(fUVx2.st * textparams02.w + textparams02.xy);
-
-		vec2 dx03 = dFdx(fUVx2.st * textparams03.w + textparams03.xy + waterOffset);
-		vec2 dy03 = dFdy(fUVx2.st * textparams03.w + textparams03.xy + waterOffset);
-
-		if (fVertWorldLocation.y <= 0.0f)
-		{
-			discard;
-		}
-		vec3 textured = vec3(0.0, 0.0, 0.0);
+		vec3 eyeVector = normalize(eyeLocation.xyz - fVertWorldLocation.xyz);
 		
-		vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, norm, fVertWorldLocation.xyz, specularColour);
-		if (fVertWorldLocation.y < 29.0f)
+		if (params2.y > 0.0)
 		{
-			vec3 textCol = textureGrad(textSamp00, fUVx2.st * textparams00.w + textparams00.xy, dx00, dy00).rgb;
-			vec3 textCol2 = textureGrad(textSamp03, fUVx2.st * textparams03.w + textparams03.xy + waterOffset, dx03, dy03).rgb;
-			textured = textCol * textparams00.z * 0.6 + textCol2 * textparams03.z * 0.4;
-		}
-		else if (fVertWorldLocation.y < 30.0f)
-		{
-			vec3 textCol = textureGrad(textSamp00, fUVx2.st * textparams00.w + textparams00.xy, dx00, dy00).rgb;
-			textured = textCol * textparams00.z;
-		}
-		else if (fVertWorldLocation.y < 35.0f)
-		{
-			vec3 textCol = textureGrad(textSamp00, fUVx2.st * textparams00.w + textparams00.xy, dx00, dy00).rgb;
-			vec3 textCol2 = textureGrad(textSamp01, fUVx2.st * textparams01.w + textparams01.xy, dx01, dy01).rgb;
-			float ratio = clamp((fVertWorldLocation.y - 30.0f) / 5.0f, 0.0f, 1.0f);
-			textured = mix(textCol * textparams00.z, textCol2.rgb * textparams01.z, ratio);
-		}
-		else if (fVertWorldLocation.y < 130.0f)
-		{
-			vec3 textCol = textureGrad(textSamp01, fUVx2.st * textparams01.w + textparams01.xy, dx01, dy01).rgb;
-			textured = textCol.rgb * textparams01.z;
-		}
-		else if (fVertWorldLocation.y < 135.0f)
-		{
-			vec3 textCol = textureGrad(textSamp01, fUVx2.st * textparams01.w + textparams01.xy, dx01, dy01).rgb;
-			vec3 textCol2 = textureGrad(textSamp02, fUVx2.st * textparams02.w + textparams02.xy, dx02, dy02).rgb;
-			float ratio = (fVertWorldLocation.y - 130.0f) / 5.0f;
-			textured = mix(textCol * textparams01.z, textCol2.rgb * textparams02.z, ratio);
+			vec3 reflectVector = reflect(eyeVector, fNormal.xyz);
+			color.rgb = texture(skyboxSamp00, reflectVector.xyz).rgb;
 		}
 		else
 		{
-			vec3 textCol = textureGrad(textSamp02, fUVx2.st * textparams02.w + textparams02.xy, dx02, dy02).rgb;
-			textured = textCol * textparams02.z;
+			// TODO: index of refraction
+			vec3 refractVector = refract(eyeVector, fNormal.xyz, 1.4f);
+			color.rgb = texture(skyboxSamp00, refractVector.xyz).rgb;
 		}
-
-		vec3 lightTex = textured * lightColoured.rgb;
-		if (length(lightColoured.rgb) < length(ambientColour.rgb))
-			lightTex = textured * ambientColour.rgb;
-
-		pixelColour.rgb = lightTex;
-
-		pixelColour.a = diffuseColour.a;
-		return;
 	}
 	
 	vec2 textparams00xy = textparams00.xy;
 	vec4 specular = specularColour;
-	if (params2.z != 0.0)
-	{
-		textparams00xy += waterOffset;
-		if (heightparams.w != 0.0)
-		{
-			vec3 samp = texture(heightSamp, fUVx2.st * heightparams.w + heightparams.xy + waterOffset).rgb;
-			specular.a += -((samp.r + samp.g ) + samp.b) * 300.0;
-		}
-	}
-
 
 	if (discardparams.w != 0) // discard mode
 	{
@@ -245,7 +187,7 @@ void main()
 			discard;
 	}
 
-	vec4 lightColoured = calculateLightContrib(diffuseColour.rgb, norm, fVertWorldLocation.xyz, specular);
+	vec4 lightColoured = calculateLightContrib(color, norm, fVertWorldLocation.xyz, specular);
 	if (textparams00.w != 0.0) // texture
 	{
 		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00xy).rgb;
@@ -270,7 +212,7 @@ void main()
 	}
 	else // no texture
 	{
-		pixelColour.rgb = lightColoured.rgb + (diffuseColour.rgb * ambientColour.rgb);
+		pixelColour.rgb = lightColoured.rgb + (color * ambientColour.rgb);
 	}
 
 	pixelColour.a = diffuseColour.a;
@@ -279,7 +221,6 @@ void main()
 
 vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 norm, vec3 vertexWorldPos, vec4 vertexSpecular)
 {
-	
 	vec4 finalObjectColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	
 	for (int index = 0; index < NUMBEROFLIGHTS; index++)

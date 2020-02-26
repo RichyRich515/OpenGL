@@ -22,6 +22,10 @@
 	{
 		"name": "TV_screen",
 		"location": "assets/models/TV_screen.ply"
+	},
+	{
+		"name": "crystal",
+		"location": "assets/models/Crystal_xyzn.ply"
 	}
 
 ]

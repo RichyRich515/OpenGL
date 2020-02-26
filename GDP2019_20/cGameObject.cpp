@@ -95,10 +95,16 @@ void cGameObject::render()
 	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
 	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(m))));
+	float refl_refr = 0.0f;
+	if (this->graphics.reflects)
+		refl_refr = 1.0f;
+	else if (this->graphics.refracts)
+		refl_refr = -1.0f;
+
 	glUniform4f(pShader->getUniformLocID("params2"),
 		0.0f,
-		this->name == "terrain" ? 1.0f : 0.0f,
-		this->name == "ocean" || this->name == "sand_floor" ? 1.0f : 0.0f,
+		refl_refr,
+		0.0f,
 		0.0f);
 
 	this->graphics.render();

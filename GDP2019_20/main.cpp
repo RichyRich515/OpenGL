@@ -81,6 +81,8 @@ static void error_callback(int error, const char* description)
 constexpr float MAX_DELTA_TIME = 0.017f;
 
 cCamera* camera;
+cCamera* camera_inTV;
+cCamera* camera_inSpace;
 
 
 // TODO: Get this outta global space
@@ -440,12 +442,29 @@ int main()
 	cWorld::pDebugRenderer->initialize();
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
-	camera = new cCamera();
+	camera_inTV = new cCamera();
+	camera_inTV->position = glm::vec3(0.0f, 5.0f, 30.0f);
+	camera_inTV->yaw = -90;
+	camera_inTV->forward.x = cos(glm::radians(camera_inTV->yaw)) * cos(glm::radians(camera_inTV->pitch));
+	camera_inTV->forward.y = sin(glm::radians(camera_inTV->pitch));
+	camera_inTV->forward.z = sin(glm::radians(camera_inTV->yaw)) * cos(glm::radians(camera_inTV->pitch));
+	camera_inTV->forward = glm::normalize(camera_inTV->forward);
+	camera_inTV->right = glm::normalize(glm::cross(camera_inTV->forward, camera_inTV->up));
+
+	camera_inSpace = new cCamera();
+	camera = camera_inSpace;
 
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
 
 	openSceneFromFile("assets/scenes/scene1.json");
+
+
+	camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+	camera->forward.y = sin(glm::radians(camera->pitch));
+	camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+	camera->forward = glm::normalize(camera->forward);
+	camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 
 	std::vector<cPhysicsGameObject*> balls;
 
@@ -465,6 +484,31 @@ int main()
 	goTVBody->graphics.visible = true;
 	goTVBody->graphics.color = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
 	goTVBody->graphics.lighting = true;
+
+
+	cGameObject* goRefl = new cGameObject();
+	goRefl->mesh.meshName = "crystal";
+	goRefl->mesh.scale = 2.0f;
+	goRefl->transform.position = glm::vec3(5.0f, 0.0f, 15.0f);
+	goRefl->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	goRefl->transform.updateMatricis();
+	goRefl->graphics.visible = true;
+	goRefl->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	goRefl->graphics.lighting = true;
+	goRefl->graphics.reflects = true;
+	world->addGameObject(goRefl);
+
+	cGameObject* goRefr = new cGameObject();
+	goRefr->mesh.meshName = "crystal";
+	goRefr->mesh.scale = 2.0f;
+	goRefr->transform.position = glm::vec3(-5.0f, 0.0f, 15.0f);
+	goRefr->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	goRefr->transform.updateMatricis();
+	goRefr->graphics.visible = true;
+	goRefr->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	goRefr->graphics.lighting = true;
+	goRefr->graphics.refracts = true;
+	world->addGameObject(goRefr);
 
 	glActiveTexture(GL_TEXTURE0 + 55);
 	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("noise.bmp"));
@@ -493,6 +537,16 @@ int main()
 
 		// Camera orientation
 		{
+			if (shift_pressed)
+			{
+				camera = camera_inSpace;
+			}
+			else
+			{
+				camera = camera_inTV;
+			}
+				
+
 			glfwGetCursorPos(window, &cursorX, &cursorY);
 			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
 			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
@@ -527,7 +581,7 @@ int main()
 		{
 			// FOV, aspect ratio, near clip, far clip
 			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-			v = glm::lookAt(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, 5.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			v = glm::lookAt(camera_inTV->position, camera_inTV->position + camera_inTV->forward, camera_inTV->up);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 
@@ -536,7 +590,7 @@ int main()
 
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-			glUniform4f(eyeLocation_loc, 0.0f, 0.0f, 0.0f, 1.0f);
+			glUniform4f(eyeLocation_loc, camera_inTV->position.x, camera_inTV->position.y, camera_inTV->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
 
 			waterOffset.s += rand() / (float)RAND_MAX * 10.0f;
@@ -562,7 +616,7 @@ int main()
 				glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
 			}
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f));
+			matWorld *= glm::translate(glm::mat4(1.0f), camera_inTV->position);
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
@@ -592,7 +646,7 @@ int main()
 			world->vecGameObjects[i]->update(dt, totalTime);
 		}
 		goTVBody->update(dt, totalTime);
-		physWorld->Update(dt);
+		//physWorld->Update(dt);
 
 		// pre frame, then render
 		{
@@ -629,7 +683,7 @@ int main()
 
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 
-			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
+			v = glm::lookAt(camera_inSpace->position, camera_inSpace->position + camera_inSpace->forward, camera_inSpace->up);
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 
 			// draw Skybox
@@ -650,7 +704,7 @@ int main()
 					glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
 				}
 				glm::mat4 matWorld(1.0f);
-				matWorld *= glm::translate(glm::mat4(1.0f), camera->position);
+				matWorld *= glm::translate(glm::mat4(1.0f), camera_inSpace->position);
 				glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 				glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 				glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
@@ -732,8 +786,8 @@ int main()
 			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), camera->position - camera->forward * -2.0f);
-			matWorld *= glm::mat4(glm::quatLookAt(camera->forward, glm::normalize(glm::cross(camera->forward, camera->right))));
+			matWorld *= glm::translate(glm::mat4(1.0f), camera_inSpace->position - camera_inSpace->forward * -2.0f);
+			matWorld *= glm::mat4(glm::quatLookAt(camera_inSpace->forward, glm::normalize(glm::cross(camera_inSpace->forward, camera_inSpace->right))));
 			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));

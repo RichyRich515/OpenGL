@@ -35,6 +35,9 @@ public:
 	bool lighting;
 	bool wireFrame;
 
+	bool reflects;
+	bool refracts;
+
 	// TODO: pass these in render???
 	float dt;
 	float tt;
