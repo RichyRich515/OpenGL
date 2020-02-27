@@ -55,16 +55,11 @@ uniform sampler2D discardSamp;
 uniform samplerCube skyboxSamp00;
 uniform samplerCube skyboxSamp01;
 
-
 uniform sampler2D secondPassSamp;
 uniform float passCount;
 
-uniform bool daytime;
-
-uniform vec2 waterOffset;
-
-uniform sampler2D noiseSamp;
-uniform sampler2D scopeSamp;
+uniform sampler2D planetSamp;
+uniform vec4 planetparams;
 
 out vec4 pixelColour; // RGB A (0 to 1) 
 
@@ -96,27 +91,35 @@ void main()
 {
 	if (passCount == 2)
 	{
-		// HACK TV has weird UV
-		vec2 newST = vec2(fUVx2.s * 1.45f, fUVx2.t);
-		pixelColour = texture(secondPassSamp, newST);
-		pixelColour.rgb *= texture(scopeSamp, newST).g;
-		if (texture(noiseSamp, newST + waterOffset).r < 0.5)
+		pixelColour = texture(secondPassSamp, fUVx2.st);
+		if (planetparams.x != 0)
 		{
-			pixelColour.rgb *= 0.75;
+			vec3 planetcol = texture(planetSamp, fUVx2.st).rgb;
+			if (length(planetcol) > 0.0)
+				pixelColour.rgb = planetcol;
+			else
+				discard;
 		}
-
 		return;
 	}
 	else if (passCount == 3)
 	{
-
 		// TODO: pass viewport size
 		float s = gl_FragCoord.x / 1920;
 		float t = gl_FragCoord.y / 1080;
 		pixelColour = texture(secondPassSamp, vec2(s, t));
+		return;
+	}
+	
+	vec3 norm = normalize(fNormal.xyz);
+	if (params2.x != 0.0) // Skybox
+	{
+		vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
+		pixelColour.rgb = skyboxColor;
+		pixelColour.a = 1.0;
+		return;
 	}
 
-	vec3 norm = normalize(fNormal.xyz);
 	if (params1.w != 0.0) // normals as color
 	{
 		pixelColour.rgb = norm;
@@ -130,36 +133,9 @@ void main()
 		pixelColour.a = 1.0;
 		return;
 	}
-	
-	if (params2.x != 0.0) // Skybox
-	{
-		if (daytime || fVertWorldLocation.y <= 27.5f)
-		{
-			vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
-			pixelColour.rgb = skyboxColor;
-		}
-		else
-		{
-			if (fVertWorldLocation.y <= 32.5f)
-			{
-				vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
-				vec3 skyboxColor2 = texture(skyboxSamp01, -norm).rgb;
-				float ratio = (fVertWorldLocation.y - 27.5f) / 5.0f;
-				pixelColour.rgb = mix(skyboxColor, skyboxColor2, ratio);
-			}
-			else
-			{
-				vec3 skyboxColor = texture(skyboxSamp01, -norm).rgb;
-				pixelColour.rgb = skyboxColor;
-			}
-		}
-		pixelColour.a = 1.0;
-		return;
-	}
-	
+
 	vec3 color = diffuseColour.rgb;
 
-	// terrain mesh
 	if (params2.y != 0.0)
 	{
 		vec3 eyeVector = normalize(eyeLocation.xyz - fVertWorldLocation.xyz);
@@ -205,6 +181,7 @@ void main()
 			}
 		}
 		vec3 lightTex = textured * lightColoured.rgb;
+
 		if (length(lightColoured.rgb) < length(ambientColour.rgb))
 			lightTex = textured * ambientColour.rgb;
 

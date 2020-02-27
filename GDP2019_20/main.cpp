@@ -169,11 +169,11 @@ void openSceneFromFile(std::string filename)
 	camera->yaw = camera_node["yaw"].asFloat();
 	camera->speed = camera_node["cameraSpeed"].asFloat();
 
-	//Json::Value ambienceobj = world_node["ambience"];
-	//for (unsigned i = 0; i < 4; ++i) // vec 4s
-	//{
-	//	ambience[i] = ambienceobj[i].asFloat();
-	//}
+	Json::Value ambienceobj = world_node["ambience"];
+	for (unsigned i = 0; i < 4; ++i) // vec 4s
+	{
+		ambience[i] = ambienceobj[i].asFloat();
+	}
 
 	if (pGameObjectFactory)
 		delete pGameObjectFactory;
@@ -429,7 +429,7 @@ int main()
 
 		fbo2 = new cFBO();
 		// Usually make this the size of the screen which we can get from opengl
-		if (!fbo->init(width, height, fboError))
+		if (!fbo2->init(width, height, fboError))
 		{
 			std::cout << "FBO init error: " << fboError << std::endl;
 		}
@@ -442,17 +442,18 @@ int main()
 	cWorld::pDebugRenderer->initialize();
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
-	camera_inTV = new cCamera();
-	camera_inTV->position = glm::vec3(0.0f, 5.0f, 30.0f);
-	camera_inTV->yaw = -90;
-	camera_inTV->forward.x = cos(glm::radians(camera_inTV->yaw)) * cos(glm::radians(camera_inTV->pitch));
-	camera_inTV->forward.y = sin(glm::radians(camera_inTV->pitch));
-	camera_inTV->forward.z = sin(glm::radians(camera_inTV->yaw)) * cos(glm::radians(camera_inTV->pitch));
-	camera_inTV->forward = glm::normalize(camera_inTV->forward);
-	camera_inTV->right = glm::normalize(glm::cross(camera_inTV->forward, camera_inTV->up));
 
 	camera_inSpace = new cCamera();
-	camera = camera_inSpace;
+	camera_inSpace->position = glm::vec3(0.0f, 0.0f, 0.0f);
+	camera_inSpace->yaw = -90;
+	camera_inSpace->forward.x = cos(glm::radians(camera_inSpace->yaw)) * cos(glm::radians(camera_inSpace->pitch));
+	camera_inSpace->forward.y = sin(glm::radians(camera_inSpace->pitch));
+	camera_inSpace->forward.z = sin(glm::radians(camera_inSpace->yaw)) * cos(glm::radians(camera_inSpace->pitch));
+	camera_inSpace->forward = glm::normalize(camera_inSpace->forward);
+	camera_inSpace->right = glm::normalize(glm::cross(camera_inSpace->forward, camera_inSpace->up));
+
+	camera_inTV = new cCamera();
+	camera = camera_inTV;
 
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
@@ -475,48 +476,185 @@ int main()
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
 
-	cGameObject* goTVBody = new cGameObject();
-	goTVBody->mesh.meshName = "TV_body";
-	goTVBody->mesh.scale = 1.0f;
-	goTVBody->transform.position = glm::vec3(0.0f);
-	goTVBody->transform.orientation = glm::quat(0.707f, -0.707f, 0.0f, 0.0f);
-	goTVBody->transform.updateMatricis();
-	goTVBody->graphics.visible = true;
-	goTVBody->graphics.color = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
-	goTVBody->graphics.lighting = true;
+	std::vector<std::pair<cGameObject*, glm::vec3>> stars;
+	{
+		for (unsigned i = 0; i < 150; ++i)
+		{
+			cGameObject* star = new cGameObject();
+			star->mesh.meshName = "sphere";
+			star->mesh.scale = 0.25f;
 
+			star->transform.position = glm::vec3(0.0f, 0.0f, -50.0f);
+			star->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+			star->transform.updateMatricis();
 
-	cGameObject* goRefl = new cGameObject();
-	goRefl->mesh.meshName = "crystal";
-	goRefl->mesh.scale = 2.0f;
-	goRefl->transform.position = glm::vec3(5.0f, 0.0f, 15.0f);
-	goRefl->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-	goRefl->transform.updateMatricis();
-	goRefl->graphics.visible = true;
-	goRefl->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	goRefl->graphics.lighting = true;
-	goRefl->graphics.reflects = true;
-	world->addGameObject(goRefl);
+			star->graphics.visible = true;
+			star->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			star->graphics.lighting = false;
 
-	cGameObject* goRefr = new cGameObject();
-	goRefr->mesh.meshName = "crystal";
-	goRefr->mesh.scale = 2.0f;
-	goRefr->transform.position = glm::vec3(-5.0f, 0.0f, 15.0f);
-	goRefr->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-	goRefr->transform.updateMatricis();
-	goRefr->graphics.visible = true;
-	goRefr->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	goRefr->graphics.lighting = true;
-	goRefr->graphics.refracts = true;
-	world->addGameObject(goRefr);
+			float r1 = (rand() / (float)RAND_MAX - 0.5f);
+			float r2 = (rand() / (float)RAND_MAX - 0.5f);
+			float r3 = (rand() / (float)RAND_MAX);
+			stars.push_back(std::make_pair(star, glm::vec3(r1 * 16.0f, r2 * 9.0f, r3 * 50.0f) / 1.0f));
+		}
+
+		cGameObject* goConsole = new cGameObject();
+		goConsole->mesh.meshName = "console";
+		goConsole->mesh.scale = 1.0f;
+		goConsole->transform.position = glm::vec3(0.0f);
+		goConsole->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goConsole->transform.updateMatricis();
+		goConsole->graphics.visible = true;
+		goConsole->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goConsole->graphics.lighting = true;
+		goConsole->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goConsole->graphics.textures[0].blend = 1.0f;
+		goConsole->graphics.textures[0].tiling = 1.0f;
+		goConsole->graphics.textures[0].xOffset = 0.0f;
+		goConsole->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goConsole);
+
+		cGameObject* goFloor1 = new cGameObject();
+		goFloor1->mesh.meshName = "floor";
+		goFloor1->mesh.scale = 1.0f;
+		goFloor1->transform.position = glm::vec3(-2.5, 0.0f, 0.0f);
+		goFloor1->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goFloor1->transform.updateMatricis();
+		goFloor1->graphics.visible = true;
+		goFloor1->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goFloor1->graphics.lighting = true;
+		goFloor1->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goFloor1->graphics.textures[0].blend = 1.0f;
+		goFloor1->graphics.textures[0].tiling = 1.0f;
+		goFloor1->graphics.textures[0].xOffset = 0.0f;
+		goFloor1->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goFloor1);
+
+		cGameObject* goFloor2 = new cGameObject();
+		goFloor2->mesh.meshName = "floor";
+		goFloor2->mesh.scale = 1.0f;
+		goFloor2->transform.position = glm::vec3(2.5, 0.0f, 0.0f);
+		goFloor2->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goFloor2->transform.updateMatricis();
+		goFloor2->graphics.visible = true;
+		goFloor2->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goFloor2->graphics.lighting = true;
+		goFloor2->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goFloor2->graphics.textures[0].blend = 1.0f;
+		goFloor2->graphics.textures[0].tiling = 1.0f;
+		goFloor2->graphics.textures[0].xOffset = 0.0f;
+		goFloor2->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goFloor2);
+
+		cGameObject* goFloor3 = new cGameObject();
+		goFloor3->mesh.meshName = "floor";
+		goFloor3->mesh.scale = 1.0f;
+		goFloor3->transform.position = glm::vec3(-2.5, 0.0f, 5.0f);
+		goFloor3->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goFloor3->transform.updateMatricis();
+		goFloor3->graphics.visible = true;
+		goFloor3->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goFloor3->graphics.lighting = true;
+		goFloor3->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goFloor3->graphics.textures[0].blend = 1.0f;
+		goFloor3->graphics.textures[0].tiling = 1.0f;
+		goFloor3->graphics.textures[0].xOffset = 0.0f;
+		goFloor3->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goFloor3);
+
+		cGameObject* goFloor4 = new cGameObject();
+		goFloor4->mesh.meshName = "floor";
+		goFloor4->mesh.scale = 1.0f;
+		goFloor4->transform.position = glm::vec3(2.5, 0.0f, 5.0f);
+		goFloor4->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goFloor4->transform.updateMatricis();
+		goFloor4->graphics.visible = true;
+		goFloor4->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goFloor4->graphics.lighting = true;
+		goFloor4->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goFloor4->graphics.textures[0].blend = 1.0f;
+		goFloor4->graphics.textures[0].tiling = 1.0f;
+		goFloor4->graphics.textures[0].xOffset = 0.0f;
+		goFloor4->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goFloor4);
+
+		cGameObject* goCorner = new cGameObject();
+		goCorner->mesh.meshName = "corner1";
+		goCorner->mesh.scale = 1.0f;
+		goCorner->transform.position = glm::vec3(-10.0f, 0.0f, 5.0f);
+		goCorner->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goCorner->transform.updateMatricis();
+		goCorner->graphics.visible = true;
+		goCorner->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goCorner->graphics.lighting = true;
+		goCorner->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goCorner->graphics.textures[0].blend = 1.0f;
+		goCorner->graphics.textures[0].tiling = 1.0f;
+		goCorner->graphics.textures[0].xOffset = 0.0f;
+		goCorner->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goCorner);
+
+		cGameObject* goCorner2 = new cGameObject();
+		goCorner2->mesh.meshName = "corner2";
+		goCorner2->mesh.scale = 1.0f;
+		goCorner2->transform.position = glm::vec3(5.0f, 0.0f, 5.0f);
+		goCorner2->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		goCorner2->transform.updateMatricis();
+		goCorner2->graphics.visible = true;
+		goCorner2->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goCorner2->graphics.lighting = true;
+		goCorner2->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goCorner2->graphics.textures[0].blend = 1.0f;
+		goCorner2->graphics.textures[0].tiling = 1.0f;
+		goCorner2->graphics.textures[0].xOffset = 0.0f;
+		goCorner2->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goCorner2);
+
+		cGameObject* goSeatL = new cGameObject();
+		goSeatL->mesh.meshName = "seat";
+		goSeatL->mesh.scale = 1.0f;
+		goSeatL->transform.position = glm::vec3(-4.0f, 0.0f, 3.5f);
+		goSeatL->transform.orientation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
+		goSeatL->transform.updateMatricis();
+		goSeatL->graphics.visible = true;
+		goSeatL->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goSeatL->graphics.lighting = true;
+		goSeatL->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goSeatL->graphics.textures[0].blend = 1.0f;
+		goSeatL->graphics.textures[0].tiling = 1.0f;
+		goSeatL->graphics.textures[0].xOffset = 0.0f;
+		goSeatL->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goSeatL);
+
+		cGameObject* goSeatR = new cGameObject();
+		goSeatR->mesh.meshName = "seat";
+		goSeatR->mesh.scale = 1.0f;
+		goSeatR->transform.position = glm::vec3(-1.0f, 0.0f, 3.5f);
+		goSeatR->transform.orientation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
+		goSeatR->transform.updateMatricis();
+		goSeatR->graphics.visible = true;
+		goSeatR->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		goSeatR->graphics.lighting = true;
+		goSeatR->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
+		goSeatR->graphics.textures[0].blend = 1.0f;
+		goSeatR->graphics.textures[0].tiling = 1.0f;
+		goSeatR->graphics.textures[0].xOffset = 0.0f;
+		goSeatR->graphics.textures[0].yOffset = 0.0f;
+		world->addGameObject(goSeatR);
+
+	}
 
 	glActiveTexture(GL_TEXTURE0 + 55);
-	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("noise.bmp"));
-	glUniform1i(pShader->getUniformLocID("noiseSamp"), 55);
+	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("planet.bmp"));
+	glUniform1i(pShader->getUniformLocID("planetSamp"), 55);
 
-	glActiveTexture(GL_TEXTURE0 + 56);
-	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("scope.bmp"));
-	glUniform1i(pShader->getUniformLocID("scopeSamp"), 56);
+	// 0 = default
+	// 1 = hyperspace
+	// 2 = transition out of hyperspace
+	unsigned state = 0;
+
+	float planetSize = 0.0f;
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -568,6 +706,11 @@ int main()
 
 		// keyboard inputs
 		{
+			if (pKeyboardManager->keyPressed('1'))
+				state = 1;
+			else if (pKeyboardManager->keyPressed('2'))
+				state = 2;
+
 			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
 			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
 			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
@@ -583,37 +726,26 @@ int main()
 			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 			v = glm::lookAt(camera_inTV->position, camera_inTV->position + camera_inTV->forward, camera_inTV->up);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
-
 			glUseProgram(program);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
 			glUniform4f(eyeLocation_loc, camera_inTV->position.x, camera_inTV->position.y, camera_inTV->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
-
-			waterOffset.s += rand() / (float)RAND_MAX * 10.0f;
-			waterOffset.t += rand() / (float)RAND_MAX * 10.0f;
-			glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
 		}
 
 		// draw Skybox
 		{
 			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName("daytime");
+			GLuint texture_ul = pTextureManager->getTextureIDFromName("nighttime");
 			if (texture_ul)
 			{
 				glActiveTexture(GL_TEXTURE10);
 				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
 				glUniform1i(pShader->getUniformLocID("skyboxSamp00"), 10);
-			}
-			texture_ul = pTextureManager->getTextureIDFromName("nighttime");
-			if (texture_ul)
-			{
-				glActiveTexture(GL_TEXTURE11);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-				glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
 			}
 			glm::mat4 matWorld(1.0f);
 			matWorld *= glm::translate(glm::mat4(1.0f), camera_inTV->position);
@@ -624,7 +756,6 @@ int main()
 			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("params2"), 1.0f, 0.0f, 0.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-			glUniform1i(pShader->getUniformLocID("daytime"), day_time);
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH_TEST);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -640,12 +771,45 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
+
+		// draw starfield to fbo2
+		if (state != 0)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo2->ID);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			v = glm::lookAt(camera_inSpace->position, camera_inSpace->position + camera_inSpace->forward, camera_inSpace->up);
+			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+			if (planetSize < 1.0f)
+			{
+				for (auto s : stars)
+				{
+					s.first->transform.setPosition(s.first->transform.getPosition() + s.second * dt);
+					s.first->transform.updateMatricis();
+					s.first->graphics.color -= (51.0f - s.second.z) / 50.0f * dt;
+					if (s.first->graphics.color.r > (0.65f - planetSize))
+						s.first->graphics.color = glm::vec4(0.65f - planetSize);
+					s.first->render();
+					if (s.first->graphics.color.r <= 0.0f)
+					{
+						s.first->transform.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
+						s.first->graphics.color = glm::vec4(1.0f);
+					}
+				}
+			}
+			// go back to fbo1
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+
+			v = glm::lookAt(camera_inTV->position, camera_inTV->position + camera_inTV->forward, camera_inTV->up);
+			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
+		}
+
+
 		// update
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
 		}
-		goTVBody->update(dt, totalTime);
 		//physWorld->Update(dt);
 
 		// pre frame, then render
@@ -660,123 +824,69 @@ int main()
 			}
 		}
 
-		// draw debug
-		if (cWorld::debugMode)
+		// draw the moving star field to big box
+		if (state != 0)
 		{
-			cWorld::pDebugRenderer->addLine(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
-			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
-
-			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
-		}
-
-		// Draw frame buffer to TV screen
-		{
-			glUseProgram(program);
-
-			glDisable(GL_CULL_FACE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			// switch to fbo2
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo2->ID);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glUniform1f(pShader->getUniformLocID("passCount"), 1);
-
-			v = glm::lookAt(camera_inSpace->position, camera_inSpace->position + camera_inSpace->forward, camera_inSpace->up);
-			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-
-			// draw Skybox
-			{
-				// Tie texture
-				GLuint texture_ul = pTextureManager->getTextureIDFromName("nighttime");
-				if (texture_ul)
-				{
-					glActiveTexture(GL_TEXTURE10);
-					glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-					glUniform1i(pShader->getUniformLocID("skyboxSamp00"), 10);
-				}
-				texture_ul = pTextureManager->getTextureIDFromName("daytime");
-				if (texture_ul)
-				{
-					glActiveTexture(GL_TEXTURE11);
-					glBindTexture(GL_TEXTURE_CUBE_MAP, texture_ul);
-					glUniform1i(pShader->getUniformLocID("skyboxSamp01"), 11);
-				}
-				glm::mat4 matWorld(1.0f);
-				matWorld *= glm::translate(glm::mat4(1.0f), camera_inSpace->position);
-				glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
-				glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
-				glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-				glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-				glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
-				glUniform4f(pShader->getUniformLocID("params2"), 1.0f, 0.0f, 0.0f, 0.0f);
-				glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-				glUniform1i(pShader->getUniformLocID("daytime"), day_time);
-				glDisable(GL_CULL_FACE);
-				glDisable(GL_DEPTH_TEST);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-				sModelDrawInfo drawInfo;
-				if (pVAOManager->FindDrawInfoByModelName("sphere", drawInfo))
-				{
-					glBindVertexArray(drawInfo.VAO_ID);
-					glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-					glBindVertexArray(0);
-				}
-				glEnable(GL_CULL_FACE);
-				glEnable(GL_DEPTH_TEST);
-			}
-
-			goTVBody->render();
-			// 3. use the FBO colour texture as the texture on the quad
 			glActiveTexture(GL_TEXTURE0 + 40);
-			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
+			glBindTexture(GL_TEXTURE_2D, fbo2->colourTexture_0_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
+
 			glUniform1f(pShader->getUniformLocID("passCount"), 2);
-
-			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 0.0f, 0.0f);
-			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
-
+			glUniform4f(pShader->getUniformLocID("planetparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-			matWorld *= glm::mat4(glm::quat(0.707f, -0.707f, 0.0f, 0.0f));
-			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 2.0f, -3.0f));
+			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(16.0f, 9.0f, 1.0f));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 
-			// 4. draw a single object, (tri or quad)
 			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName("TV_screen", drawInfo))
+			if (pVAOManager->FindDrawInfoByModelName("cube", drawInfo))
 			{
 				glBindVertexArray(drawInfo.VAO_ID);
 				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
 				glBindVertexArray(0);
 			}
 
+			if (state == 2)
+			{
+				planetSize += dt * 0.1f;
+				if (planetSize > 1.0f)
+					planetSize = 1.0f;
+				glUniform4f(pShader->getUniformLocID("planetparams"), planetSize, 0.0, 0.0, 0.0);
+
+				matWorld = glm::mat4(1.0f);
+				matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 2.0f, -2.99f));
+				matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(3.0f * planetSize, 3.0f * planetSize, 1.0f));
+				glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+				glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+
+				if (pVAOManager->FindDrawInfoByModelName("cube", drawInfo))
+				{
+					glBindVertexArray(drawInfo.VAO_ID);
+					glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+					glBindVertexArray(0);
+				}
+			}
+
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
 
-		
-
-		// render fbo2 to tri
+		// render fbo to tri
 		{
 			glUseProgram(program);
 
 			glDisable(GL_CULL_FACE);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			// switch to fbo2
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
+			// switch off fbo
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// 3. use the FBO colour texture as the texture on the quad
-			glActiveTexture(GL_TEXTURE0 + 41);
-			glBindTexture(GL_TEXTURE_2D, fbo2->colourTexture_0_ID);
-			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 41);
+			// 3. use the FBO colour texture as the texture on the tri
+			glActiveTexture(GL_TEXTURE0 + 40);
+			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
+			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
 
 			glUniform1f(pShader->getUniformLocID("passCount"), 3);
 
@@ -786,8 +896,8 @@ int main()
 			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), camera_inSpace->position - camera_inSpace->forward * -2.0f);
-			matWorld *= glm::mat4(glm::quatLookAt(camera_inSpace->forward, glm::normalize(glm::cross(camera_inSpace->forward, camera_inSpace->right))));
+			matWorld *= glm::translate(glm::mat4(1.0f), camera_inTV->position - camera_inTV->forward * -2.0f);
+			matWorld *= glm::mat4(glm::quatLookAt(camera_inTV->forward, glm::normalize(glm::cross(camera_inTV->forward, camera_inTV->right))));
 			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
@@ -849,13 +959,15 @@ int main()
 		for (auto m : mapMeshes)
 			delete m.second;
 
+		for (auto s : stars)
+			delete s.first;
+
 		delete pShaderManager;
 		delete pModelLoader;
 		delete pVAOManager;
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
-		delete goTVBody;
 
 		delete fbo;
 		delete fbo2;

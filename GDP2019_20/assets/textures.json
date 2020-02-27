@@ -2,15 +2,6 @@
 	"location": "assets/textures",
 	"skyboxes": [
 		{
-			"name": "daytime",
-			"file_left": "TropicalSunnyDayLeft2048.bmp",
-			"file_right": "TropicalSunnyDayRight2048.bmp",
-			"file_down": "TropicalSunnyDayDown2048.bmp",
-			"file_up": "TropicalSunnyDayUp2048.bmp",
-			"file_front": "TropicalSunnyDayFront2048.bmp",
-			"file_back": "TropicalSunnyDayBack2048.bmp"
-		},
-		{
 			"name": "nighttime",
 			"file_left": "SpaceBox_right1_posX.bmp",
 			"file_right": "SpaceBox_left2_negX.bmp",
@@ -21,9 +12,7 @@
 		}
 	],
 	"textures": [
-		"terrain_texture.bmp",
-		"rocky.bmp",
-		"scope.bmp",
-		"noise.bmp"
+		"SpaceInteriors_Texture.bmp",
+		"planet.bmp"
 	]
 }

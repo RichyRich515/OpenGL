@@ -16,16 +16,23 @@
 		"location": "assets/models/triangle.ply"
 	},
 	{
-		"name": "TV_body",
-		"location": "assets/models/TV_body.ply"
+		"name": "console",
+		"location": "assets/models/SM_Env_Consoles_01_xyz_n_rgba_uv.ply"
 	},
 	{
-		"name": "TV_screen",
-		"location": "assets/models/TV_screen.ply"
+		"name": "corner1",
+		"location": "assets/models/SM_Env_Consoles_Corner_01_xyz_n_rgba_uv.ply"
 	},
 	{
-		"name": "crystal",
-		"location": "assets/models/Crystal_xyzn.ply"
+		"name": "corner2",
+		"location": "assets/models/SM_Env_Consoles_Corner_02_xyz_n_rgba_uv.ply"
+	},
+	{
+		"name": "floor",
+		"location": "assets/models/SM_Env_Floor_01_xyz_n_rgba_uv.ply"
+	},
+	{
+		"name": "seat",
+		"location": "assets/models/SM_Prop_Seat_01.fbx"
 	}
-
 ]
