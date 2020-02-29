@@ -14,5 +14,9 @@
 	{
 		"name": "triangle",
 		"location": "assets/models/triangle.ply"
+	},
+	{
+		"name": "dalek",
+		"location": "assets/models/dalek_xyz_uv.ply"
 	}
 ]

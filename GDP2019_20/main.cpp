@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <thread>
+#include <condition_variable>
 
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
@@ -52,7 +54,9 @@
 
 #include "Texture/cBasicTextureManager.h"
 
-//#define MY_PHYSICS
+#include "cmazeMaker.h"
+
+#define MY_PHYSICS
 
 #ifdef MY_PHYSICS
 constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
@@ -105,7 +109,6 @@ cWorld* world = cWorld::getWorld();
 glm::vec3 gravity;
 glm::vec4 ambience = glm::vec4(0.25f);
 
-
 void writeSceneToFile(std::string filename)
 {
 	std::ofstream ofs(filename);
@@ -142,8 +145,6 @@ void writeSceneToFile(std::string filename)
 	ofs << root;
 	std::cout << "Saved scene to " << filename << std::endl;
 }
-
-
 void openSceneFromFile(std::string filename)
 {
 	glUseProgram(program);
@@ -219,11 +220,8 @@ void openSceneFromFile(std::string filename)
 	std::cout << "Opened scene " << filename << std::endl;
 }
 
-
 bool ctrl_pressed = false, shift_pressed = false;
-
 cKeyboardManager* pKeyboardManager = NULL;
-
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -245,6 +243,132 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			ctrl_pressed = true;
 		else if (action == GLFW_RELEASE)
 			ctrl_pressed = false;
+	}
+}
+
+
+cMazeMaker* mazeMaker = new cMazeMaker();
+
+std::mutex condvarMutex;
+std::condition_variable condvar;
+
+// timing
+static float totalTime;
+static float lastTime = 0;
+static float dt;
+
+const float DALEK_SPEED = 5.0f;
+
+void dalek_maze_moving(cGameObject* dalek)
+{
+	int xdir = 0;
+	int ydir = 0;
+	int curx = fmodf((dalek->transform.position.x) / 2.0f, 40.0f);
+	int cury = fmodf((dalek->transform.position.z) / 2.0f, 40.0f);
+	int maxx = mazeMaker->maze.size();
+	int maxy = mazeMaker->maze[0].size();
+	int destx = 0;
+	int desty = 0;
+	float fdestx = destx * 2.0f;
+	float fdesty = desty * 2.0f;
+
+	while (true)
+	{
+		if (xdir || ydir)
+		{
+			dalek->transform.position.x += xdir * DALEK_SPEED * dt;
+			dalek->transform.position.z += ydir * DALEK_SPEED * dt;
+			curx = fmodf((dalek->transform.position.x) / 2.0f, 40.0f);
+			cury = fmodf((dalek->transform.position.z) / 2.0f, 40.0f);
+			dalek->transform.updateMatricis();
+			if((xdir > 0 && curx >= destx) 
+			|| (xdir < 0 && curx <= destx) 
+			|| (ydir > 0 && cury >= desty)
+			|| (ydir < 0 && cury <= desty))
+			{
+				if((xdir > 0 && dalek->transform.position.x > fdestx)
+				|| (xdir < 0 && dalek->transform.position.x < fdestx)
+				|| (ydir > 0 && dalek->transform.position.z > fdesty)
+				|| (ydir < 0 && dalek->transform.position.z < fdesty))
+				{
+					if (xdir)
+						dalek->transform.position.x = fdestx;
+					else
+						dalek->transform.position.z = fdesty;
+
+					curx = fmodf((dalek->transform.position.x) / 2.0f, 40.0f);
+					cury = fmodf((dalek->transform.position.z) / 2.0f, 40.0f);
+
+					xdir = 0;
+					ydir = 0;
+
+					continue;
+				}
+			}
+
+			// Only wait while we aren't picking a new position
+			std::unique_lock<std::mutex> lock(condvarMutex);
+			condvar.wait_for(lock, std::chrono::duration<float>(0.017f)); // update at ~60hz or faster if game running faster
+		}
+		else
+		{
+			// pick new direction
+			if (rand() % 2)
+			{
+				xdir = rand() % 3 - 1;
+				ydir = 0;
+			}
+			else
+			{
+				xdir = 0;
+				ydir = rand() % 3 - 1;
+			}
+			int newx = curx + xdir;
+			int newy = cury + ydir;
+			if (newx == curx && newy == cury)
+				continue;
+
+			if (newx >= 0 && newx < maxx && newy >= 0 && newy < maxy)
+			{
+				if (mazeMaker->maze[newx][newy][0])
+				{
+					// try again cause it's a wall
+					xdir = 0;
+					ydir = 0;
+				}
+				else
+				{
+					// calculate how far to travel
+					int max_travel = 1;
+					for (unsigned i = 0; i < 40; ++i)
+					{
+						newx += xdir;
+						newy += ydir;
+						if (newx >= 0 && newx < maxx && newy >= 0 && newy < maxy)
+						{
+							if (mazeMaker->maze[newx][newy][0])
+								break;
+							++max_travel;
+						}
+						else
+						{
+							break;
+						}
+					}
+
+					destx = 0;
+					desty = 0;
+					int travel = rand() % max_travel + 1;
+					if (xdir)
+						destx = travel * xdir + curx;
+					else
+						desty = travel * ydir + cury;
+
+					fdestx = destx * 2;
+					fdesty = desty * 2;
+				}
+			}
+		}
 	}
 }
 
@@ -403,10 +527,6 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// timing
-	float totalTime;
-	float lastTime = 0;
-	float dt;
 
 	double cursorX, cursorY;
 	float lastcursorX = 0, lastcursorY = 0;
@@ -441,34 +561,53 @@ int main()
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
 
-
 	openSceneFromFile("assets/scenes/scene1.json");
-	
-	std::vector<cPhysicsGameObject*> balls;
 
-	world->message(sMessage("Get Balls", (void*)&balls));
-	int current_ball_idx = 8;
+	const unsigned MAX_DALEKS = 10;
+	const unsigned MAZE_WIDTH = 40;
+	const unsigned MAZE_HEIGHT = 40;
 
-	float cam_rot = 0.0f;
-	float zoom_amount = 0.0f;
-	constexpr float MAX_ZOOM_IN = -32.0f;
-	constexpr float MAX_ZOOM_OUT = 32.0f;
+	mazeMaker->GenerateMaze(MAZE_WIDTH, MAZE_HEIGHT);
 
-	constexpr float force_amount = 20.0f;
+	std::vector<std::thread> vec_threads(MAX_DALEKS);
+	dt = 0.017f;
 
-	auto pPhysicsFactory = cPhysicsManager::getFactory();
-	auto physWorld = cPhysicsManager::getWorld();
+	for (unsigned i = 0; i < MAX_DALEKS; ++i)
+	{
+		cGameObject* dalek = new cGameObject();
 
-	float cam_dist = 64.0f + 1.0f * zoom_amount;
-	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
-	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+		dalek->graphics.color = glm::vec4(1.0f, 0.1f, 0.1, 1.0f);
+		dalek->graphics.lighting = true;
 
-	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
-	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+		dalek->mesh.meshName = "dalek";
+		dalek->mesh.scale = 0.025f;
+
+		unsigned x = 0;
+		unsigned y = 0;
+		while (mazeMaker->maze[x][y][0])
+		{
+			x = rand() % mazeMaker->maze.size();
+			y = rand() % mazeMaker->maze[0].size();
+		}
+		dalek->transform.position = glm::vec3(x * 2, 0.1f, y * 2);
+		
+		dalek->transform.orientation = glm::quat(0.707f, -0.707f, 0.0f, 0.0f);
+		dalek->transform.updateMatricis();
+
+		world->addGameObject(dalek);
+		vec_threads[i] = std::thread(dalek_maze_moving, dalek);
+		vec_threads[i].detach();
+	}
+
+	glfwGetCursorPos(window, &cursorX, &cursorY);
+	lastcursorX = (float)cursorX;
+	lastcursorY = (float)cursorY;
 
 	while (!glfwWindowShouldClose(window))
 	{
+		// tell daleks to move
+		condvar.notify_all();
+
 		// Timing
 		{
 			totalTime = (float)glfwGetTime();
@@ -486,68 +625,34 @@ int main()
 
 		// Camera orientation movement
 		{
-			float cam_dist = -64.0f + 1.0f * zoom_amount;
-			ball_pos = balls[current_ball_idx]->getPosition();
-			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
+			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
+			lastcursorX = (float)cursorX;
+			lastcursorY = (float)cursorY;
 
-			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
-			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
+			// Lock pitch
+			if (camera->pitch > 89.9f)
+				camera->pitch = 89.9f;
+			else if (camera->pitch < -89.9f)
+				camera->pitch = -89.9f;
+
+			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward.y = sin(glm::radians(camera->pitch));
+			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward = glm::normalize(camera->forward);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 		}
 
 		// keyboard inputs
 		{
-			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-				cWorld::debugMode = !cWorld::debugMode;
+			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 
-			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-			int ymov = 0;
-			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
-
-			if (xmov || ymov || zmov)
-			{
-				// move the ball relative to the camera
-				balls[current_ball_idx]->physics->ApplyForce(
-					(glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
-
-			}
-
-			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
-
-			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-			zoom_amount += zoomFactor * camera->speed * dt;
-
-			if (zoom_amount > MAX_ZOOM_OUT)
-				zoom_amount = MAX_ZOOM_OUT;
-			else if (zoom_amount < MAX_ZOOM_IN)
-				zoom_amount = MAX_ZOOM_IN;
-
-
-			/*if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
-			{
-				balls[current_ball_idx]->graphics.color = old_color;
-
-				--current_ball_idx;
-				if (current_ball_idx < 0)
-					current_ball_idx = balls.size() - 1;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-			}
-			else */if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
-			{
-				balls[current_ball_idx]->graphics.color = old_color;
-				++current_ball_idx;
-				if (current_ball_idx >= balls.size())
-					current_ball_idx = 0;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-			}
+			camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
+			camera->position += -xMove * camera->speed * dt * camera->right;
+			camera->position += yMove * camera->speed * dt * camera->up;
 		}
 
 		{ /* thanks Visual studio */ }
@@ -623,8 +728,6 @@ int main()
 			world->vecGameObjects[i]->update(dt, totalTime);
 		}
 
-		physWorld->Update(dt);
-
 		// pre frame, then render
 		{
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
@@ -636,6 +739,40 @@ int main()
 				world->vecGameObjects[i]->render();
 			}
 		}
+
+		// draw maze
+		{
+			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.65f, 0.65f, 0.65f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
+
+			sModelDrawInfo drawInfo;
+			pVAOManager->FindDrawInfoByModelName("cube", drawInfo);
+			glBindVertexArray(drawInfo.VAO_ID);
+			glm::mat4 matWorld(1.0f);
+			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+
+			unsigned maxx = mazeMaker->maze.size();
+			for (unsigned x = 0; x < maxx; ++x)
+			{
+				unsigned maxy = mazeMaker->maze[x].size();
+				for (unsigned y = 0; y < maxy; ++y)
+				{
+					if (mazeMaker->maze[x][y][0])
+					{
+						matWorld = glm::mat4(1.0f);
+						matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(x * 2, 1.0f, y * 2));
+						glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+						
+						glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+					}
+				}
+			}
+
+			glBindVertexArray(0);
+		}
+
 
 		// draw debug
 		if (cWorld::debugMode)

@@ -162,6 +162,7 @@
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
     <ClCompile Include="cGameObject.cpp" />
+    <ClCompile Include="cMazeMaker.cpp" />
     <ClCompile Include="cPhysicsGameObject.cpp" />
     <ClCompile Include="cGameObjectFactory.cpp" />
     <ClCompile Include="cGraphicsComponent.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.h" />
     <ClInclude Include="cGameObject.hpp" />
+    <ClInclude Include="cMazeMaker.h" />
     <ClInclude Include="cPhysicsGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />
     <ClInclude Include="cMeshComponent.hpp" />
