@@ -59,7 +59,7 @@ bool cModelLoader::loadModel(std::string filename, cMesh* mesh)
 	return true;
 }
 
-bool cModelLoader::loadModel_assimp(std::string filename, cMesh* mesh, std::string errors)
+bool cModelLoader::loadModel_assimp(std::string filename, cMesh* mesh, std::string& errors)
 {
 	const struct aiScene* pScene = NULL;
 

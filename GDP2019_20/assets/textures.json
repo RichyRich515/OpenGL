@@ -21,6 +21,7 @@
 		}
 	],
 	"textures": [
-		"terrain_texture.bmp"
+		"terrain_texture.bmp",
+		"scorpion_body.bmp"
 	]
 }

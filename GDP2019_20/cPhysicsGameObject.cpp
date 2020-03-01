@@ -9,13 +9,13 @@
 cPhysicsGameObject::cPhysicsGameObject()
 {
 	this->name = "";
-	this->type = "basic";
+	this->type = "physics";
 }
 
 cPhysicsGameObject::cPhysicsGameObject(std::string name)
 {
 	this->name = name;
-	this->type = "basic";
+	this->type = "physics";
 }
 
 cPhysicsGameObject::cPhysicsGameObject(Json::Value& obj)

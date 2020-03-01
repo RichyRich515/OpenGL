@@ -73,6 +73,9 @@
     <Filter Include="Managers">
       <UniqueIdentifier>{25c5a69a-1678-4291-956d-14e49396f68a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{7dd30eb6-e0ae-45d7-a3fd-eb07ed0eaf47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -167,6 +170,18 @@
     </ClCompile>
     <ClCompile Include="cPhysicsManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cBoidGameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="cBoidComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="cCoordinatorComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="cSteeringFunctions.cpp">
+      <Filter>AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -274,6 +289,18 @@
     </ClInclude>
     <ClInclude Include="cPhysicsManager.hpp">
       <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="cBoidGameObject.hpp">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="cBoidComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cCoordinatorComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cSteeringFunctions.hpp">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

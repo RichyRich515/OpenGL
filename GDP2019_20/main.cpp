@@ -34,8 +34,10 @@
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
+#include "cBoidGameObject.hpp"
 #include "cLight.hpp"
 #include "cKeyboardManager.hpp"
+#include "cCoordinatorComponent.hpp"
 
 #include "iGameObjectFactory.hpp"
 #include "cFactoryManager.hpp"
@@ -441,31 +443,70 @@ int main()
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
 
-
 	openSceneFromFile("assets/scenes/scene1.json");
+
+	glfwGetCursorPos(window, &cursorX, &cursorY);
+	lastcursorX = (float)cursorX;
+	lastcursorY = (float)cursorY;
+
+	cCoordinatorComponent* coordinator = new cCoordinatorComponent();
 	
-	std::vector<cPhysicsGameObject*> balls;
+	unsigned MAX_BOIDS = 12;
+	float circle_radius = MAX_BOIDS / 2.0f * glm::pi<float>();
+	float half_circle_radius = circle_radius / 2.0f;
+	unsigned quart = MAX_BOIDS / 4;
+	for (unsigned i = 0; i < MAX_BOIDS; ++i)
+	{
+		cBoidGameObject* boid = new cBoidGameObject();
+		boid->name = "tank_" + std::to_string(i);
+		boid->id = i;
+		boid->graphics.lighting = true;
+		boid->graphics.textures[0].blend = 1.0f;
+		boid->graphics.textures[0].fileName = "scorpion_body.bmp";
+		boid->graphics.textures[0].tiling = 1.0f;
 
-	world->message(sMessage("Get Balls", (void*)&balls));
-	int current_ball_idx = 8;
+		boid->mesh.meshName = "tank";
+		boid->mesh.scale = 4.0f;
 
-	float cam_rot = 0.0f;
-	float zoom_amount = 0.0f;
-	constexpr float MAX_ZOOM_IN = -32.0f;
-	constexpr float MAX_ZOOM_OUT = 32.0f;
+		boid->transform.position = glm::vec3(-2.5f * MAX_BOIDS + i * 5.0f + 2.5f, 0.0f, 0.0f);
+		boid->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		boid->transform.updateMatricis();
 
-	constexpr float force_amount = 20.0f;
+		boid->coordinator = coordinator;
 
-	auto pPhysicsFactory = cPhysicsManager::getFactory();
-	auto physWorld = cPhysicsManager::getWorld();
+		boid->radius = 1.5f;
+		boid->max_speed = 10.0f;
+		boid->velocity = glm::vec3(0.0f);
 
-	float cam_dist = 64.0f + 1.0f * zoom_amount;
-	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
-	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+		coordinator->boids.push_back(boid);
+		world->addGameObject(boid);
 
-	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
-	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+		// setup offsets
+		coordinator->lineOffsets.push_back(glm::vec3(-2.5f * MAX_BOIDS + i * 5.0f + 2.5f, 0.0f, 0.0f));
+
+		float angle = glm::radians(-360.0f / MAX_BOIDS * i);
+		coordinator->circleOffsets.push_back(glm::vec3(sin(angle) * circle_radius, 0.0f, cos(angle) * circle_radius));
+
+		bool second_half = i >= (MAX_BOIDS / 2);
+		coordinator->twoRowsOffsets.push_back(glm::vec3(-2.5f * MAX_BOIDS / 2.0f + (second_half ? i - MAX_BOIDS / 2 : i) * 5.0f + 2.5f, 0.0f, second_half ? -2.5f : 2.5f));
+	
+		coordinator->vOffsets.push_back(glm::vec3(second_half ? 2.5f * (i - MAX_BOIDS / 2) + 2.5f : -2.5f * i - 2.5f, 0.0f, (second_half ? i - MAX_BOIDS / 2 : i) * -5.0f));
+
+		// TODO: find out new forumale for square thing so it has corners
+		if (i < quart)
+			coordinator->squareOffsets.push_back(glm::vec3(half_circle_radius, 0.0f, -2.5f * MAX_BOIDS / 4.0f + i * 5.0f + 2.5f));
+		else if (i < quart * 2)
+			coordinator->squareOffsets.push_back(glm::vec3(-half_circle_radius, 0.0f, -2.5f * MAX_BOIDS / 4.0f + (i - quart) * 5.0f + 2.5f));
+		else if (i < quart * 3)
+			coordinator->squareOffsets.push_back(glm::vec3(-2.5f * MAX_BOIDS / 4.0f + (i - quart * 2) * 5.0f + 2.5f, 0.0f, half_circle_radius));
+		else
+			coordinator->squareOffsets.push_back(glm::vec3(-2.5f * MAX_BOIDS / 4.0f + (i - quart * 3) * 5.0f + 2.5f, 0.0f, -half_circle_radius));
+
+
+	}
+	coordinator->position = glm::vec3(0.0f);
+
+	coordinator->offsets = coordinator->circleOffsets;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -484,73 +525,49 @@ int main()
 
 		glfwPollEvents();
 
-		// Camera orientation movement
+		// Camera orientation
 		{
-			float cam_dist = -64.0f + 1.0f * zoom_amount;
-			ball_pos = balls[current_ball_idx]->getPosition();
-			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
+			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
+			lastcursorX = (float)cursorX;
+			lastcursorY = (float)cursorY;
 
-			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
-			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
+			// Lock pitch
+			if (camera->pitch > 89.9f)
+				camera->pitch = 89.9f;
+			else if (camera->pitch < -89.9f)
+				camera->pitch = -89.9f;
+
+			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward.y = sin(glm::radians(camera->pitch));
+			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward = glm::normalize(camera->forward);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 		}
 
 		// keyboard inputs
 		{
-			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-				cWorld::debugMode = !cWorld::debugMode;
+			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 
-			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-			int ymov = 0;
-			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
-
-			if (xmov || ymov || zmov)
-			{
-				// move the ball relative to the camera
-				balls[current_ball_idx]->physics->ApplyForce(
-					(glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
-
-			}
-
-			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
-
-			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-			zoom_amount += zoomFactor * camera->speed * dt;
-
-			if (zoom_amount > MAX_ZOOM_OUT)
-				zoom_amount = MAX_ZOOM_OUT;
-			else if (zoom_amount < MAX_ZOOM_IN)
-				zoom_amount = MAX_ZOOM_IN;
+			camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
+			camera->position += -xMove * camera->speed * dt * camera->right;
+			camera->position += yMove * camera->speed * dt * camera->up;
 
 
-			/*if (pKeyboardManager->keyPressed(GLFW_KEY_COMMA))
-			{
-				balls[current_ball_idx]->graphics.color = old_color;
-
-				--current_ball_idx;
-				if (current_ball_idx < 0)
-					current_ball_idx = balls.size() - 1;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-			}
-			else */if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
-			{
-				balls[current_ball_idx]->graphics.color = old_color;
-				++current_ball_idx;
-				if (current_ball_idx >= balls.size())
-					current_ball_idx = 0;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-			}
+			if (pKeyboardManager->keyDown('1'))
+				coordinator->offsets = coordinator->circleOffsets;
+			else if (pKeyboardManager->keyDown('2'))
+				coordinator->offsets = coordinator->vOffsets;
+			else if (pKeyboardManager->keyDown('3'))
+				coordinator->offsets = coordinator->squareOffsets;
+			else if (pKeyboardManager->keyDown('4'))
+				coordinator->offsets = coordinator->lineOffsets;
+			else if (pKeyboardManager->keyDown('5'))
+				coordinator->offsets = coordinator->twoRowsOffsets;
 		}
-
-		{ /* thanks Visual studio */ }
 
 		// shader uniforms
 		{
@@ -617,13 +634,13 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
+		//coordinator->position.z += 1.0f * dt;
+
 		// update
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
 		}
-
-		physWorld->Update(dt);
 
 		// pre frame, then render
 		{

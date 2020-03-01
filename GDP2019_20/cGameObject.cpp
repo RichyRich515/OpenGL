@@ -109,6 +109,7 @@ void cGameObject::update(float dt, float tt)
 {
 	this->graphics.update(dt, tt);
 	this->mesh.update(dt, tt);
+	this->transform.update(dt, tt);
 }
 
 sMessage cGameObject::message(sMessage const& msg)
