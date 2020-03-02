@@ -456,11 +456,9 @@ int main()
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/RPG Strafe Right.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
 
 	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
+	ago->graphics.color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
 	ago->graphics.visible = true;
 	ago->graphics.wireFrame = false;
 	ago->graphics.lighting = true;
@@ -469,8 +467,8 @@ int main()
 	ago->mesh.meshName = "RPGCharacter";
 	ago->mesh.scale = 0.1f;
 
-	ago->transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	ago->transform.setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+	ago->transform.setPosition(glm::vec3(-70.0f, 40.0f, 0.0f));
+	ago->transform.setOrientation(glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 	ago->transform.updateMatricis();
 
 	ago->skinmesh.queueAnimation("Idle", true);
@@ -483,15 +481,70 @@ int main()
 
 
 	std::vector<std::vector<int>> level;
-	
-	for (unsigned i = 0; i < 20; ++i)
+	std::ifstream infile("level.txt");
+	for (int i = 0; i < 27; ++i)
 	{
 		level.push_back(std::vector<int>());
 
-		for (unsigned i = 0; i < 20; ++i)
-		{
+		level[i].resize(16);
+	}
+	for (int y = 0; y < 16; ++y)
+	{
+		std::string line;
+		std::getline(infile, line);
 
+		for (int x = 0; x < 27; ++x)
+		{
+			level[x][y] = line[26 + -x] - '0';
 		}
+	}
+	infile.close();
+
+	// Make robots
+	{
+		cGameObject* robot = new cGameObject();
+		robot->graphics.visible = true;
+		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot->graphics.lighting = true;
+		robot->mesh.meshName = "robot";
+		robot->mesh.scale = 4.0f;
+		robot->transform.position = glm::vec3(100.0f, 0.0f - 0.5f, 0.0f);
+		robot->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot->transform.updateMatricis();
+		world->addGameObject(robot);
+
+		robot = new cGameObject();
+		robot->graphics.visible = true;
+		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot->graphics.lighting = true;
+		robot->mesh.meshName = "robot";
+		robot->mesh.scale = 4.0f;
+		robot->transform.position = glm::vec3(90.0f, 40.0f - 0.5f, 0.0f);
+		robot->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot->transform.updateMatricis();
+		world->addGameObject(robot);
+
+		robot = new cGameObject();
+		robot->graphics.visible = true;
+		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot->graphics.lighting = true;
+		robot->mesh.meshName = "robot";
+		robot->mesh.scale = 4.0f;
+		robot->transform.position = glm::vec3(-30.0f, 80.0f - 0.5f, 0.0f);
+		robot->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot->transform.updateMatricis();
+		world->addGameObject(robot);
+
+		robot = new cGameObject();
+		robot->graphics.visible = true;
+		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot->graphics.lighting = true;
+		robot->mesh.meshName = "robot";
+		robot->mesh.scale = 4.0f;
+		robot->transform.position = glm::vec3(-70.0f, 120.0f - 0.5f, 0.0f);
+		robot->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot->transform.updateMatricis();
+		world->addGameObject(robot);
 	}
 
 	while (!glfwWindowShouldClose(window))
@@ -536,9 +589,6 @@ int main()
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
 			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
-
-			waterOffset.s += 0.1f * dt;
-			waterOffset.t += 0.017f * dt;
 			glUniform2f(pShader->getUniformLocID("waterOffset"), waterOffset.x, waterOffset.y);
 		}
 
@@ -610,7 +660,37 @@ int main()
 
 		// Draw level
 		{
+			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.85f, 0.85f, 0.35f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
+			sModelDrawInfo drawInfo;
+			pVAOManager->FindDrawInfoByModelName("cube", drawInfo);
+			glBindVertexArray(drawInfo.VAO_ID);
+			glm::mat4 matWorld(1.0f);
+			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+
+			unsigned maxx = level.size();
+			float scale = 5.0f;
+			for (unsigned x = 0; x < maxx; ++x)
+			{
+				unsigned maxy = level[x].size();
+				for (unsigned y = 0; y < maxy; ++y)
+				{
+					if (level[x][y])
+					{
+						matWorld = glm::mat4(1.0f);
+						matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(x * scale * 2.0f - maxx * scale + scale, y * scale * -2.0f + scale * (maxy-1) * 2 - scale, 0.0f));
+						matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(scale));
+						glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+
+						glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+					}
+				}
+			}
+
+			glBindVertexArray(0);
 		}
 
 		// draw debug

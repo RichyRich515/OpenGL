@@ -14,5 +14,9 @@
 	{
 		"name": "triangle",
 		"location": "assets/models/triangle.ply"
+	},
+	{
+		"name": "robot",
+		"location": "assets/models/Android_Robot_All_xyz_n_uv.ply"
 	}
 ]

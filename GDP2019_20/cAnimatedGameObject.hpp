@@ -32,4 +32,9 @@ public:
 	float action_timer = 0.0f;
 
 	bool active = false;
+	bool jumping = false;
+
+	float jump_timer;
+	float jump_start_y;
+	float jump_speed;
 };
