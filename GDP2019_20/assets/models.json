@@ -14,9 +14,5 @@
 	{
 		"name": "triangle",
 		"location": "assets/models/triangle.ply"
-	},
-	{
-		"name": "streetlamp",
-		"location": "assets/models/streetlamp.obj"
 	}
 ]

@@ -443,12 +443,7 @@ int main()
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
 
-
 	openSceneFromFile("assets/scenes/scene1.json");
-
-	std::vector<cPhysicsGameObject*> balls;
-
-	world->message(sMessage("Get Balls", (void*)&balls));
 
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
@@ -465,7 +460,7 @@ int main()
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
 
 	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
+	ago->graphics.color = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 	ago->graphics.visible = true;
 	ago->graphics.wireFrame = false;
 	ago->graphics.lighting = true;
@@ -477,48 +472,27 @@ int main()
 	ago->transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	ago->transform.setOrientation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 	ago->transform.updateMatricis();
-	cAnimatedGameObject* ago1 = ago;
 
-	ago = new cAnimatedGameObject();
-
-	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/RPG Strafe Right.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/RPG Strafe Left.fbx", 1);
-
-	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(0.6f, 1.0f, 0.6f, 1.0f);
-	ago->graphics.visible = true;
-	ago->graphics.wireFrame = false;
-	ago->graphics.lighting = true;
-	ago->graphics.specular = glm::vec4(1.0f);
-
-	ago->mesh.meshName = "RPGCharacter";
-	ago->mesh.scale = 0.1f;
-
-	ago->transform.position = glm::vec3(20.0f, 0.0f, 0.0f);
-	cAnimatedGameObject* ago2 = ago;
-
-	ago = ago1;
+	ago->skinmesh.queueAnimation("Idle", true);
 	ago->active = true;
-	ago1->skinmesh.queueAnimation("Idle", 1);
-	ago2->skinmesh.queueAnimation("Idle", 1);
-
 
 	// Get the draw info, to load into the VAO
-	cMesh* pMesh = ago1->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
+	cMesh* pMesh = ago->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
 	if (pMesh)
 		pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
 
-	double mouseX, mouseY;
-	glfwGetCursorPos(window, &mouseX, &mouseY);
-	double oldMouseX = mouseX, oldMouseY = mouseY;
 
-	float camera_rotation = glm::radians(180.0f);
+	std::vector<std::vector<int>> level;
+	
+	for (unsigned i = 0; i < 20; ++i)
+	{
+		level.push_back(std::vector<int>());
+
+		for (unsigned i = 0; i < 20; ++i)
+		{
+
+		}
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -539,45 +513,12 @@ int main()
 
 		// Camera orientation movement
 		{
-			glfwGetCursorPos(window, &mouseX, &mouseY);
-			double xDiff = mouseX - oldMouseX;
-			double yDiff = mouseY - oldMouseY;
-			oldMouseX = mouseX;
-			oldMouseY = mouseY;
-
-			camera_rotation += -xDiff * 0.25f * dt;
-
-			camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
-			camera->forward = glm::normalize(ago->transform.getPosition() + glm::vec3(0.0f, 20.0f, 0.0f) - camera->position);
-			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 			
-			ago->forward = glm::quatLookAt(glm::normalize(glm::cross(camera->up, -camera->right)), camera->up);
 		}
 
 		// keyboard inputs
 		{
-			if (cKeyboardManager::keyPressed('1'))
-			{
-				ago = ago1;
-				ago1->active = true;
-				ago2->active = false;
-				ago2->skinmesh.queueAnimation("Idle", 1);
-				camera->forward = glm::normalize(ago->transform.getOrientation() * glm::vec3(0.0f, 0.0f, -1.0f));
-				camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
-				camera_rotation = atan2f(camera->forward.x, camera->forward.z);
-				camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
-			}
-			else if (cKeyboardManager::keyPressed('2'))
-			{
-				ago = ago2;
-				ago1->active = false;
-				ago1->skinmesh.queueAnimation("Idle", 1);
-				ago2->active = true;
-				camera->forward = glm::normalize(ago->transform.getOrientation() * glm::vec3(0.0f, 0.0f, -1.0f));
-				camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
-				camera_rotation = atan2f(camera->forward.x, camera->forward.z);
-				camera->position = ago->transform.getPosition() + glm::vec3(55.0f * sin(camera_rotation), 30.0f, 55.0f * cos(camera_rotation));
-			}
+
 		}
 
 		// shader uniforms
@@ -662,13 +603,14 @@ int main()
 				world->vecGameObjects[i]->render();
 			}
 
-			ago1->update(dt, totalTime);
-			ago1->preFrame();
-			ago1->render();
+			ago->update(dt, totalTime);
+			ago->preFrame();
+			ago->render();
+		}
 
-			ago2->update(dt, totalTime);
-			ago2->preFrame();
-			ago2->render();
+		// Draw level
+		{
+
 		}
 
 		// draw debug
@@ -776,8 +718,7 @@ int main()
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
-		delete ago1;
-		delete ago2;
+		delete ago;
 
 		delete fbo;
 
