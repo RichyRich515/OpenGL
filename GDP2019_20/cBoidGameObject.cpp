@@ -45,14 +45,28 @@ void cBoidGameObject::preFrame()
 
 void cBoidGameObject::update(float dt, float tt)
 {
-	glm::vec3 destination = this->coordinator->position + this->coordinator->offsets[id];
-	glm::vec3 steer = cSteeringFunctions::steerSeekArrive(this->transform.position, destination, this->velocity, 4.0f, this->max_speed, dt);
+	glm::vec3 destination(this->transform.position);
+	glm::vec3 steer(0.0f);
+
+	switch (this->coordinator->behaviour)
+	{
+	case eBoidBehaviour::formation:
+		destination = this->coordinator->position + this->coordinator->offsets[id];
+		steer = cSteeringFunctions::steerSeekArrive(this->transform.position, destination, this->velocity, 4.0f, this->max_speed, dt);
+		break;
+	case eBoidBehaviour::flock:
+		steer = this->coordinator->flock(id, this->neighbourhood_radius, dt) * dt;
+		destination = steer;
+		break;
+	}
+
+	glm::vec3 old_velocity = velocity;
 	if (glm::length(steer) > 0.0f)
 		this->velocity += steer;
 
 	this->transform.position += this->velocity * dt;
 	if (glm::length(this->velocity) > 0.0f && glm::distance(this->transform.position, destination) > 0.1f)
-		this->transform.orientation = glm::quatLookAt(glm::normalize(-this->velocity), glm::vec3(0.0f, 1.0f, 0.0f));
+		this->transform.orientation = glm::slerp(this->transform.orientation, glm::quatLookAt(glm::normalize(-this->velocity), glm::vec3(0.0f, 1.0f, 0.0f)), dt * 5.0f);
 
 	this->transform.updateMatricis();
 }

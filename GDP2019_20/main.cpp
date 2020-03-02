@@ -77,12 +77,9 @@ static void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-//void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt);
-
 constexpr float MAX_DELTA_TIME = 0.017f;
 
 cCamera* camera;
-
 
 // TODO: Get this outta global space
 cShaderManager::cShaderProgram* pShader;
@@ -144,8 +141,6 @@ void writeSceneToFile(std::string filename)
 	ofs << root;
 	std::cout << "Saved scene to " << filename << std::endl;
 }
-
-
 void openSceneFromFile(std::string filename)
 {
 	glUseProgram(program);
@@ -474,9 +469,10 @@ int main()
 
 		boid->coordinator = coordinator;
 
-		boid->radius = 1.5f;
+		boid->radius = 2.0f;
 		boid->max_speed = 10.0f;
 		boid->velocity = glm::vec3(0.0f);
+		boid->neighbourhood_radius = 20.0f;
 
 		coordinator->boids.push_back(boid);
 		world->addGameObject(boid);
@@ -492,7 +488,7 @@ int main()
 	
 		coordinator->vOffsets.push_back(glm::vec3(second_half ? 2.5f * (i - MAX_BOIDS / 2) + 2.5f : -2.5f * i - 2.5f, 0.0f, (second_half ? i - MAX_BOIDS / 2 : i) * -5.0f));
 
-		// TODO: find out new forumale for square thing so it has corners
+		// TODO: find out new formula for square thing so it has corners?
 		if (i < quart)
 			coordinator->squareOffsets.push_back(glm::vec3(half_circle_radius, 0.0f, -2.5f * MAX_BOIDS / 4.0f + i * 5.0f + 2.5f));
 		else if (i < quart * 2)
@@ -504,9 +500,35 @@ int main()
 
 
 	}
+	coordinator->behaviour = eBoidBehaviour::formation;
 	coordinator->position = glm::vec3(0.0f);
+	coordinator->velocity = glm::vec3(0.0f);
+	coordinator->orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	coordinator->max_speed = 8.0f;
 
 	coordinator->offsets = coordinator->circleOffsets;
+	coordinator->unmodified_offsets = coordinator->circleOffsets;
+	coordinator->weights = glm::vec3(0.333333333333f);
+	std::cout << std::setprecision(2) << std::fixed << std::to_string(coordinator->weights) << std::endl;
+	
+	coordinator->separation_radius = 5.0f;
+	coordinator->path_follow = false;
+	coordinator->current_node = 0;
+	coordinator->path_dir = 1;
+
+	coordinator->path_nodes.push_back(glm::vec3(-100.0f, 0.0f, -100.0f));
+	coordinator->path_nodes.push_back(glm::vec3(0.0f, 0.0f, -50.0f));
+	coordinator->path_nodes.push_back(glm::vec3(100.0f, 0.0f, -100.0f));
+	coordinator->path_nodes.push_back(glm::vec3(100.0f, 0.0f, 100.0f));
+	coordinator->path_nodes.push_back(glm::vec3(-100.0f, 0.0f, 100.0f));
+	coordinator->path_nodes.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	cGameObject* cube = new cGameObject();
+	cube->mesh.meshName = "cube";
+	cube->mesh.scale = 1.0f;
+	cube->graphics.lighting = false;
+	cube->graphics.visible = true;
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -556,17 +578,116 @@ int main()
 			camera->position += -xMove * camera->speed * dt * camera->right;
 			camera->position += yMove * camera->speed * dt * camera->up;
 
-
-			if (pKeyboardManager->keyDown('1'))
+			if (pKeyboardManager->keyPressed('1'))
+			{
 				coordinator->offsets = coordinator->circleOffsets;
-			else if (pKeyboardManager->keyDown('2'))
+				coordinator->unmodified_offsets = coordinator->circleOffsets;
+			}
+			else if (pKeyboardManager->keyPressed('2'))
+			{
 				coordinator->offsets = coordinator->vOffsets;
-			else if (pKeyboardManager->keyDown('3'))
+				coordinator->unmodified_offsets = coordinator->vOffsets;
+			}
+			else if (pKeyboardManager->keyPressed('3'))
+			{
 				coordinator->offsets = coordinator->squareOffsets;
-			else if (pKeyboardManager->keyDown('4'))
+				coordinator->unmodified_offsets = coordinator->squareOffsets;
+			}
+			else if (pKeyboardManager->keyPressed('4'))
+			{
 				coordinator->offsets = coordinator->lineOffsets;
-			else if (pKeyboardManager->keyDown('5'))
+				coordinator->unmodified_offsets = coordinator->lineOffsets;
+			}
+			else if (pKeyboardManager->keyPressed('5'))
+			{
 				coordinator->offsets = coordinator->twoRowsOffsets;
+				coordinator->unmodified_offsets = coordinator->twoRowsOffsets;
+			}
+			else if (pKeyboardManager->keyPressed('6'))
+			{
+				coordinator->behaviour = eBoidBehaviour::flock;
+				coordinator->path_follow = false;
+			}
+			else if (pKeyboardManager->keyPressed('7'))
+			{
+				coordinator->behaviour = eBoidBehaviour::formation;
+				coordinator->path_follow = false;
+			}
+			else if (pKeyboardManager->keyPressed('8'))
+			{
+				coordinator->behaviour = eBoidBehaviour::formation;
+				coordinator->path_follow = true;
+				coordinator->current_node = 0;
+			}
+			else if (pKeyboardManager->keyPressed('9'))
+			{
+				coordinator->path_dir *= -1;
+			}
+			else if (pKeyboardManager->keyPressed('0'))
+			{
+				coordinator->path_follow = false;
+			}
+			else if (pKeyboardManager->keyPressed('-') || pKeyboardManager->keyPressed('='))
+			{
+				coordinator->behaviour = eBoidBehaviour::flock;
+				coordinator->path_follow = true;
+			}
+
+			bool weights_changed = false;
+			float change = 0.01f;
+			if (pKeyboardManager->keyDown('U'))
+			{
+				weights_changed = true;
+				coordinator->weights.x += change * 0.5f;
+				coordinator->weights.y -= change * 0.25f;
+				coordinator->weights.z -= change * 0.25f;
+			}
+			else if (pKeyboardManager->keyDown('J'))
+			{
+				weights_changed = true;
+				coordinator->weights.x -= change * 0.5f;
+				coordinator->weights.y += change * 0.25f;
+				coordinator->weights.z += change * 0.25f;
+			}
+
+			if (pKeyboardManager->keyDown('I'))
+			{
+				weights_changed = true;
+				coordinator->weights.x -= change * 0.5f;
+				coordinator->weights.y += change * 0.25f;
+				coordinator->weights.z -= change * 0.25f;
+			}
+			else if (pKeyboardManager->keyDown('K'))
+			{
+				weights_changed = true;
+				coordinator->weights.x += change * 0.5f;
+				coordinator->weights.y -= change * 0.25f;
+				coordinator->weights.z += change * 0.25f;
+			}
+
+			if (pKeyboardManager->keyDown('O'))
+			{
+				weights_changed = true;
+				coordinator->weights.x -= change * 0.5f;
+				coordinator->weights.y -= change * 0.25f;
+				coordinator->weights.z += change * 0.25f;
+			}
+			else if (pKeyboardManager->keyDown('L'))
+			{
+				weights_changed = true;
+				coordinator->weights.x += change * 0.5f;
+				coordinator->weights.y += change * 0.25f; 
+				coordinator->weights.z -= change * 0.25f;
+			}
+
+			if (weights_changed)
+			{
+				coordinator->weights = glm::normalize(coordinator->weights);
+				coordinator->weights = glm::clamp(coordinator->weights, glm::vec3(0.0f), glm::vec3(1.0f));
+				float sum = coordinator->weights.x + coordinator->weights.y + coordinator->weights.z;
+				coordinator->weights /= sum;
+				std::cout << std::setprecision(2) << std::fixed << std::to_string(coordinator->weights) << std::endl;
+			}
 		}
 
 		// shader uniforms
@@ -634,12 +755,30 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		//coordinator->position.z += 1.0f * dt;
-
 		// update
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
 			world->vecGameObjects[i]->update(dt, totalTime);
+		}
+
+		coordinator->update(dt, totalTime);
+
+		if (coordinator->path_follow)
+		{
+			for (unsigned i = 0; i < coordinator->path_nodes.size(); ++i)
+			{
+				if (i == coordinator->current_node)
+					cube->graphics.color = glm::vec4(0.1f, 1.0f, 0.1f, 0.5f);
+				else
+					cube->graphics.color = glm::vec4(1.0f, 0.1f, 0.1f, 0.5f);
+
+				cube->transform.position = coordinator->path_nodes[i];
+				cube->transform.updateMatricis();
+
+				cube->update(dt, totalTime);
+				cube->preFrame();
+				cube->render();
+			}
 		}
 
 		// pre frame, then render

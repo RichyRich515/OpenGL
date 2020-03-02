@@ -50,4 +50,6 @@ public:
 	float radius;
 	float max_speed;
 	glm::vec3 velocity;
+
+	float neighbourhood_radius;
 };

@@ -35,7 +35,7 @@ glm::vec3 cSteeringFunctions::steerSeekArrive(glm::vec3 const& pos, glm::vec3 co
 		}
 	}
 
-	return steer * dt;
+	return steer;
 }
 
 glm::vec3 cSteeringFunctions::steerFlee(glm::vec3 const& pos, glm::vec3 const& dest, glm::vec3 const& curvel, float const& maxSpeed, float const& dt)
