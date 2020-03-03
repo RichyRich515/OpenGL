@@ -33,8 +33,17 @@ public:
 
 	bool active = false;
 	bool jumping = false;
+	bool falling = false;
+	bool punching = false;
+
+	bool alive = true;
 
 	float jump_timer;
 	float jump_start_y;
 	float jump_speed;
+
+	int dir = -1;
+
+	std::vector<std::vector<int>>* level;
+	std::vector<iGameObject*> robots;
 };

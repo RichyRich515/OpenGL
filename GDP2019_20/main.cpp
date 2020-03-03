@@ -456,6 +456,9 @@ int main()
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Fall", "./assets/models/RPG Fall.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Roll", "./assets/models/RPG Roll.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Dying", "./assets/models/RPG Dying.fbx", 1);
 
 	ago->graphics.pShader = pShader;
 	ago->graphics.color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -502,50 +505,80 @@ int main()
 
 	// Make robots
 	{
-		cGameObject* robot = new cGameObject();
-		robot->graphics.visible = true;
-		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot->graphics.lighting = true;
-		robot->mesh.meshName = "robot";
-		robot->mesh.scale = 4.0f;
-		robot->transform.position = glm::vec3(100.0f, 0.0f - 0.5f, 0.0f);
-		robot->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot->transform.updateMatricis();
-		world->addGameObject(robot);
+		cGameObject* robot1 = new cGameObject();
+		cGameObject* robot2 = new cGameObject();
+		cGameObject* robot3 = new cGameObject();
+		cGameObject* robot4 = new cGameObject();
+		robot1->robots.push_back(robot1);
+		robot1->robots.push_back(robot2);
+		robot1->robots.push_back(robot3);
+		robot1->robots.push_back(robot4);
+		robot2->robots = robot1->robots;
+		robot3->robots = robot1->robots;
+		robot4->robots = robot1->robots;
 
-		robot = new cGameObject();
-		robot->graphics.visible = true;
-		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot->graphics.lighting = true;
-		robot->mesh.meshName = "robot";
-		robot->mesh.scale = 4.0f;
-		robot->transform.position = glm::vec3(90.0f, 40.0f - 0.5f, 0.0f);
-		robot->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot->transform.updateMatricis();
-		world->addGameObject(robot);
+		robot1->graphics.visible = true;
+		robot1->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot1->graphics.lighting = true;
+		robot1->mesh.meshName = "robot";
+		robot1->mesh.scale = 4.0f;
+		robot1->transform.position = glm::vec3(100.0f, 0.0f - 0.5f, 0.0f);
+		robot1->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot1->transform.updateMatricis();
+		robot1->dir = -1;
+		robot1->right_most_pos = 35;
+		robot1->left_most_pos = 115;
+		robot1->player = (iGameObject*)ago;
+		world->addGameObject(robot1);
+		ago->robots.push_back(robot1);
 
-		robot = new cGameObject();
-		robot->graphics.visible = true;
-		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot->graphics.lighting = true;
-		robot->mesh.meshName = "robot";
-		robot->mesh.scale = 4.0f;
-		robot->transform.position = glm::vec3(-30.0f, 80.0f - 0.5f, 0.0f);
-		robot->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot->transform.updateMatricis();
-		world->addGameObject(robot);
+		robot2->graphics.visible = true;
+		robot2->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot2->graphics.lighting = true;
+		robot2->mesh.meshName = "robot";
+		robot2->mesh.scale = 4.0f;
+		robot2->transform.position = glm::vec3(90.0f, 40.0f - 0.5f, 0.0f);
+		robot2->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot2->transform.updateMatricis();
+		robot2->dir = 1;
+		robot2->right_most_pos = 5;
+		robot2->left_most_pos = 115;
+		robot2->player = (iGameObject*)ago;
+		world->addGameObject(robot2);
+		ago->robots.push_back(robot2);
 
-		robot = new cGameObject();
-		robot->graphics.visible = true;
-		robot->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot->graphics.lighting = true;
-		robot->mesh.meshName = "robot";
-		robot->mesh.scale = 4.0f;
-		robot->transform.position = glm::vec3(-70.0f, 120.0f - 0.5f, 0.0f);
-		robot->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot->transform.updateMatricis();
-		world->addGameObject(robot);
+		robot3->graphics.visible = true;
+		robot3->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot3->graphics.lighting = true;
+		robot3->mesh.meshName = "robot";
+		robot3->mesh.scale = 4.0f;
+		robot3->transform.position = glm::vec3(-30.0f, 80.0f - 0.5f, 0.0f);
+		robot3->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot3->transform.updateMatricis();
+		robot3->dir = -1;
+		robot3->right_most_pos = -115;
+		robot3->left_most_pos = -25;
+		robot3->player = (iGameObject*)ago;
+		world->addGameObject(robot3);
+		ago->robots.push_back(robot3);
+
+		robot4->graphics.visible = true;
+		robot4->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot4->graphics.lighting = true;
+		robot4->mesh.meshName = "robot";
+		robot4->mesh.scale = 4.0f;
+		robot4->transform.position = glm::vec3(-70.0f, 120.0f - 0.5f, 0.0f);
+		robot4->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot4->transform.updateMatricis();
+		robot4->dir = 1;
+		robot4->right_most_pos = -115;
+		robot4->left_most_pos = -25;
+		robot4->player = (iGameObject*)ago;
+		world->addGameObject(robot4);
+		ago->robots.push_back(robot4);
 	}
+
+	ago->level = &level;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -756,8 +789,8 @@ int main()
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(3)
-				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
-				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} "
+				<< "{" << ago->transform.position.x << ", " << ago->transform.position.y << ", " << ago->transform.position.z << "} "
+				<< "{" << ago->velocity.x << ", " << ago->velocity.y << ", " << ago->velocity.z << "} "
 				<< "dt: " << dt;
 
 			//if (selectedObject < world->vecGameObjects.size())

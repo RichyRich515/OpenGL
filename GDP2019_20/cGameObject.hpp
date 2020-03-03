@@ -44,4 +44,19 @@ public:
 	cMeshComponent mesh;
 	cGraphicsComponent graphics;
 	cTransformComponent transform;
+
+	bool alive = true;
+	bool active = true;
+
+	float immune_timer = 0.0f;
+	float dir;
+	float left_most_pos;
+	float right_most_pos;
+	int health = 3;
+	int dead_state = 1;
+
+
+	iGameObject* player;
+
+	std::vector<iGameObject*> robots;
 };
