@@ -1,27 +1,28 @@
 Richard Woods
 
-Animation Project 1 Basic skinned mesh animation
+Animation midterm 
+"Impossible Mission" 2020
+
 Compile and run in Visual Studio 2019 Community
 for best performance use Release x64
 
+unfortunately I was unable to do either of the bonuses
+(robot parts flying off and multiple levels)
+
 Controls:
-	- Mouse move
-		rotate character left/right
-		
-	- W
-		Move forward
-	
-	- Shift (while W is down)
-		Run faster
-	
-	- S/D
-		Strafe
+	- A/Left Arrow
+		move left
+	- D/Right Arrow
+		move right
 
-	- Space
-		Jump
+	- Shift (while moving)
+		Sprint
+	
+	- S/Down Arrow
+		Roll
 
-	- E
+	- E/Enter
 		Punch
 
-	- 1/2
-		Change character
+	- Space/Up Arrow
+		Jump

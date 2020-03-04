@@ -16,23 +16,7 @@
 		"location": "assets/models/triangle.ply"
 	},
 	{
-		"name": "console",
-		"location": "assets/models/SM_Env_Consoles_01_xyz_n_rgba_uv.ply"
-	},
-	{
-		"name": "corner1",
-		"location": "assets/models/SM_Env_Consoles_Corner_01_xyz_n_rgba_uv.ply"
-	},
-	{
-		"name": "corner2",
-		"location": "assets/models/SM_Env_Consoles_Corner_02_xyz_n_rgba_uv.ply"
-	},
-	{
-		"name": "floor",
-		"location": "assets/models/SM_Env_Floor_01_xyz_n_rgba_uv.ply"
-	},
-	{
-		"name": "seat",
-		"location": "assets/models/SM_Prop_Seat_01.fbx"
+		"name": "robot",
+		"location": "assets/models/Android_Robot_All_xyz_n_uv.ply"
 	}
 ]

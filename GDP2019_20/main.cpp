@@ -81,8 +81,6 @@ static void error_callback(int error, const char* description)
 constexpr float MAX_DELTA_TIME = 0.017f;
 
 cCamera* camera;
-cCamera* camera_inTV;
-cCamera* camera_inSpace;
 
 
 // TODO: Get this outta global space
@@ -92,7 +90,6 @@ GLuint program = 0;
 std::map<std::string, cMesh*> mapMeshes;
 
 cFBO* fbo = nullptr;
-cFBO* fbo2 = nullptr;
 
 // factory for any game object
 iGameObjectFactory* pGameObjectFactory;
@@ -427,13 +424,6 @@ int main()
 			std::cout << "FBO init error: " << fboError << std::endl;
 		}
 
-		fbo2 = new cFBO();
-		// Usually make this the size of the screen which we can get from opengl
-		if (!fbo2->init(width, height, fboError))
-		{
-			std::cout << "FBO init error: " << fboError << std::endl;
-		}
-
 		// for resizing
 		//fbo->reset();
 	}
@@ -442,18 +432,6 @@ int main()
 	cWorld::pDebugRenderer->initialize();
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
-
-	camera_inSpace = new cCamera();
-	camera_inSpace->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	camera_inSpace->yaw = -90;
-	camera_inSpace->forward.x = cos(glm::radians(camera_inSpace->yaw)) * cos(glm::radians(camera_inSpace->pitch));
-	camera_inSpace->forward.y = sin(glm::radians(camera_inSpace->pitch));
-	camera_inSpace->forward.z = sin(glm::radians(camera_inSpace->yaw)) * cos(glm::radians(camera_inSpace->pitch));
-	camera_inSpace->forward = glm::normalize(camera_inSpace->forward);
-	camera_inSpace->right = glm::normalize(glm::cross(camera_inSpace->forward, camera_inSpace->up));
-
-	camera_inTV = new cCamera();
-	camera = camera_inTV;
 
 	// Load physics library
 	pPhysicsManager = new cPhysicsManager(physics_library_name);
@@ -476,185 +454,135 @@ int main()
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
 
-	std::vector<std::pair<cGameObject*, glm::vec3>> stars;
+	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Fall", "./assets/models/RPG Fall.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Roll", "./assets/models/RPG Roll.fbx", 1);
+	ago->skinmesh.skinmesh.LoadMeshAnimation("Dying", "./assets/models/RPG Dying.fbx", 1);
+
+	ago->graphics.pShader = pShader;
+	ago->graphics.color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+	ago->graphics.visible = true;
+	ago->graphics.wireFrame = false;
+	ago->graphics.lighting = true;
+	ago->graphics.specular = glm::vec4(1.0f);
+
+	ago->mesh.meshName = "RPGCharacter";
+	ago->mesh.scale = 0.1f;
+
+	ago->transform.setPosition(glm::vec3(-70.0f, 40.0f, 0.0f));
+	ago->transform.setOrientation(glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	ago->transform.updateMatricis();
+
+	ago->skinmesh.queueAnimation("Idle", true);
+	ago->active = true;
+
+	// Get the draw info, to load into the VAO
+	cMesh* pMesh = ago->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
+	if (pMesh)
+		pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
+
+
+	std::vector<std::vector<int>> level;
+	std::ifstream infile("level.txt");
+	for (int i = 0; i < 27; ++i)
 	{
-		for (unsigned i = 0; i < 150; ++i)
+		level.push_back(std::vector<int>());
+
+		level[i].resize(16);
+	}
+	for (int y = 0; y < 16; ++y)
+	{
+		std::string line;
+		std::getline(infile, line);
+
+		for (int x = 0; x < 27; ++x)
 		{
-			cGameObject* star = new cGameObject();
-			star->mesh.meshName = "sphere";
-			star->mesh.scale = 0.25f;
-
-			star->transform.position = glm::vec3(0.0f, 0.0f, -50.0f);
-			star->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-			star->transform.updateMatricis();
-
-			star->graphics.visible = true;
-			star->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			star->graphics.lighting = false;
-
-			float r1 = (rand() / (float)RAND_MAX - 0.5f);
-			float r2 = (rand() / (float)RAND_MAX - 0.5f);
-			float r3 = (rand() / (float)RAND_MAX);
-			stars.push_back(std::make_pair(star, glm::vec3(r1 * 16.0f, r2 * 9.0f, r3 * 50.0f) / 1.0f));
+			level[x][y] = line[26 + -x] - '0';
 		}
+	}
+	infile.close();
 
-		cGameObject* goConsole = new cGameObject();
-		goConsole->mesh.meshName = "console";
-		goConsole->mesh.scale = 1.0f;
-		goConsole->transform.position = glm::vec3(0.0f);
-		goConsole->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goConsole->transform.updateMatricis();
-		goConsole->graphics.visible = true;
-		goConsole->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goConsole->graphics.lighting = true;
-		goConsole->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goConsole->graphics.textures[0].blend = 1.0f;
-		goConsole->graphics.textures[0].tiling = 1.0f;
-		goConsole->graphics.textures[0].xOffset = 0.0f;
-		goConsole->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goConsole);
+	// Make robots
+	{
+		cGameObject* robot1 = new cGameObject();
+		cGameObject* robot2 = new cGameObject();
+		cGameObject* robot3 = new cGameObject();
+		cGameObject* robot4 = new cGameObject();
+		robot1->robots.push_back(robot1);
+		robot1->robots.push_back(robot2);
+		robot1->robots.push_back(robot3);
+		robot1->robots.push_back(robot4);
+		robot2->robots = robot1->robots;
+		robot3->robots = robot1->robots;
+		robot4->robots = robot1->robots;
 
-		cGameObject* goFloor1 = new cGameObject();
-		goFloor1->mesh.meshName = "floor";
-		goFloor1->mesh.scale = 1.0f;
-		goFloor1->transform.position = glm::vec3(-2.5, 0.0f, 0.0f);
-		goFloor1->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goFloor1->transform.updateMatricis();
-		goFloor1->graphics.visible = true;
-		goFloor1->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goFloor1->graphics.lighting = true;
-		goFloor1->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goFloor1->graphics.textures[0].blend = 1.0f;
-		goFloor1->graphics.textures[0].tiling = 1.0f;
-		goFloor1->graphics.textures[0].xOffset = 0.0f;
-		goFloor1->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goFloor1);
+		robot1->graphics.visible = true;
+		robot1->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot1->graphics.lighting = true;
+		robot1->mesh.meshName = "robot";
+		robot1->mesh.scale = 4.0f;
+		robot1->transform.position = glm::vec3(100.0f, 0.0f - 0.5f, 0.0f);
+		robot1->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot1->transform.updateMatricis();
+		robot1->dir = -1;
+		robot1->right_most_pos = 35;
+		robot1->left_most_pos = 115;
+		robot1->player = (iGameObject*)ago;
+		world->addGameObject(robot1);
+		ago->robots.push_back(robot1);
 
-		cGameObject* goFloor2 = new cGameObject();
-		goFloor2->mesh.meshName = "floor";
-		goFloor2->mesh.scale = 1.0f;
-		goFloor2->transform.position = glm::vec3(2.5, 0.0f, 0.0f);
-		goFloor2->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goFloor2->transform.updateMatricis();
-		goFloor2->graphics.visible = true;
-		goFloor2->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goFloor2->graphics.lighting = true;
-		goFloor2->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goFloor2->graphics.textures[0].blend = 1.0f;
-		goFloor2->graphics.textures[0].tiling = 1.0f;
-		goFloor2->graphics.textures[0].xOffset = 0.0f;
-		goFloor2->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goFloor2);
+		robot2->graphics.visible = true;
+		robot2->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot2->graphics.lighting = true;
+		robot2->mesh.meshName = "robot";
+		robot2->mesh.scale = 4.0f;
+		robot2->transform.position = glm::vec3(90.0f, 40.0f - 0.5f, 0.0f);
+		robot2->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot2->transform.updateMatricis();
+		robot2->dir = 1;
+		robot2->right_most_pos = 5;
+		robot2->left_most_pos = 115;
+		robot2->player = (iGameObject*)ago;
+		world->addGameObject(robot2);
+		ago->robots.push_back(robot2);
 
-		cGameObject* goFloor3 = new cGameObject();
-		goFloor3->mesh.meshName = "floor";
-		goFloor3->mesh.scale = 1.0f;
-		goFloor3->transform.position = glm::vec3(-2.5, 0.0f, 5.0f);
-		goFloor3->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goFloor3->transform.updateMatricis();
-		goFloor3->graphics.visible = true;
-		goFloor3->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goFloor3->graphics.lighting = true;
-		goFloor3->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goFloor3->graphics.textures[0].blend = 1.0f;
-		goFloor3->graphics.textures[0].tiling = 1.0f;
-		goFloor3->graphics.textures[0].xOffset = 0.0f;
-		goFloor3->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goFloor3);
+		robot3->graphics.visible = true;
+		robot3->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot3->graphics.lighting = true;
+		robot3->mesh.meshName = "robot";
+		robot3->mesh.scale = 4.0f;
+		robot3->transform.position = glm::vec3(-30.0f, 80.0f - 0.5f, 0.0f);
+		robot3->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot3->transform.updateMatricis();
+		robot3->dir = -1;
+		robot3->right_most_pos = -115;
+		robot3->left_most_pos = -25;
+		robot3->player = (iGameObject*)ago;
+		world->addGameObject(robot3);
+		ago->robots.push_back(robot3);
 
-		cGameObject* goFloor4 = new cGameObject();
-		goFloor4->mesh.meshName = "floor";
-		goFloor4->mesh.scale = 1.0f;
-		goFloor4->transform.position = glm::vec3(2.5, 0.0f, 5.0f);
-		goFloor4->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goFloor4->transform.updateMatricis();
-		goFloor4->graphics.visible = true;
-		goFloor4->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goFloor4->graphics.lighting = true;
-		goFloor4->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goFloor4->graphics.textures[0].blend = 1.0f;
-		goFloor4->graphics.textures[0].tiling = 1.0f;
-		goFloor4->graphics.textures[0].xOffset = 0.0f;
-		goFloor4->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goFloor4);
-
-		cGameObject* goCorner = new cGameObject();
-		goCorner->mesh.meshName = "corner1";
-		goCorner->mesh.scale = 1.0f;
-		goCorner->transform.position = glm::vec3(-10.0f, 0.0f, 5.0f);
-		goCorner->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goCorner->transform.updateMatricis();
-		goCorner->graphics.visible = true;
-		goCorner->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goCorner->graphics.lighting = true;
-		goCorner->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goCorner->graphics.textures[0].blend = 1.0f;
-		goCorner->graphics.textures[0].tiling = 1.0f;
-		goCorner->graphics.textures[0].xOffset = 0.0f;
-		goCorner->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goCorner);
-
-		cGameObject* goCorner2 = new cGameObject();
-		goCorner2->mesh.meshName = "corner2";
-		goCorner2->mesh.scale = 1.0f;
-		goCorner2->transform.position = glm::vec3(5.0f, 0.0f, 5.0f);
-		goCorner2->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		goCorner2->transform.updateMatricis();
-		goCorner2->graphics.visible = true;
-		goCorner2->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goCorner2->graphics.lighting = true;
-		goCorner2->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goCorner2->graphics.textures[0].blend = 1.0f;
-		goCorner2->graphics.textures[0].tiling = 1.0f;
-		goCorner2->graphics.textures[0].xOffset = 0.0f;
-		goCorner2->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goCorner2);
-
-		cGameObject* goSeatL = new cGameObject();
-		goSeatL->mesh.meshName = "seat";
-		goSeatL->mesh.scale = 1.0f;
-		goSeatL->transform.position = glm::vec3(-4.0f, 0.0f, 3.5f);
-		goSeatL->transform.orientation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
-		goSeatL->transform.updateMatricis();
-		goSeatL->graphics.visible = true;
-		goSeatL->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goSeatL->graphics.lighting = true;
-		goSeatL->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goSeatL->graphics.textures[0].blend = 1.0f;
-		goSeatL->graphics.textures[0].tiling = 1.0f;
-		goSeatL->graphics.textures[0].xOffset = 0.0f;
-		goSeatL->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goSeatL);
-
-		cGameObject* goSeatR = new cGameObject();
-		goSeatR->mesh.meshName = "seat";
-		goSeatR->mesh.scale = 1.0f;
-		goSeatR->transform.position = glm::vec3(-1.0f, 0.0f, 3.5f);
-		goSeatR->transform.orientation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
-		goSeatR->transform.updateMatricis();
-		goSeatR->graphics.visible = true;
-		goSeatR->graphics.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		goSeatR->graphics.lighting = true;
-		goSeatR->graphics.textures[0].fileName = "SpaceInteriors_Texture.bmp";
-		goSeatR->graphics.textures[0].blend = 1.0f;
-		goSeatR->graphics.textures[0].tiling = 1.0f;
-		goSeatR->graphics.textures[0].xOffset = 0.0f;
-		goSeatR->graphics.textures[0].yOffset = 0.0f;
-		world->addGameObject(goSeatR);
-
+		robot4->graphics.visible = true;
+		robot4->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
+		robot4->graphics.lighting = true;
+		robot4->mesh.meshName = "robot";
+		robot4->mesh.scale = 4.0f;
+		robot4->transform.position = glm::vec3(-70.0f, 120.0f - 0.5f, 0.0f);
+		robot4->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		robot4->transform.updateMatricis();
+		robot4->dir = 1;
+		robot4->right_most_pos = -115;
+		robot4->left_most_pos = -25;
+		robot4->player = (iGameObject*)ago;
+		world->addGameObject(robot4);
+		ago->robots.push_back(robot4);
 	}
 
-	glActiveTexture(GL_TEXTURE0 + 55);
-	glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("planet.bmp"));
-	glUniform1i(pShader->getUniformLocID("planetSamp"), 55);
-
-	// 0 = default
-	// 1 = hyperspace
-	// 2 = transition out of hyperspace
-	unsigned state = 0;
-
-	float planetSize = 0.0f;
-
+	ago->level = &level;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -673,60 +601,21 @@ int main()
 
 		glfwPollEvents();
 
-		// Camera orientation
+		// Camera orientation movement
 		{
-			if (shift_pressed)
-			{
-				camera = camera_inSpace;
-			}
-			else
-			{
-				camera = camera_inTV;
-			}
-				
-
-			glfwGetCursorPos(window, &cursorX, &cursorY);
-			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
-			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
-			lastcursorX = (float)cursorX;
-			lastcursorY = (float)cursorY;
-
-			// Lock pitch
-			if (camera->pitch > 89.9f)
-				camera->pitch = 89.9f;
-			else if (camera->pitch < -89.9f)
-				camera->pitch = -89.9f;
-
-			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
-			camera->forward.y = sin(glm::radians(camera->pitch));
-			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
-			camera->forward = glm::normalize(camera->forward);
-			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
+			
 		}
 
 		// keyboard inputs
 		{
-			if (pKeyboardManager->keyPressed('1'))
-				state = 1;
-			else if (pKeyboardManager->keyPressed('2'))
-				state = 2;
 
-			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
-			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
-			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-
-			camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
-			camera->position += -xMove * camera->speed * dt * camera->right;
-			camera->position += yMove * camera->speed * dt * camera->up;
 		}
 
 		// shader uniforms
 		{
 			// FOV, aspect ratio, near clip, far clip
 			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
-			v = glm::lookAt(camera_inTV->position, camera_inTV->position + camera_inTV->forward, camera_inTV->up);
-
-			glUseProgram(program);
+			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -822,51 +711,53 @@ int main()
 			{
 				world->vecGameObjects[i]->render();
 			}
+
+			ago->update(dt, totalTime);
+			ago->preFrame();
+			ago->render();
 		}
 
-		// draw the moving star field to big box
-		if (state != 0)
+		// Draw level
 		{
-			glActiveTexture(GL_TEXTURE0 + 40);
-			glBindTexture(GL_TEXTURE_2D, fbo2->colourTexture_0_ID);
-			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
-
-			glUniform1f(pShader->getUniformLocID("passCount"), 2);
-			glUniform4f(pShader->getUniformLocID("planetparams"), 0.0f, 0.0f, 0.0f, 0.0f);
-			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 2.0f, -3.0f));
-			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(16.0f, 9.0f, 1.0f));
-			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
-			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.85f, 0.85f, 0.35f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			sModelDrawInfo drawInfo;
-			if (pVAOManager->FindDrawInfoByModelName("cube", drawInfo))
+			pVAOManager->FindDrawInfoByModelName("cube", drawInfo);
+			glBindVertexArray(drawInfo.VAO_ID);
+			glm::mat4 matWorld(1.0f);
+			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
+
+			unsigned maxx = level.size();
+			float scale = 5.0f;
+			for (unsigned x = 0; x < maxx; ++x)
 			{
-				glBindVertexArray(drawInfo.VAO_ID);
-				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
-			}
-
-			if (state == 2)
-			{
-				planetSize += dt * 0.1f;
-				if (planetSize > 1.0f)
-					planetSize = 1.0f;
-				glUniform4f(pShader->getUniformLocID("planetparams"), planetSize, 0.0, 0.0, 0.0);
-
-				matWorld = glm::mat4(1.0f);
-				matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 2.0f, -2.99f));
-				matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(3.0f * planetSize, 3.0f * planetSize, 1.0f));
-				glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
-				glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
-
-				if (pVAOManager->FindDrawInfoByModelName("cube", drawInfo))
+				unsigned maxy = level[x].size();
+				for (unsigned y = 0; y < maxy; ++y)
 				{
-					glBindVertexArray(drawInfo.VAO_ID);
-					glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-					glBindVertexArray(0);
+					if (level[x][y])
+					{
+						matWorld = glm::mat4(1.0f);
+						matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(x * scale * 2.0f - maxx * scale + scale, y * scale * -2.0f + scale * (maxy-1) * 2 - scale, 0.0f));
+						matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(scale));
+						glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
+
+						glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
+					}
 				}
 			}
+
+			glBindVertexArray(0);
+		}
+
+		// draw debug
+		if (cWorld::debugMode)
+		{
+			cWorld::pDebugRenderer->addLine(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
+			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
 
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
@@ -878,9 +769,11 @@ int main()
 			glDisable(GL_CULL_FACE);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-			// switch off fbo
+			// whole scene is drawn to buffer
+			// 1. disable the FBO
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+			// 2. clear actual screen buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// 3. use the FBO colour texture as the texture on the tri
@@ -888,7 +781,7 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
 
-			glUniform1f(pShader->getUniformLocID("passCount"), 3);
+			glUniform1f(pShader->getUniformLocID("passCount"), 2);
 
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -896,8 +789,8 @@ int main()
 			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), camera_inTV->position - camera_inTV->forward * -2.0f);
-			matWorld *= glm::mat4(glm::quatLookAt(camera_inTV->forward, glm::normalize(glm::cross(camera_inTV->forward, camera_inTV->right))));
+			matWorld *= glm::translate(glm::mat4(1.0f), camera->position - camera->forward * -2.0f);
+			matWorld *= glm::mat4(glm::quatLookAt(camera->forward, glm::normalize(glm::cross(camera->forward, camera->right))));
 			matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
@@ -923,8 +816,8 @@ int main()
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(3)
-				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
-				<< "{" << camera->forward.x << ", " << camera->forward.y << ", " << camera->forward.z << "} "
+				<< "{" << ago->transform.position.x << ", " << ago->transform.position.y << ", " << ago->transform.position.z << "} "
+				<< "{" << ago->velocity.x << ", " << ago->velocity.y << ", " << ago->velocity.z << "} "
 				<< "dt: " << dt;
 
 			//if (selectedObject < world->vecGameObjects.size())
@@ -959,15 +852,13 @@ int main()
 		for (auto m : mapMeshes)
 			delete m.second;
 
-		for (auto s : stars)
-			delete s.first;
-
 		delete pShaderManager;
 		delete pModelLoader;
 		delete pVAOManager;
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
+		delete ago;
 
 		delete fbo;
 		delete fbo2;
