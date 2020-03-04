@@ -58,9 +58,6 @@ uniform samplerCube skyboxSamp01;
 uniform sampler2D secondPassSamp;
 uniform float passCount;
 
-uniform sampler2D planetSamp;
-uniform vec4 planetparams;
-
 out vec4 pixelColour; // RGB A (0 to 1) 
 
 // Fragment shader
@@ -90,19 +87,6 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 void main()  
 {
 	if (passCount == 2)
-	{
-		pixelColour = texture(secondPassSamp, fUVx2.st);
-		if (planetparams.x != 0)
-		{
-			vec3 planetcol = texture(planetSamp, fUVx2.st).rgb;
-			if (length(planetcol) > 0.0)
-				pixelColour.rgb = planetcol;
-			else
-				discard;
-		}
-		return;
-	}
-	else if (passCount == 3)
 	{
 		// TODO: pass viewport size
 		float s = gl_FragCoord.x / 1920;
@@ -189,7 +173,11 @@ void main()
 	}
 	else // no texture
 	{
-		pixelColour.rgb = lightColoured.rgb + (color * ambientColour.rgb);
+
+		if (length(lightColoured.rgb) < length(ambientColour.rgb))
+			pixelColour.rgb = color * ambientColour.rgb;
+		else
+			pixelColour.rgb = lightColoured.rgb + (color * ambientColour.rgb);
 	}
 
 	pixelColour.a = diffuseColour.a;

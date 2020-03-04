@@ -81,11 +81,11 @@ glm::vec3 cGameObject::getPosition()
 	return this->transform.position;
 }
 
-void cGameObject::preFrame()
+void cGameObject::preFrame(float dt, float tt)
 {
 }
 
-void cGameObject::render()
+void cGameObject::render(float dt, float tt)
 {
 	if (!this->graphics.visible)
 		return;
@@ -95,10 +95,11 @@ void cGameObject::render()
 	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
 	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(m))));
+	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 0.0f, 0.0f);
 	glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
-	this->graphics.render();
-	this->mesh.render();
+	this->graphics.render(dt, tt);
+	this->mesh.render(dt, tt);
 }
 
 void cGameObject::update(float dt, float tt)

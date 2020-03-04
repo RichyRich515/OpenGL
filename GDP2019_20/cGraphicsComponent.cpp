@@ -28,7 +28,7 @@ void cGraphicsComponent::init()
 {
 }
 
-void cGraphicsComponent::preFrame()
+void cGraphicsComponent::preFrame(float dt, float tt)
 {
 }
 
@@ -38,7 +38,7 @@ void cGraphicsComponent::update(float dt, float tt)
 	this->tt = tt;
 }
 
-void cGraphicsComponent::render()
+void cGraphicsComponent::render(float dt, float tt)
 {
 	// TODO: move this to the game object?
 	this->pShader = cShaderManager::getCurrentShader();

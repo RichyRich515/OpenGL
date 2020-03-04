@@ -12,7 +12,7 @@ eComponentType cSkinMeshComponent::getType()
 	return eComponentType();
 }
 
-void cSkinMeshComponent::preFrame()
+void cSkinMeshComponent::preFrame(float dt, float tt)
 {
 }
 
@@ -33,7 +33,7 @@ void cSkinMeshComponent::update(float dt, float tt)
 	}
 }
 
-void cSkinMeshComponent::render()
+void cSkinMeshComponent::render(float dt, float tt)
 {
 	auto pShader = cShaderManager::getCurrentShader();
 

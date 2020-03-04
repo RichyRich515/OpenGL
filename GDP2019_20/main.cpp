@@ -279,6 +279,7 @@ int main()
 	cVAOManager* pVAOManager = new cVAOManager();
 	cVAOManager::setCurrentVAOManager(pVAOManager);
 	cShaderManager* pShaderManager = new cShaderManager();
+	camera = new cCamera();
 	GLuint view_loc = 0;
 	GLuint projection_loc = 0;
 	GLuint eyeLocation_loc = 0;
@@ -400,7 +401,7 @@ int main()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// timing
-	float totalTime;
+	float tt;
 	float lastTime = 0;
 	float dt;
 
@@ -453,6 +454,8 @@ int main()
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
+	
+	cAnimatedGameObject* ago = new cAnimatedGameObject();
 
 	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
 	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
@@ -588,9 +591,9 @@ int main()
 	{
 		// Timing
 		{
-			totalTime = (float)glfwGetTime();
-			dt = totalTime - lastTime;
-			lastTime = totalTime;
+			tt = (float)glfwGetTime();
+			dt = tt - lastTime;
+			lastTime = tt;
 
 			if (dt >= MAX_DELTA_TIME)
 				dt = MAX_DELTA_TIME;
@@ -622,8 +625,9 @@ int main()
 
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
-			glUniform4f(eyeLocation_loc, camera_inTV->position.x, camera_inTV->position.y, camera_inTV->position.z, 1.0f);
+			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
+			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
 
 		// draw Skybox
@@ -637,12 +641,12 @@ int main()
 				glUniform1i(pShader->getUniformLocID("skyboxSamp00"), 10);
 			}
 			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), camera_inTV->position);
+			matWorld *= glm::translate(glm::mat4(1.0f), camera->position);
 			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 1.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("params2"), 1.0f, 0.0f, 0.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 			glDisable(GL_CULL_FACE);
@@ -660,44 +664,10 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-
-		// draw starfield to fbo2
-		if (state != 0)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo2->ID);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			v = glm::lookAt(camera_inSpace->position, camera_inSpace->position + camera_inSpace->forward, camera_inSpace->up);
-			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-			if (planetSize < 1.0f)
-			{
-				for (auto s : stars)
-				{
-					s.first->transform.setPosition(s.first->transform.getPosition() + s.second * dt);
-					s.first->transform.updateMatricis();
-					s.first->graphics.color -= (51.0f - s.second.z) / 50.0f * dt;
-					if (s.first->graphics.color.r > (0.65f - planetSize))
-						s.first->graphics.color = glm::vec4(0.65f - planetSize);
-					s.first->render();
-					if (s.first->graphics.color.r <= 0.0f)
-					{
-						s.first->transform.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
-						s.first->graphics.color = glm::vec4(1.0f);
-					}
-				}
-			}
-			// go back to fbo1
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
-
-			v = glm::lookAt(camera_inTV->position, camera_inTV->position + camera_inTV->forward, camera_inTV->up);
-			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
-		}
-
-
 		// update
 		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
-			world->vecGameObjects[i]->update(dt, totalTime);
+			world->vecGameObjects[i]->update(dt, tt);
 		}
 		//physWorld->Update(dt);
 
@@ -705,22 +675,23 @@ int main()
 		{
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 			{
-				world->vecGameObjects[i]->preFrame();
+				world->vecGameObjects[i]->preFrame(dt, tt);
 			}
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 			{
-				world->vecGameObjects[i]->render();
+				world->vecGameObjects[i]->render(dt, tt);
 			}
 
-			ago->update(dt, totalTime);
-			ago->preFrame();
-			ago->render();
+			ago->update(dt, tt);
+			ago->preFrame(dt, tt);
+			ago->render(dt, tt);
 		}
 
 		// Draw level
 		{
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.85f, 0.85f, 0.35f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 1.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 1.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			sModelDrawInfo drawInfo;
@@ -758,8 +729,6 @@ int main()
 			cWorld::pDebugRenderer->addLine(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
 			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
-
-			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
 
 		// render fbo to tri
@@ -785,7 +754,7 @@ int main()
 
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("params1"), dt, totalTime, 0.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), 0.0f, 0.0f, 0.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 			glm::mat4 matWorld(1.0f);
@@ -803,8 +772,6 @@ int main()
 				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
 				glBindVertexArray(0);
 			}
-
-			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
 
 
@@ -861,7 +828,6 @@ int main()
 		delete ago;
 
 		delete fbo;
-		delete fbo2;
 
 		delete pPhysicsManager;
 	}

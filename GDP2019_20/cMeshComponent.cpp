@@ -25,11 +25,11 @@ eComponentType cMeshComponent::getType()
 //	this->inverseTransposeMatWorld = glm::inverse(glm::transpose(this->matWorld));
 //}
 
-void cMeshComponent::preFrame()
+void cMeshComponent::preFrame(float dt, float tt)
 {
 }
 
-void cMeshComponent::render()
+void cMeshComponent::render(float dt, float tt)
 {
 	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
 

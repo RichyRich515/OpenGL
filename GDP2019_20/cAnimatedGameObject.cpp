@@ -43,11 +43,11 @@ eComponentType cAnimatedGameObject::getType()
 	return eComponentType::GameObject;
 }
 
-void cAnimatedGameObject::preFrame()
+void cAnimatedGameObject::preFrame(float dt, float tt)
 {
 }
 
-void cAnimatedGameObject::render()
+void cAnimatedGameObject::render(float dt, float tt)
 {
 	if (!this->graphics.visible)
 		return;
@@ -60,11 +60,12 @@ void cAnimatedGameObject::render()
 	m *= glm::scale(glm::mat4(1.0), glm::vec3(mesh.scale));
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
 	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(m))));
+	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 0.0f, 0.0f);
 	glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
 
-	this->graphics.render();
-	this->skinmesh.render();
-	this->mesh.render();
+	this->graphics.render(dt, tt);
+	this->skinmesh.render(dt, tt);
+	this->mesh.render(dt, tt);
 
 	glUniform1f(pShader->getUniformLocID("isSkinnedMesh"), (float)GL_FALSE);
 }

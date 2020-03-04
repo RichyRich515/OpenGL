@@ -20,9 +20,9 @@ public:
 
 	virtual eComponentType getType() = 0;
 	
-	virtual void preFrame() = 0;
+	virtual void preFrame(float dt, float tt) = 0;
 	virtual void update(float dt, float tt) = 0;
-	virtual void render() = 0;
+	virtual void render(float dt, float tt) = 0;
 	
 	virtual void instatiateBaseVariables(const Json::Value& obj) {}
 	virtual void instatiateUniqueVariables(const Json::Value& obj) {}
