@@ -12,5 +12,6 @@
 		}
 	],
 	"textures": [
+		"terrain_texture.bmp"
 	]
 }

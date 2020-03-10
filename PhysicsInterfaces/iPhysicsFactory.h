@@ -1,7 +1,8 @@
 #pragma once
+#include "iPhysicsWorld.h"
 #include "iBallComponent.h"
 #include "iPlaneComponent.h"
-#include "iPhysicsWorld.h"
+#include "iClothComponent.h"
 
 namespace nPhysics
 {
@@ -14,5 +15,6 @@ namespace nPhysics
 		// components
 		virtual iBallComponent* CreateBall(const sBallDef& def) = 0;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) = 0;
+		virtual iClothComponent* CreateCloth(const sClothDef& def) = 0;
 	};
 }

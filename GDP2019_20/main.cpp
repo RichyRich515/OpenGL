@@ -104,7 +104,7 @@ constexpr unsigned MAX_LIGHTS = 20;
 cWorld* world = cWorld::getWorld();
 
 glm::vec3 gravity;
-glm::vec4 ambience = glm::vec4(0.25f);
+glm::vec4 ambience = glm::vec4(0.76f);
 
 void writeSceneToFile(std::string filename)
 {
@@ -448,145 +448,31 @@ int main()
 
 	std::vector<cPhysicsGameObject*> balls;
 
+	world->message(sMessage("Get Balls", (void*)&balls));
+	int current_ball_idx = 8;
+
+	float cam_rot = 0.0f;
+	float zoom_amount = 0.0f;
+	constexpr float MAX_ZOOM_IN = -32.0f;
+	constexpr float MAX_ZOOM_OUT = 32.0f;
+
+	constexpr float force_amount = 20.0f;
+
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
+
+	float cam_dist = 64.0f + 1.0f * zoom_amount;
+	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
+	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
+	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+
+	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
+	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
 	
-	cAnimatedGameObject* ago = new cAnimatedGameObject();
-
-	ago->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/RPG Idle.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/RPG Walk.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Run", "./assets/models/RPG Run.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Jump", "./assets/models/RPG Jump.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Punch", "./assets/models/RPG Punch.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Fall", "./assets/models/RPG Fall.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Roll", "./assets/models/RPG Roll.fbx", 1);
-	ago->skinmesh.skinmesh.LoadMeshAnimation("Dying", "./assets/models/RPG Dying.fbx", 1);
-
-	ago->graphics.pShader = pShader;
-	ago->graphics.color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
-	ago->graphics.visible = true;
-	ago->graphics.wireFrame = false;
-	ago->graphics.lighting = true;
-	ago->graphics.specular = glm::vec4(1.0f);
-
-	ago->mesh.meshName = "RPGCharacter";
-	ago->mesh.scale = 0.1f;
-
-	ago->transform.setPosition(glm::vec3(-70.0f, 40.0f, 0.0f));
-	ago->transform.setOrientation(glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-	ago->transform.updateMatricis();
-
-	ago->skinmesh.queueAnimation("Idle", true);
-	ago->active = true;
-
-	// Get the draw info, to load into the VAO
-	cMesh* pMesh = ago->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
-	if (pMesh)
-		pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
-
-
-	std::vector<std::vector<int>> level;
-	std::ifstream infile("level.txt");
-	for (int i = 0; i < 27; ++i)
-	{
-		level.push_back(std::vector<int>());
-
-		level[i].resize(16);
-	}
-	for (int y = 0; y < 16; ++y)
-	{
-		std::string line;
-		std::getline(infile, line);
-
-		for (int x = 0; x < 27; ++x)
-		{
-			level[x][y] = line[26 + -x] - '0';
-		}
-	}
-	infile.close();
-
-	// Make robots
-	{
-		cGameObject* robot1 = new cGameObject();
-		cGameObject* robot2 = new cGameObject();
-		cGameObject* robot3 = new cGameObject();
-		cGameObject* robot4 = new cGameObject();
-		robot1->robots.push_back(robot1);
-		robot1->robots.push_back(robot2);
-		robot1->robots.push_back(robot3);
-		robot1->robots.push_back(robot4);
-		robot2->robots = robot1->robots;
-		robot3->robots = robot1->robots;
-		robot4->robots = robot1->robots;
-
-		robot1->graphics.visible = true;
-		robot1->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot1->graphics.lighting = true;
-		robot1->mesh.meshName = "robot";
-		robot1->mesh.scale = 4.0f;
-		robot1->transform.position = glm::vec3(100.0f, 0.0f - 0.5f, 0.0f);
-		robot1->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot1->transform.updateMatricis();
-		robot1->dir = -1;
-		robot1->right_most_pos = 35;
-		robot1->left_most_pos = 115;
-		robot1->player = (iGameObject*)ago;
-		world->addGameObject(robot1);
-		ago->robots.push_back(robot1);
-
-		robot2->graphics.visible = true;
-		robot2->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot2->graphics.lighting = true;
-		robot2->mesh.meshName = "robot";
-		robot2->mesh.scale = 4.0f;
-		robot2->transform.position = glm::vec3(90.0f, 40.0f - 0.5f, 0.0f);
-		robot2->transform.orientation = glm::quatLookAt(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot2->transform.updateMatricis();
-		robot2->dir = 1;
-		robot2->right_most_pos = 5;
-		robot2->left_most_pos = 115;
-		robot2->player = (iGameObject*)ago;
-		world->addGameObject(robot2);
-		ago->robots.push_back(robot2);
-
-		robot3->graphics.visible = true;
-		robot3->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot3->graphics.lighting = true;
-		robot3->mesh.meshName = "robot";
-		robot3->mesh.scale = 4.0f;
-		robot3->transform.position = glm::vec3(-30.0f, 80.0f - 0.5f, 0.0f);
-		robot3->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot3->transform.updateMatricis();
-		robot3->dir = -1;
-		robot3->right_most_pos = -115;
-		robot3->left_most_pos = -25;
-		robot3->player = (iGameObject*)ago;
-		world->addGameObject(robot3);
-		ago->robots.push_back(robot3);
-
-		robot4->graphics.visible = true;
-		robot4->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-		robot4->graphics.lighting = true;
-		robot4->mesh.meshName = "robot";
-		robot4->mesh.scale = 4.0f;
-		robot4->transform.position = glm::vec3(-70.0f, 120.0f - 0.5f, 0.0f);
-		robot4->transform.orientation = glm::quatLookAt(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		robot4->transform.updateMatricis();
-		robot4->dir = 1;
-		robot4->right_most_pos = -115;
-		robot4->left_most_pos = -25;
-		robot4->player = (iGameObject*)ago;
-		world->addGameObject(robot4);
-		ago->robots.push_back(robot4);
-	}
-
-	ago->level = &level;
-
 	while (!glfwWindowShouldClose(window))
 	{
 		// Timing
@@ -606,16 +492,58 @@ int main()
 
 		// Camera orientation movement
 		{
-			
+			float cam_dist = -64.0f + 1.0f * zoom_amount;
+			ball_pos = balls[current_ball_idx]->getPosition();
+			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
+			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+
+			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
+			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
+			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 		}
 
 		// keyboard inputs
 		{
+			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
+				cWorld::debugMode = !cWorld::debugMode;
 
+			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+			int ymov = 0;
+			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
+
+			if (xmov || ymov || zmov)
+			{
+				// move the ball relative to the camera
+				balls[current_ball_idx]->physics->ApplyForce((glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
+			}
+
+			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
+			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
+
+			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
+			zoom_amount += zoomFactor * camera->speed * dt;
+
+			if (zoom_amount > MAX_ZOOM_OUT)
+				zoom_amount = MAX_ZOOM_OUT;
+			else if (zoom_amount < MAX_ZOOM_IN)
+				zoom_amount = MAX_ZOOM_IN;
+
+			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
+			{
+				balls[current_ball_idx]->graphics.color = old_color;
+				++current_ball_idx;
+				if (current_ball_idx >= balls.size())
+					current_ball_idx = 0;
+
+				old_color = balls[current_ball_idx]->graphics.color;
+
+				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+			}
 		}
 
 		// shader uniforms
 		{
+			glUseProgram(program);
 			// FOV, aspect ratio, near clip, far clip
 			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
@@ -626,7 +554,7 @@ int main()
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
 			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
-			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience[0], ambience[1], ambience[2], ambience[3]);
+			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience.r, ambience.g, ambience.b, ambience.a);
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
 		}
 
@@ -669,7 +597,8 @@ int main()
 		{
 			world->vecGameObjects[i]->update(dt, tt);
 		}
-		//physWorld->Update(dt);
+		
+		physWorld->Update(dt);
 
 		// pre frame, then render
 		{
@@ -681,46 +610,6 @@ int main()
 			{
 				world->vecGameObjects[i]->render(dt, tt);
 			}
-
-			ago->update(dt, tt);
-			ago->preFrame(dt, tt);
-			ago->render(dt, tt);
-		}
-
-		// Draw level
-		{
-			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.85f, 0.85f, 0.35f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("specularColour"), 1.0f, 1.0f, 1.0f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 1.0f, 0.0f);
-			glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
-
-			sModelDrawInfo drawInfo;
-			pVAOManager->FindDrawInfoByModelName("cube", drawInfo);
-			glBindVertexArray(drawInfo.VAO_ID);
-			glm::mat4 matWorld(1.0f);
-			matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
-
-			unsigned maxx = level.size();
-			float scale = 5.0f;
-			for (unsigned x = 0; x < maxx; ++x)
-			{
-				unsigned maxy = level[x].size();
-				for (unsigned y = 0; y < maxy; ++y)
-				{
-					if (level[x][y])
-					{
-						matWorld = glm::mat4(1.0f);
-						matWorld *= glm::translate(glm::mat4(1.0f), glm::vec3(x * scale * 2.0f - maxx * scale + scale, y * scale * -2.0f + scale * (maxy-1) * 2 - scale, 0.0f));
-						matWorld *= glm::scale(glm::mat4(1.0f), glm::vec3(scale));
-						glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(matWorld));
-
-						glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
-					}
-				}
-			}
-
-			glBindVertexArray(0);
 		}
 
 		// draw debug
@@ -775,29 +664,15 @@ int main()
 		}
 
 
-
 		glfwSwapBuffers(window); // Draws to screen
 
 		// window title
-		//if (world->vecGameObjects.size() && world->vecLights.size())
 		{
 			std::ostringstream windowTitle;
 			windowTitle << std::fixed << std::setprecision(3)
-				<< "{" << ago->transform.position.x << ", " << ago->transform.position.y << ", " << ago->transform.position.z << "} "
-				<< "{" << ago->velocity.x << ", " << ago->velocity.y << ", " << ago->velocity.z << "} "
+				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
 				<< "dt: " << dt;
 
-			//if (selectedObject < world->vecGameObjects.size())
-			//{
-			//	windowTitle << "Obj[" << selectedObject << "]: \"" << world->vecGameObjects[selectedObject]->name << "\" ";
-			//}
-			//if (shift_pressed)
-			//{
-			//	if (selectedLight < world->vecLights.size())
-			//	{
-			//		windowTitle << "Light[" << selectedLight << "]";
-			//	}
-			//}
 			glfwSetWindowTitle(window, windowTitle.str().c_str());
 		}
 
@@ -825,7 +700,6 @@ int main()
 		delete pKeyboardManager;
 		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
-		delete ago;
 
 		delete fbo;
 

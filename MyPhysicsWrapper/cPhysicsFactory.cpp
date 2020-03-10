@@ -23,6 +23,13 @@ namespace nPhysics
 	{
 		return new cPlaneComponent(def);
 	}
+
+	iClothComponent* cPhysicsFactory::CreateCloth(const sClothDef& def)
+	{
+		// TODO:
+		return nullptr;
+		//return new cClothComponent(def);
+	}
 }
 
 nPhysics::iPhysicsFactory* MakePhysicsFactory()

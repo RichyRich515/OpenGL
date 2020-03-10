@@ -39,5 +39,8 @@
     <ClInclude Include="eComponentType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="iClothComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -162,6 +162,11 @@ void main()
 			{
 				textCol = texture(textSamp02, fUVx2.st * textparams02.w + textparams02.xy).rgb;
 				textured += textCol.rgb * textparams02.z;
+				if (textparams03.w != 0.0)
+				{
+					textCol = texture(textSamp03, fUVx2.st * textparams03.w + textparams03.xy).rgb;
+					textured += textCol.rgb * textparams03.z;
+				}
 			}
 		}
 		vec3 lightTex = textured * lightColoured.rgb;
@@ -173,9 +178,8 @@ void main()
 	}
 	else // no texture
 	{
-
 		if (length(lightColoured.rgb) < length(ambientColour.rgb))
-			pixelColour.rgb = color * ambientColour.rgb;
+			pixelColour.rgb = color.rgb * ambientColour.rgb;
 		else
 			pixelColour.rgb = lightColoured.rgb + (color * ambientColour.rgb);
 	}

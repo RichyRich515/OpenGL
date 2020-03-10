@@ -5,6 +5,7 @@ namespace nPhysics
 	enum class ePhysicsComponentType
 	{
 		ball,
-		plane
+		plane,
+		cloth
 	};
 }

@@ -70,9 +70,8 @@ void cShaderManager::cShaderProgram::LoadActiveUniforms()
 
 GLint cShaderManager::cShaderProgram::getUniformLocID(std::string uniformname)
 {
-	//auto itUniform = this->mapUniformName_to_UniformLocation.find(uniformname);
-	//if (itUniform == this->mapUniformName_to_UniformLocation.end())
-	//	return -1; // Not found
-	//return itUniform->second;
-	return this->mapUniformName_to_UniformLocation[uniformname];
+	auto itUniform = this->mapUniformName_to_UniformLocation.find(uniformname);
+	if (itUniform == this->mapUniformName_to_UniformLocation.end())
+		return -1; // Not found
+	return itUniform->second;
 }

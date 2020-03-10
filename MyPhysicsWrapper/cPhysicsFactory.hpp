@@ -11,5 +11,6 @@ namespace nPhysics
 		virtual iPhysicsWorld* CreateWorld() override;
 		virtual iBallComponent* CreateBall(const sBallDef& def) override;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) override;
+		virtual iClothComponent* CreateCloth(const sClothDef& def) override;
 	};
 }
