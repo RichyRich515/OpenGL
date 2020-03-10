@@ -30,6 +30,7 @@
 #include "cModelLoader.hpp"
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
+#include "Texture/cBasicTextureManager.h"
 
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
@@ -51,8 +52,6 @@
 
 #include "cPhysicsManager.hpp"
 
-#include "Texture/cBasicTextureManager.h"
-
 #define MY_PHYSICS
 
 #ifdef MY_PHYSICS
@@ -60,6 +59,9 @@ constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
 #else
 constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
 #endif
+
+
+
 
 cPhysicsManager* pPhysicsManager;
 
@@ -75,8 +77,6 @@ static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
-
-//void drawObject(cGameObject* go, GLuint shader, cVAOManager* pVAOManager, float dt, float tt);
 
 constexpr float MAX_DELTA_TIME = 0.017f;
 
@@ -251,6 +251,9 @@ int main()
 	srand(time(NULL));
 	GLFWwindow* window;
 
+	// GL 3.0 + GLSL 130
+	const char* glsl_version = "#version 420";
+
 	// GLFW setup
 	{
 		glfwSetErrorCallback(error_callback);
@@ -258,7 +261,7 @@ int main()
 			exit(EXIT_FAILURE);
 
 		// Set minimum versions of OpenGL
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
 		window = glfwCreateWindow(1920, 1080, "", NULL, NULL);
@@ -269,10 +272,55 @@ int main()
 		}
 
 		glfwSetKeyCallback(window, key_callback);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
 		glfwMakeContextCurrent(window);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		glfwSwapInterval(1); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
+		glfwSwapInterval(0); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
+		if (!gladLoadGL())
+		{
+			std::cerr << "Failed to load glad" << std::endl;
+			glfwTerminate();
+			exit(EXIT_FAILURE);
+		}
+
+		// window title
+		std::ostringstream windowTitle;
+		windowTitle << "OpenGL" << std::endl;
+		
+		glfwSetWindowTitle(window, windowTitle.str().c_str());
+	}
+	
+	// imgui setup
+	{
+		// Setup Dear ImGui context
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+		// Setup Dear ImGui style
+		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsClassic();
+
+		// Setup Platform/Renderer bindings
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init(glsl_version);
+
+		// Load Fonts
+		// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+		// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+		// - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+		// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+		// - Read 'docs/FONTS.txt' for more instructions and details.
+		// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+		//io.Fonts->AddFontDefault();
+		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+		//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+		//IM_ASSERT(font != NULL);
 	}
 
 	cModelLoader* pModelLoader = new cModelLoader();
@@ -475,6 +523,8 @@ int main()
 	
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
+
 		// Timing
 		{
 			tt = (float)glfwGetTime();
@@ -488,7 +538,25 @@ int main()
 				dt *= 10;
 		}
 
-		glfwPollEvents();
+		// imgui
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			static float dt_scale = 1.0f;
+			ImGui::Begin("Debug Information");
+			ImGui::Checkbox("Draw Debug(~)", &cWorld::debugMode);
+			ImGui::SliderFloat("dt Scale", &dt_scale, 0.001f, 2.0f);
+			if (ImGui::Button("Reset dt Scale"))
+				dt_scale = 1.0f;
+			dt *= dt_scale;
+
+			ImGui::Text("dt = %0.3fs", dt);
+			ImGui::Text("Avg %0.3f ms/frame (%0.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+
+		
 
 		// Camera orientation movement
 		{
@@ -618,6 +686,7 @@ int main()
 			cWorld::pDebugRenderer->addLine(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
 			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
+			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
 		}
 
 		// render fbo to tri
@@ -662,29 +731,25 @@ int main()
 				glBindVertexArray(0);
 			}
 		}
-
+		
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window); // Draws to screen
-
-		// window title
-		{
-			std::ostringstream windowTitle;
-			windowTitle << std::fixed << std::setprecision(3)
-				<< "{" << camera->position.x << ", " << camera->position.y << ", " << camera->position.z << "} "
-				<< "dt: " << dt;
-
-			glfwSetWindowTitle(window, windowTitle.str().c_str());
-		}
 
 		world->doDeferredActions();
 		cKeyboardManager::update();
 	}
 
-	glfwDestroyWindow(window);
-	glfwTerminate();
-
 	// Delete everything
 	{
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+
+		glfwDestroyWindow(window);
+		glfwTerminate();
+
 		for (auto g : world->vecGameObjects)
 			delete g;
 
