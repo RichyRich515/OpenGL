@@ -40,7 +40,7 @@ public:
 	virtual void serializeJSONObject(Json::Value& obj) override;
 	virtual void serializeUniqueVariables(Json::Value& obj) override;
 
-	cMeshComponent mesh;
+	cMeshComponent* mesh;
 	cGraphicsComponent graphics;
 	nPhysics::iPhysicsComponent* physics;
 };

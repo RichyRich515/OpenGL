@@ -2,6 +2,7 @@
 #include "cPhysicsWorld.hpp"
 #include "cBallComponent.hpp"
 #include "cPlaneComponent.hpp"
+#include "cClothComponent.hpp"
 
 // Export function from DLL
 extern "C" __declspec(dllexport) nPhysics::iPhysicsFactory* MakePhysicsFactory();
@@ -26,9 +27,7 @@ namespace nPhysics
 
 	iClothComponent* cPhysicsFactory::CreateCloth(const sClothDef& def)
 	{
-		// TODO:
-		return nullptr;
-		//return new cClothComponent(def);
+		return new cClothComponent(def);
 	}
 }
 

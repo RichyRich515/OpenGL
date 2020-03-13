@@ -14,6 +14,7 @@ namespace nPhysics
 		std::size_t NumNodesDown;
 
 		float NodeMass;
+		float SpringConstant;
 	};
 
 	class iClothComponent : public iPhysicsComponent

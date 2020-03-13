@@ -2,6 +2,7 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include "iShape.h"
+#include "cCollisionBody.h"
 
 namespace phys
 {
@@ -37,7 +38,7 @@ namespace phys
 	// Shapes may be shared between rigid bodies.
 	// Does not own the iShape* used to create it.
 	// Will not delete the iShape* it contains when it is deleted.
-	class cRigidBody
+	class cRigidBody : public cCollisionBody
 	{
 		// cWorld will be operating on cRigidBody values quite a bit
 		// We will trust it to do everything correctly.
@@ -50,7 +51,7 @@ namespace phys
 
 		// Destructor
 		// Will not delete the contained iShape.
-		~cRigidBody();
+		virtual ~cRigidBody();
 
 		// Retrieve a rendering-friendly form of position + rotation
 		void GetTransform(glm::mat4& transformOut);
@@ -112,5 +113,8 @@ namespace phys
 		cRigidBody() = delete;
 		cRigidBody(const cRigidBody& other) = delete;
 		cRigidBody& operator=(const cRigidBody& other) = delete;
+
+		// Inherited via iCollisionBody
+		virtual void ClearAccelerations() override;
 	};
 }

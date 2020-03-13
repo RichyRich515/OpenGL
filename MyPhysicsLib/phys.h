@@ -43,8 +43,9 @@
  */
 
 // All the files required to make full use of this library:
-#include "eShapeType.h"  // enum class for all supported shape types
-#include "iShape.h"      // iShape is the base interface class for all shapes
-#include "cRigidBody.h"  // cRigidBody is this library's rigid body representation
-#include "shapes.h"      // Concrete classes for all supported shape types
-#include "cWorld.h"      // cWorld is the primary container and operator of a simulation
+#include "eShapeType.h"     // enum class for all supported shape types
+#include "iShape.h"         // iShape is the base interface class for all shapes
+#include "cRigidBody.h"     // cRigidBody is this library's rigid body representation
+#include "cSoftBody.h"      // cSoftBody is the library's soft body (cloths, etc.) representation
+#include "shapes.h"         // Concrete classes for all supported shape types
+#include "cWorld.h"         // cWorld is the primary container and operator of a simulation

@@ -162,9 +162,6 @@
     <ClCompile Include="cGameObject.cpp">
       <Filter>GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="cFBO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cMesh.cpp">
       <Filter>MeshModel</Filter>
     </ClCompile>
@@ -203,6 +200,12 @@
     </ClCompile>
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="cClothMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="cFBO.cpp">
+      <Filter>Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,9 +302,6 @@
     <ClInclude Include="cPhysicsManager.hpp">
       <Filter>Managers</Filter>
     </ClInclude>
-    <ClInclude Include="cFBO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cMesh.hpp">
       <Filter>MeshModel</Filter>
     </ClInclude>
@@ -343,6 +343,12 @@
     </ClInclude>
     <ClInclude Include="imgui\imgui_impl_opengl3.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="cClothMeshComponent.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO.h">
+      <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

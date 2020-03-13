@@ -1,6 +1,5 @@
 #include "cWorld.h"    // My header
-#include "nCollide.h"  // collision detection functions from
-// REAL-TIME COLLISION DETECTION, ERICSON
+#include "nCollide.h"  // collision detection functions from REAL-TIME COLLISION DETECTION, ERICSON
 #include <glm/gtx/projection.hpp>
 
 namespace phys
@@ -36,10 +35,10 @@ namespace phys
 		this->mDt = dt;
 
 		// 2) Integrate each body.
-		for (cRigidBody* rb : this->mBodies)
+		for (cCollisionBody* b : this->mBodies)
 		{
-			rb->mAcceleration += this->mGravity;
-			this->IntegrateRigidBody(rb, dt);
+			//rb->mAcceleration += this->mGravity;
+			this->IntegrateBody(b, dt);
 		}
 
 		// 3) Perform collision handling on each unique pair of bodies.
@@ -47,27 +46,28 @@ namespace phys
 		{
 			for (size_t b = a + 1; b < this->mBodies.size(); ++b)
 			{
-				this->Collide(this->mBodies[a], this->mBodies[b]);
+				if (this->Collide(this->mBodies[a], this->mBodies[b]))
+				{
+					// TODO: collision listener
+				}
 			}
 		}
 
 		// 4) Clear the acceleration of each rigid body.
-		for (cRigidBody* rb : this->mBodies)
+		for (cCollisionBody* b : this->mBodies)
 		{
-			rb->mAcceleration.x = 0.0f;
-			rb->mAcceleration.y = 0.0f;
-			rb->mAcceleration.z = 0.0f;
+			b->ClearAccelerations();
 		}
 	}
 
-	bool cWorld::AddRigidBody(cRigidBody* rigidBody)
+	bool cWorld::AddBody(cCollisionBody* body)
 	{
 		// 1) Null check
-		if (rigidBody == nullptr)
+		if (body == nullptr)
 			return false;
 
 		// 2) Check if we currently have this rigid body.
-		if (std::find(this->mBodies.begin(), this->mBodies.end(), rigidBody) != this->mBodies.end())
+		if (std::find(this->mBodies.begin(), this->mBodies.end(), body) != this->mBodies.end())
 		{
 			// If yes: Return false to indicate nothing was not added.
 			return false;
@@ -75,19 +75,19 @@ namespace phys
 		else
 		{
 			// If no: Add it, then return true to indicate it was added.
-			this->mBodies.push_back(rigidBody);
+			this->mBodies.push_back(body);
 			return true;
 		}
 	}
 
-	bool cWorld::RemoveRigidBody(cRigidBody* rigidBody)
+	bool cWorld::RemoveBody(cCollisionBody* body)
 	{
 		// 1) Null check
-		if (rigidBody == nullptr)
+		if (body == nullptr)
 			return false;
 
 		// 2) Check if we currently have this rigid body.
-		std::vector<cRigidBody*>::iterator itr = std::find(this->mBodies.begin(), this->mBodies.end(), rigidBody);
+		std::vector<cCollisionBody*>::iterator itr = std::find(this->mBodies.begin(), this->mBodies.end(), body);
 		if (itr != this->mBodies.end())
 		{
 			// If yes: remove it, then return true to indicate it was removed.
@@ -101,11 +101,29 @@ namespace phys
 		}
 	}
 
+	void cWorld::IntegrateBody(cCollisionBody* body, float dt)
+	{
+		// 1) Figure out which body it is
+		// 2) pass off to correct integration method
+		switch (body->GetBodyType())
+		{
+		case eBodyType::rigid:
+			IntegrateRigidBody(dynamic_cast<cRigidBody*>(body), dt);
+			break;
+		case eBodyType::soft:
+			// TODO:
+			//IntegrateSoftBody(dynamic_cast<cSoftBody*>(body), dt);
+			break;
+		}
+	}
+
 	void cWorld::IntegrateRigidBody(cRigidBody* body, float dt)
 	{
 		// 1) Static bodies are not to be integrated!
 		if (body->IsStatic())
 			return;
+
+		body->mAcceleration += this->mGravity;
 
 		// 2) Update the body's previous data.
 		body->mPreviousPosition = body->mPosition;
@@ -117,6 +135,39 @@ namespace phys
 
 		// 4) Apply some linear damping
 		body->mVelocity *= powf(0.95f, dt);
+	}
+
+	bool cWorld::Collide(cCollisionBody* bodyA, cCollisionBody* bodyB)
+	{
+		// 1) Based on body type, determine which specific collision handling method to use.
+		// 2) Cast up the bodies, call the method and return
+		switch (bodyA->GetBodyType())
+		{
+		case eBodyType::rigid:
+			switch (bodyB->GetBodyType())
+			{
+			case eBodyType::rigid:
+				return Collide(dynamic_cast<cRigidBody*>(bodyA), dynamic_cast<cRigidBody*>(bodyB));
+			case eBodyType::soft:
+				// TODO:
+				return false;
+			default:
+				return false;
+			}
+		case eBodyType::soft:
+			switch (bodyB->GetBodyType())
+			{
+			case eBodyType::rigid:
+				// TODO:
+				return false;
+			case eBodyType::soft:
+				return false;
+			default:
+				return false;
+			}
+		default:
+			return false;
+		}
 	}
 
 	bool cWorld::Collide(cRigidBody* bodyA, cRigidBody* bodyB)

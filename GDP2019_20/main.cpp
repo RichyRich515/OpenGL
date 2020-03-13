@@ -35,6 +35,7 @@
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
+#include "cClothMeshComponent.hpp"
 #include "cAnimatedGameObject.hpp"
 #include "cLight.hpp"
 #include "cKeyboardManager.hpp"
@@ -61,8 +62,6 @@ constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
 #endif
 
 
-
-
 cPhysicsManager* pPhysicsManager;
 
 namespace std
@@ -82,7 +81,6 @@ constexpr float MAX_DELTA_TIME = 0.017f;
 
 cCamera* camera;
 
-
 // TODO: Get this outta global space
 cShaderManager::cShaderProgram* pShader;
 GLuint program = 0;
@@ -94,9 +92,8 @@ cFBO* fbo = nullptr;
 // factory for any game object
 iGameObjectFactory* pGameObjectFactory;
 cBasicTextureManager* pTextureManager;
-
-int selectedObject = 0;
-int selectedLight = 0;
+cKeyboardManager* pKeyboardManager = NULL;
+bool ctrl_pressed = false, shift_pressed = false;
 
 // Max lights from the shader
 constexpr unsigned MAX_LIGHTS = 20;
@@ -145,8 +142,6 @@ void writeSceneToFile(std::string filename)
 void openSceneFromFile(std::string filename)
 {
 	glUseProgram(program);
-	selectedObject = 0;
-	selectedLight = 0;
 	std::ifstream scenejson(filename);
 	Json::Value root;
 	scenejson >> root;
@@ -160,7 +155,6 @@ void openSceneFromFile(std::string filename)
 	for (unsigned i = 0; i < 3; ++i)
 	{
 		camera->position[i] = camera_node["cameraEye"][i].asFloat();
-		//gravity[i] = world_node["gravity"][i].asFloat();
 	}
 	camera->pitch = camera_node["pitch"].asFloat();
 	camera->yaw = camera_node["yaw"].asFloat();
@@ -216,10 +210,6 @@ void openSceneFromFile(std::string filename)
 
 	std::cout << "Opened scene " << filename << std::endl;
 }
-
-bool ctrl_pressed = false, shift_pressed = false;
-
-cKeyboardManager* pKeyboardManager = NULL;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -509,6 +499,27 @@ int main()
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
 
+	cPhysicsGameObject* clothgo = new cPhysicsGameObject();
+	nPhysics::sClothDef cloth;
+	cloth.CornerA = glm::vec3(-5.0f, 20.0f, 2.0f);
+	cloth.CornerB = glm::vec3(5.0f, 20.0f, 2.0f);
+	cloth.DownDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+	cloth.NodeMass = 0.0f;
+	cloth.NumNodesAcross = 5;
+	cloth.NumNodesDown = 20;
+	cloth.SpringConstant = 0.5f;
+
+	clothgo->physics = pPhysicsFactory->CreateCloth(cloth);
+	clothgo->graphics.visible = true;
+	clothgo->graphics.lighting = true;
+	clothgo->graphics.color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+	cClothMeshComponent* clothcomp = new cClothMeshComponent();
+	clothcomp->cloth = dynamic_cast<nPhysics::iClothComponent*>(clothgo->physics);
+	clothcomp->scale = 1.0f;
+	clothgo->mesh = clothcomp;
+	physWorld->AddComponent(clothgo->physics);
+	world->addGameObject(clothgo);
+
 	float cam_dist = 64.0f + 1.0f * zoom_amount;
 	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
 	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
@@ -543,8 +554,15 @@ int main()
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+
 			static float dt_scale = 1.0f;
 			ImGui::Begin("Debug Information");
+			if (balls.size())
+			{
+				ImGui::SliderInt("Current Ball", &current_ball_idx, 0, balls.size() - 1);
+				ImGui::Text("Current Ball Position: %s", std::to_string(balls[current_ball_idx]->getPosition()).c_str());
+			}
+
 			ImGui::Checkbox("Draw Debug(~)", &cWorld::debugMode);
 			ImGui::SliderFloat("dt Scale", &dt_scale, 0.001f, 2.0f);
 			if (ImGui::Button("Reset dt Scale"))
@@ -555,8 +573,6 @@ int main()
 			ImGui::Text("Avg %0.3f ms/frame (%0.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
-
-		
 
 		// Camera orientation movement
 		{

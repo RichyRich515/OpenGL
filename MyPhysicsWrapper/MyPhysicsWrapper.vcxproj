@@ -151,12 +151,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cBallComponent.hpp" />
+    <ClInclude Include="cClothComponent.hpp" />
     <ClInclude Include="cPhysicsFactory.hpp" />
     <ClInclude Include="cPhysicsWorld.hpp" />
     <ClInclude Include="cPlaneComponent.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cBallComponent.cpp" />
+    <ClCompile Include="cClothComponent.cpp" />
     <ClCompile Include="cPhysicsFactory.cpp" />
     <ClCompile Include="cPhysicsWorld.cpp" />
     <ClCompile Include="cPlaneComponent.cpp" />

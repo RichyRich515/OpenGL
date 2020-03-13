@@ -4,6 +4,7 @@
 namespace phys
 {
 	cRigidBody::cRigidBody(const sRigidBodyDef& def, iShape* shape) :
+		cCollisionBody(eBodyType::rigid),
 		mShape(shape),
 		mPreviousPosition(def.Position),
 		mPosition(def.Position),
@@ -49,5 +50,13 @@ namespace phys
 	void cRigidBody::ApplyImpulse(const glm::vec3& impulse)
 	{
 		this->mVelocity += impulse;
+	}
+
+	void cRigidBody::ClearAccelerations()
+	{
+		this->mAcceleration.x = 0;
+		this->mAcceleration.y = 0;
+		this->mAcceleration.z = 0;
+
 	}
 }

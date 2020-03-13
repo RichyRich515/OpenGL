@@ -1,6 +1,7 @@
 #include "cPhysicsWorld.hpp"
 #include "cBallComponent.hpp"
 #include "cPlaneComponent.hpp"
+#include "cClothComponent.hpp"
 
 nPhysics::cPhysicsWorld::cPhysicsWorld()
 {
@@ -25,9 +26,11 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 	switch (component->GetComponentType())
 	{
 	case ePhysicsComponentType::ball:
-		return this->world->AddRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
+		return this->world->AddBody(reinterpret_cast<cBallComponent*>(component)->body);
 	case ePhysicsComponentType::plane:
-		return this->world->AddRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
+		return this->world->AddBody(reinterpret_cast<cPlaneComponent*>(component)->body);
+	case ePhysicsComponentType::cloth:
+		return this->world->AddBody(reinterpret_cast<cClothComponent*>(component)->body);
 	default:
 		return false;
 	}
@@ -38,9 +41,11 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 	switch (component->GetComponentType())
 	{
 	case ePhysicsComponentType::ball:
-		return this->world->RemoveRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
+		return this->world->AddBody(reinterpret_cast<cBallComponent*>(component)->body);
 	case ePhysicsComponentType::plane:
-		return this->world->RemoveRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
+		return this->world->AddBody(reinterpret_cast<cPlaneComponent*>(component)->body);
+	case ePhysicsComponentType::cloth:
+		return this->world->AddBody(reinterpret_cast<cClothComponent*>(component)->body);
 	default:
 		return false;
 	}

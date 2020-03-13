@@ -144,14 +144,18 @@
   <ItemGroup>
     <ClCompile Include="cIntegrator.cpp" />
     <ClCompile Include="cRigidBody.cpp" />
+    <ClCompile Include="cSoftBody.cpp" />
     <ClCompile Include="cWorld.cpp" />
     <ClCompile Include="nCollide.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cIntegrator.h" />
     <ClInclude Include="cRigidBody.h" />
+    <ClInclude Include="cSoftBody.h" />
     <ClInclude Include="cWorld.h" />
+    <ClInclude Include="eBodyType.h" />
     <ClInclude Include="eShapeType.h" />
+    <ClInclude Include="cCollisionBody.h" />
     <ClInclude Include="iShape.h" />
     <ClInclude Include="nCollide.h" />
     <ClInclude Include="phys.h" />

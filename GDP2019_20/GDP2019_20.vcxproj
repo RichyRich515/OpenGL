@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="cAnimatedGameObject.cpp" />
     <ClCompile Include="cCamera.cpp" />
+    <ClCompile Include="cClothMeshComponent.cpp" />
     <ClCompile Include="cCommand.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
@@ -202,6 +203,7 @@
   <ItemGroup>
     <ClInclude Include="cAnimatedGameObject.hpp" />
     <ClInclude Include="cCamera.hpp" />
+    <ClInclude Include="cClothMeshComponent.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.h" />
     <ClInclude Include="cGameObject.hpp" />
