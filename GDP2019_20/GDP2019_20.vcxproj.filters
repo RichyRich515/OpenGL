@@ -373,8 +373,5 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\README.txt" />
-    <Text Include="level.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
 </Project>

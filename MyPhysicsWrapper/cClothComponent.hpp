@@ -22,6 +22,8 @@ namespace nPhysics
 		virtual void ApplyForce(const glm::vec3& force) override;
 
 		virtual std::size_t NumNodes() override;
+		virtual std::size_t NumNodesAcross() override;
+		virtual std::size_t NumNodesDown() override;
 
 		virtual bool GetNodeRadius(std::size_t index, float& radiusOut) override;
 

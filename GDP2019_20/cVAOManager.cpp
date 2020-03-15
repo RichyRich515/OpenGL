@@ -144,6 +144,96 @@ bool cVAOManager::LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int s
 	return true;
 }
 
+bool cVAOManager::LoadNewDynamicMeshIntoVAO(std::string name, unsigned int points, unsigned int tris, unsigned int shaderProgramID)
+{
+	sModelDrawInfo drawInfo;
+	drawInfo.meshName = name;
+	drawInfo.numberOfVertices = points;
+	drawInfo.pVertices = new cVertex[points];
+	drawInfo.numberOfTriangles = tris;
+	drawInfo.numberOfIndices = drawInfo.numberOfTriangles * 3;
+	drawInfo.pIndices = new unsigned[drawInfo.numberOfIndices];
+
+	// Create a VAO (Vertex Array Object), which will 
+	//	keep track of all the 'state' needed to draw 
+	//	from this buffer...
+
+	glGenVertexArrays(1, &(drawInfo.VAO_ID));
+	glBindVertexArray(drawInfo.VAO_ID);
+
+	// Now ANY state that is related to vertex or index buffer
+	//	and vertex attribute layout, is stored in the 'state' 
+	//	of the VAO... 
+
+	glGenBuffers(1, &(drawInfo.VertexBufferID));
+
+	glBindBuffer(GL_ARRAY_BUFFER, drawInfo.VertexBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cVertex) * drawInfo.numberOfVertices, (GLvoid*)drawInfo.pVertices, GL_DYNAMIC_DRAW);
+
+	// Copy the index buffer into the video card, too
+	// Create an index buffer.
+	glGenBuffers(1, &(drawInfo.IndexBufferID));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawInfo.IndexBufferID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * drawInfo.numberOfIndices, (GLvoid*)drawInfo.pIndices, GL_DYNAMIC_DRAW);
+
+	// Set the vertex attributes.
+	GLint vpos_location = glGetAttribLocation(shaderProgramID, "vPosition");
+	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vColour");
+	GLint vnorm_location = glGetAttribLocation(shaderProgramID, "vNormal");
+	GLint vUV_location = glGetAttribLocation(shaderProgramID, "vUVx2");
+
+	GLint vTangent_location = glGetAttribLocation(shaderProgramID, "vTangent");
+	GLint vBiNormal_location = glGetAttribLocation(shaderProgramID, "vBiNormal");
+	GLint vBoneID_location = glGetAttribLocation(shaderProgramID, "vBoneID");
+	GLint vBoneWeight_location = glGetAttribLocation(shaderProgramID, "vBoneWeight");
+
+	// Set the vertex attributes for this shader
+	glEnableVertexAttribArray(vpos_location);
+	glVertexAttribPointer(vpos_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, x)));
+
+	glEnableVertexAttribArray(vcol_location);
+	glVertexAttribPointer(vcol_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, r)));
+
+	glEnableVertexAttribArray(vnorm_location);
+	glVertexAttribPointer(vnorm_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, nx)));
+
+	glEnableVertexAttribArray(vUV_location);
+	glVertexAttribPointer(vUV_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, u0)));
+
+	glEnableVertexAttribArray(vTangent_location);
+	glVertexAttribPointer(vTangent_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, tx)));
+
+	glEnableVertexAttribArray(vBiNormal_location);
+	glVertexAttribPointer(vBiNormal_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, bx)));
+
+	glEnableVertexAttribArray(vBoneID_location);
+	glVertexAttribPointer(vBoneID_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneID[0])));
+
+	glEnableVertexAttribArray(vBoneWeight_location);
+	glVertexAttribPointer(vBoneWeight_location, 4, GL_FLOAT, GL_FALSE, sizeof(cVertex), (void*)(offsetof(cVertex, boneWeights[0])));
+
+	// Now that all the parts are set up, set the VAO to zero
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glDisableVertexAttribArray(vpos_location);
+	glDisableVertexAttribArray(vcol_location);
+	glDisableVertexAttribArray(vnorm_location);
+	glDisableVertexAttribArray(vUV_location);
+
+	glDisableVertexAttribArray(vTangent_location);
+	glDisableVertexAttribArray(vBiNormal_location);
+	glDisableVertexAttribArray(vBoneID_location);
+	glDisableVertexAttribArray(vBoneWeight_location);
+
+	this->m_map_ModelName_to_VAOID[drawInfo.meshName] = drawInfo;
+
+	return true;
+}
+
 bool cVAOManager::FindDrawInfoByModelName(std::string filename, sModelDrawInfo& drawInfo)
 {
 	auto itDrawInfo = this->m_map_ModelName_to_VAOID.find(filename);

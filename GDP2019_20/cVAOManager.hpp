@@ -29,7 +29,7 @@ struct sModelDrawInfo
 	unsigned int numberOfTriangles;
 
 	// The "local" (i.e. "CPU side" temporary array)
-	cVertex* pVertices;	//  = 0;
+	cVertex* pVertices;
 	// The index buffer (CPU side)
 	unsigned* pIndices;
 };
@@ -41,9 +41,11 @@ public:
 	cVAOManager() {}
 	~cVAOManager();
 
-
 	// Takes cMesh object and loads into GPU (as a VAO)
 	bool LoadModelIntoVAO(std::string name, cMesh* mesh, unsigned int shaderProgramID);
+
+	// creates a buffer on GPU for dyanmic mesh, useful for softbodies and stuff
+	bool LoadNewDynamicMeshIntoVAO(std::string name, unsigned int points, unsigned int tris, unsigned int shaderProgramID);
 
 	// We don't want to return an int, likely
 	bool FindDrawInfoByModelName(std::string filename, sModelDrawInfo& drawInfo);

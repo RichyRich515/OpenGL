@@ -60,6 +60,7 @@ void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
 			this->mesh = new cClothMeshComponent();
 			this->mesh->instatiateBaseVariables(obj["mesh"]);
 		}
+
 		if (type == "ball")
 		{
 			nPhysics::sBallDef def;
@@ -81,6 +82,26 @@ void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
 
 			this->physics = cPhysicsManager::getFactory()->CreatePlane(def);
 			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
+		else if (type == "cloth")
+		{
+			nPhysics::sClothDef def;
+
+			def.CornerA = obj["physics"]["cornerA"] ? Json::toVec3(obj["physics"]["cornerA"]) : glm::vec3(0.0f);
+			def.CornerB = obj["physics"]["cornerB"] ? Json::toVec3(obj["physics"]["cornerB"]) : glm::vec3(0.0f);
+			def.DownDirection = obj["physics"]["downDirection"] ? Json::toVec3(obj["physics"]["downDirection"]) : glm::vec3(0.0f);
+			def.NodeMass = obj["physics"]["nodeMass"] ? obj["physics"]["nodeMass"].asFloat() : 0.0f;
+			def.NumNodesAcross = obj["physics"]["numNodesAcross"] ? obj["physics"]["numNodesAcross"].asFloat() : 0.0f;
+			def.NumNodesDown = obj["physics"]["numNodesDown"] ? obj["physics"]["numNodesDown"].asFloat() : 0.0f;
+			def.SpringConstant = obj["physics"]["springConstant"] ? obj["physics"]["springConstant"].asFloat() : 0.0f;
+
+			this->physics = cPhysicsManager::getFactory()->CreateCloth(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+
+			auto cmcomp = new cClothMeshComponent();
+			cmcomp->cloth = (nPhysics::iClothComponent*)this->physics;
+			cmcomp->scale = 1.0f;
+			this->mesh = cmcomp;
 		}
 	}
 }

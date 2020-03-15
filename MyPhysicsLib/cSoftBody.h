@@ -36,11 +36,16 @@ namespace phys
 			cNode(const sSoftBodyNodeDef& nodeDef);
 			void CalculateRadius();
 			inline bool IsFixed() { return Mass == 0.0f; }
+			bool IsNeighbour(cNode* other);
+			void ApplyForce(glm::vec3 force);
 			std::vector<cSpring*> Springs;
 			float Mass;
+			float InvMass;
 			float Radius;
 			glm::vec3 Position;
+			glm::vec3 PreviousPosition;
 			glm::vec3 Velocity;
+			glm::vec3 PreviousVelocity;
 			glm::vec3 Acceleration;
 		};
 
@@ -75,6 +80,9 @@ namespace phys
 
 		bool GetNodePosition(size_t index, glm::vec3& positionOut);
 
+		// Apply a force to each node
+		void ApplyForce(glm::vec3 force);
+
 	private:
 		// Constructors not to be used.
 		cSoftBody() = delete;
@@ -86,5 +94,9 @@ namespace phys
 
 		// Inherited via iCollisionBody
 		virtual void ClearAccelerations() override;
+		
+		// recalculated each frame for broad phase collision detection
+		glm::vec3 mCenter;
+		float mRadius;
 	};
 }

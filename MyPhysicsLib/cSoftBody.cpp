@@ -17,8 +17,8 @@ namespace phys
 		// HOOKS LAW
 		glm::vec3 sep = NodeB->Position - NodeA->Position;
 		float dist = glm::length(sep);
-		float x = glm::abs(dist - RestingLength);
-		SpringForceAtoB = glm::normalize(sep) * x * SpringConstant;
+		float x = dist - RestingLength;
+		SpringForceAtoB = -SpringConstant * glm::normalize(sep) * x;
 	}
 
 	void cSoftBody::cSpring::ApplyForceToNodes()
@@ -27,7 +27,7 @@ namespace phys
 		{
 			NodeB->Acceleration += SpringForceAtoB / NodeB->Mass;
 		}
-		if (!NodeB->IsFixed())
+		if (!NodeA->IsFixed())
 		{
 			NodeA->Acceleration -= SpringForceAtoB / NodeA->Mass;
 		}
@@ -52,6 +52,13 @@ namespace phys
 		for (size_t i = 0; i < numSprings; ++i)
 		{
 			mSprings[i] = new cSpring(mNodes[def.Springs[i].first], mNodes[def.Springs[i].second], def.SpringConstant);
+			mNodes[def.Springs[i].first]->Springs.push_back(mSprings[i]);
+			mNodes[def.Springs[i].second]->Springs.push_back(mSprings[i]);
+		}
+
+		for (size_t i = 0; i < numNodes; ++i)
+		{
+			mNodes[i]->CalculateRadius();
 		}
 	}
 
@@ -90,16 +97,33 @@ namespace phys
 		return true;
 	}
 
+	void cSoftBody::ApplyForce(glm::vec3 force)
+	{
+		size_t numNodes = mNodes.size();
+		for (size_t i = 0; i < numNodes; ++i)
+		{
+			this->mNodes[i]->ApplyForce(force);
+		}
+	}
+
 	void cSoftBody::ClearAccelerations()
 	{
-		// TODO: clear all the accelerations
+		for (size_t i = 0; i < mNodes.size(); ++i)
+		{
+			mNodes[i]->Acceleration.x = 0;
+			mNodes[i]->Acceleration.y = 0;
+			mNodes[i]->Acceleration.z = 0;
+		}
 	}
 
 	cSoftBody::cNode::cNode(const sSoftBodyNodeDef& nodeDef) :
 		Position(nodeDef.Position),
+		PreviousPosition(nodeDef.Position),
 		Mass(nodeDef.Mass),
+		InvMass(1.0f / nodeDef.Mass),
 		Radius(1.0f),
 		Velocity(0.0f),
+		PreviousVelocity(0.0f),
 		Acceleration(0.0f)
 	{
 	}
@@ -115,6 +139,22 @@ namespace phys
 			if (dist < smallestDistance)
 				smallestDistance = dist;
 		}
-		Radius = smallestDistance * 0.5f; // TODO: play with this, maybe make it a constant somewhere
+
+		Radius = smallestDistance * 0.49f;
+	}
+
+	bool cSoftBody::cNode::IsNeighbour(cNode* other)
+	{
+		size_t numSprings = Springs.size();
+		for (size_t i = 0; i < numSprings; ++i)
+		{
+			if (Springs[i]->GetOther(this) == other)
+				return true;
+		}
+	}
+
+	void cSoftBody::cNode::ApplyForce(glm::vec3 force)
+	{
+		this->Acceleration += force * this->InvMass;
 	}
 }

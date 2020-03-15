@@ -19,14 +19,20 @@ namespace nPhysics
 		sepDown *= glm::length(sepAcross);
 
 		// Set the node information
-		for (size_t x = 0; x < def.NumNodesAcross; ++x)
+		for (size_t y = 0; y < def.NumNodesDown; ++y)
 		{
-			for (size_t y = 0; y < def.NumNodesDown; ++y)
+			for (size_t x = 0; x < def.NumNodesAcross; ++x)
 			{
 				sbdef.Nodes[idxNode].Position = def.CornerA + sepAcross * (float)x + sepDown * (float)y;
 				sbdef.Nodes[idxNode].Mass = def.NodeMass;
 				++idxNode;
 			}
+		}
+
+		// set top row to mass 0
+		for (size_t x = 0; x < def.NumNodesAcross; ++x)
+		{
+			sbdef.Nodes[x].Mass = 0.0f;
 		}
 
 		// Set the spring information
@@ -42,6 +48,18 @@ namespace nPhysics
 				// set the down spring going down
 				sbdef.Springs.push_back(std::make_pair(idxNode, idxNode + def.NumNodesAcross));
 
+				// diagonal
+				sbdef.Springs.push_back(std::make_pair(idxNode, idxNode + def.NumNodesAcross + 1));
+			}
+		}
+
+		// other diagonal
+		for (size_t y = 0; y < def.NumNodesDown - 1; ++y)
+		{
+			for (size_t x = 1; x < def.NumNodesAcross; ++x)
+			{
+				idxNode = (y * def.NumNodesAcross) + x;
+				sbdef.Springs.push_back(std::make_pair(idxNode, idxNode + def.NumNodesAcross - 1));
 			}
 		}
 
@@ -75,12 +93,24 @@ namespace nPhysics
 
 	void cClothComponent::ApplyForce(const glm::vec3& force)
 	{
-		// todo: ?
+		this->body->ApplyForce(force);
 	}
 
 	std::size_t cClothComponent::NumNodes()
 	{
 		return this->body->NumNodes();
+	}
+
+	std::size_t cClothComponent::NumNodesAcross()
+	{
+		// TODO:
+		return 0;
+	}
+
+	std::size_t cClothComponent::NumNodesDown()
+	{
+		// TODO:
+		return 0;
 	}
 
 	bool cClothComponent::GetNodeRadius(std::size_t index, float& radiusOut)

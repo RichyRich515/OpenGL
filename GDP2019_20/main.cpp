@@ -499,26 +499,11 @@ int main()
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
 
-	cPhysicsGameObject* clothgo = new cPhysicsGameObject();
-	nPhysics::sClothDef cloth;
-	cloth.CornerA = glm::vec3(-5.0f, 20.0f, 2.0f);
-	cloth.CornerB = glm::vec3(5.0f, 20.0f, 2.0f);
-	cloth.DownDirection = glm::vec3(0.0f, -1.0f, 0.0f);
-	cloth.NodeMass = 0.0f;
-	cloth.NumNodesAcross = 5;
-	cloth.NumNodesDown = 20;
-	cloth.SpringConstant = 0.5f;
+	// Cloth needs to be at the end
+	cPhysicsGameObject* clothgo = (cPhysicsGameObject*)world->vecGameObjects[world->vecGameObjects.size() - 1];
 
-	clothgo->physics = pPhysicsFactory->CreateCloth(cloth);
-	clothgo->graphics.visible = true;
-	clothgo->graphics.lighting = true;
-	clothgo->graphics.color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-	cClothMeshComponent* clothcomp = new cClothMeshComponent();
-	clothcomp->cloth = dynamic_cast<nPhysics::iClothComponent*>(clothgo->physics);
-	clothcomp->scale = 1.0f;
-	clothgo->mesh = clothcomp;
-	physWorld->AddComponent(clothgo->physics);
-	world->addGameObject(clothgo);
+	glm::vec3 wind_direction = glm::normalize(glm::vec3(0.5f, 0.5f, 4.0f));
+	float wind_force = 1.0f;
 
 	float cam_dist = 64.0f + 1.0f * zoom_amount;
 	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
@@ -682,6 +667,8 @@ int main()
 			world->vecGameObjects[i]->update(dt, tt);
 		}
 		
+		clothgo->physics->ApplyForce(wind_direction * (sinf(tt / 4.0f) + 1.0f) * wind_force);
+
 		physWorld->Update(dt);
 
 		// pre frame, then render

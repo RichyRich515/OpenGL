@@ -23,6 +23,9 @@ namespace nPhysics
 		virtual ~iClothComponent() {}
 
 		virtual std::size_t NumNodes() = 0;
+		virtual std::size_t NumNodesAcross() = 0;
+		virtual std::size_t NumNodesDown() = 0;
+
 		virtual bool GetNodeRadius(std::size_t index, float& radiusOut) = 0;
 		virtual bool GetNodePosition(std::size_t index, glm::vec3& positionOut) = 0;
 

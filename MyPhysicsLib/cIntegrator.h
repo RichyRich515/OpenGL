@@ -23,7 +23,7 @@ namespace phys
 		// vel : velocity of object
 		// acc : acceleration of object
 		// dt : delta time (time since last step)
-		void Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, float dt);
+		void Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, float dt, float damp = 1.0f);
 
 		// pos : object's position in space
 		// vel : velocity of object

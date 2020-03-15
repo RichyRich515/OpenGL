@@ -8,11 +8,13 @@ namespace phys
 
 	}
 
-	void cIntegrator::Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, float dt)
+	void cIntegrator::Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, float dt, float damp)
 	{
 		vel.x += acc.x * dt;
 		vel.y += acc.y * dt;
 		vel.z += acc.z * dt;
+
+		vel *= powf(damp, dt);
 
 		pos.x += vel.x * dt;
 		pos.y += vel.y * dt;
@@ -21,7 +23,7 @@ namespace phys
 
 	void cIntegrator::Euler(glm::vec3& pos, glm::vec3& vel, glm::vec3& acc, const glm::vec3& appliedAcc, float dt)
 	{
-		acc += appliedAcc; 
+		acc += appliedAcc;
 
 		vel.x += acc.x * dt;
 		vel.y += acc.y * dt;

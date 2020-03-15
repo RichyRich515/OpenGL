@@ -71,14 +71,22 @@ namespace phys
 		// Safe for null pointers.
 		// Safe for static bodies.
 		void IntegrateRigidBody(cRigidBody* body, float dt);
+		
+		// Performs a single numerical integration step.
+		// Safe for null pointers.
+		void IntegrateSoftBody(cSoftBody* body, float dt);
 
 		// Entry point for collision detection.
 		// Returns the result of specific methods.
 		bool Collide(cCollisionBody* bodyA, cCollisionBody* bodyB);
 
-		// Entry point for collision detection of two rigid bodies.
+		// Collision between two rigidbodies
 		// Returns the result of specific methods.
-		bool Collide(cRigidBody* bodyA, cRigidBody* bodyB);
+		bool CollideRigidRigid(cRigidBody* bodyA, cRigidBody* bodyB);
+
+		// Collision between rigidbody and softbody
+		// Returns the result of specific methods.
+		bool CollideRigidSoft(cRigidBody* bodyA, cSoftBody* bodyB);
 
 		// Handles collision detection and reaction between a sphere and a plane.
 		// Returns true if a collision occured.
@@ -89,6 +97,16 @@ namespace phys
 		// Returns true if a collision occured.
 		// Returns false if no collision occured.
 		bool CollideSphereSphere(cRigidBody* bodyA, cSphere* shapeA, cRigidBody* bodyB, cSphere* shapeB);
+
+		// Handles collision detection and reaction between plane and soft body.
+		// Returns true if a collision occured.
+		// Returns false if no collision occured.
+		bool CollidePlaneSoft(cRigidBody* plane, cPlane* planeShape, cSoftBody* softBody);
+
+		// Handles collision detection and reaction between sphere and soft body.
+		// Returns true if a collision occured.
+		// Returns false if no collision occured.
+		bool CollideSphereSoft(cRigidBody* sphere, cSphere* sphereShape, cSoftBody* softBody);
 
 	private:
 
