@@ -542,25 +542,7 @@
 				"numNodesDown": 24,
 				"springConstant": 200.0
 			}
-		}//,
-		//{
-		//	"type": "physics",
-		//	"name": "cloth",
-		//	"graphics": {
-		//		"lighting": true,
-		//		"color": [ 0.2, 1.2, 0.2, 1.0 ]
-		//	},
-		//	"physics": {
-		//		"type": "cloth",
-		//		"cornerA": [ -10.0, 20.0, -20.0 ],
-		//		"cornerB": [ 10.0, 20.0, -20.0 ],
-		//		"downDirection": [ 0.0, -1.0, 0.0 ],
-		//		"nodeMass": 0.5,
-		//		"numNodesAcross": 25,
-		//		"numNodesDown": 24,
-		//		"springConstant": 200.0
-		//	}
-		//}
+		}
 	],
 	"lights": [
 		{
@@ -577,9 +559,9 @@
 				1.0
 			],
 			"direction": [
+				0.5,
+				-0.75,
 				1.0,
-				-1.0,
-				-0.5,
 				1.0
 			],
 			"param1": [

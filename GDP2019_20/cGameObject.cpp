@@ -104,96 +104,9 @@ void cGameObject::render(float dt, float tt)
 
 void cGameObject::update(float dt, float tt)
 {
-	for (auto robot : robots)
-		if (robot != this && robot->message(sMessage("dying?")).name == "yes")
-			return;
-
-	if (this->active)
-	{
-		this->immune_timer -= dt;
-
-		if (this->alive)
-		{
-			if (this->immune_timer <= 0.0f)
-			{
-				this->graphics.color = glm::vec4(0.25f, 0.75f, 0.25f, 1.0f);
-				this->transform.position.x += this->dir * 10.0f * dt;
-				if (this->transform.position.x <= this->right_most_pos)
-					this->dir = 1;
-				else if (this->transform.position.x >= this->left_most_pos)
-					this->dir = -1;
-
-				if (this->dir)
-					this->transform.orientation = glm::quatLookAt(glm::vec3(-dir, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-				this->transform.updateMatricis();
-
-				if (glm::distance(this->transform.position, this->player->getPosition()) < 5.0f)
-				{
-					this->player->message(sMessage("die"));
-				}
-			}
-		}
-		else
-		{
-			// dead
-			if (this->dead_state == 1 && this->mesh.scale < 4.8)
-			{
-				this->mesh.scale += dt;
-			}
-			else
-			{
-				this->dead_state = 2;
-			}
-
-			if (this->dead_state == 2 && this->mesh.scale > 0.0f)
-			{
-				this->mesh.scale -= dt * 2.0f;
-			}
-			else if (this->dead_state == 2)
-			{
-				this->dead_state = 3;
-				this->active = false;
-			}
-		}
-
-		this->graphics.update(dt, tt);
-		this->mesh.update(dt, tt);
-		this->transform.update(dt, tt);
-
-	}
 }
 
 sMessage cGameObject::message(sMessage const& msg)
 {
-	if (this->active)
-	{
-		if (msg.name == "dying?")
-		{
-			if (!this->alive && (this->dead_state == 1 || dead_state == 2))
-			{
-				return sMessage("yes");
-			}
-		}
-		else if (msg.name == "stop")
-		{
-			this->dir = 0;
-		}
-		else if (msg.name == "hit")
-		{
-			if (this->immune_timer <= 0.0f)
-			{
-				--this->health;
-				this->immune_timer = 1.0f;
-				this->graphics.color = glm::vec4(0.75f, 0.25f, 0.25f, 1.0f);
-				if (health <= 0)
-				{
-					this->alive = false;
-					return sMessage("killed");
-				}
-			}
-		}
-	}
-	
 	return sMessage();
 }

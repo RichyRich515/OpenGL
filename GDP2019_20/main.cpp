@@ -477,6 +477,33 @@ int main()
 
 	openSceneFromFile("assets/scenes/scene1.json");
 
+	// setup textured cubes
+	{
+		unsigned count = 1;
+		for (unsigned y = 0; y < 10; ++y)
+		{
+			for (unsigned x = 0; x < 10; ++x)
+			{
+				cGameObject* cube = new cGameObject();
+				cube->graphics.visible = true;
+				cube->graphics.lighting = true;
+				cube->graphics.textures[0].fileName = "texture (" + std::to_string(count) + ").bmp";
+				cube->graphics.textures[0].blend = 1.0f;
+				cube->graphics.textures[0].tiling = 1.0f;
+
+				cube->mesh.meshName = "cube";
+				cube->mesh.scale = 5.0f;
+
+				cube->transform.position.x = 45.0f + x * -10.0f;
+				cube->transform.position.y = 90.0f + y * -10.0f;
+				cube->transform.position.z = 72.0f;
+				cube->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+				cube->transform.updateMatricis();
+				world->addGameObject(cube);
+				++count;
+			}
+		}
+	}
 
 	camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
 	camera->forward.y = sin(glm::radians(camera->pitch));
@@ -500,15 +527,15 @@ int main()
 	auto physWorld = cPhysicsManager::getWorld();
 
 	// Cloth needs to be at the end
-	cPhysicsGameObject* clothgo = (cPhysicsGameObject*)world->vecGameObjects[world->vecGameObjects.size() - 1];
+	cPhysicsGameObject* clothgo = (cPhysicsGameObject*)world->vecGameObjects[28];
 
 	glm::vec3 wind_direction = glm::normalize(glm::vec3(0.5f, 0.5f, 4.0f));
 	float wind_force = 1.0f;
 
 	float cam_dist = 64.0f + 1.0f * zoom_amount;
 	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
-	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 40.0f, ball_pos.z + cam_dist * cos(cam_rot));
+	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos + glm::vec3(0.0f, 20.0f, 0.0f) - camera->position);
 
 	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
 	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
