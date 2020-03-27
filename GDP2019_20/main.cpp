@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <thread>
+#include <mutex>
 
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
@@ -88,6 +90,13 @@ GLuint program = 0;
 std::map<std::string, cMesh*> mapMeshes;
 
 cFBO* fbo = nullptr;
+
+
+// multithreaded texture loader
+std::vector<std::thread> vec_threadPool;
+std::vector<std::string> vec_texturesToLoadFromFile;
+std::vector<CTextureFromBMP*> vec_texturesToLoadToGPU;
+std::mutex texture_mutex;
 
 // factory for any game object
 iGameObjectFactory* pGameObjectFactory;
@@ -234,6 +243,29 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
+static void Threaded_LoadTexturesFromFiles()
+{
+	while (!vec_texturesToLoadFromFile.empty())
+	{
+		texture_mutex.lock();
+		std::string name = (*vec_texturesToLoadFromFile.begin());
+		vec_texturesToLoadFromFile.erase(vec_texturesToLoadFromFile.begin());
+		texture_mutex.unlock();
+
+		//std::cout << "Loading texture: " << name << std::endl;
+		CTextureFromBMP* texture = pTextureManager->Create2DTextureFromBMPFile(name);
+		if (texture == nullptr) 
+		{
+			std::cerr << "Failed to load texture " << name << " from file" << std::endl;
+		}
+		else
+		{
+			texture_mutex.lock();
+			vec_texturesToLoadToGPU.push_back(texture);
+			texture_mutex.unlock();
+		}
+	}
+}
 
 int main()
 {
@@ -276,18 +308,16 @@ int main()
 		// window title
 		std::ostringstream windowTitle;
 		windowTitle << "OpenGL" << std::endl;
-		
+
 		glfwSetWindowTitle(window, windowTitle.str().c_str());
 	}
-	
+
 	// imgui setup
 	{
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -296,21 +326,6 @@ int main()
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
-
-		// Load Fonts
-		// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-		// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-		// - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-		// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-		// - Read 'docs/FONTS.txt' for more instructions and details.
-		// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-		//io.Fonts->AddFontDefault();
-		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-		//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-		//IM_ASSERT(font != NULL);
 	}
 
 	cModelLoader* pModelLoader = new cModelLoader();
@@ -387,18 +402,21 @@ int main()
 		pTextureManager = cBasicTextureManager::getTextureManager();
 		pTextureManager->SetBasePath("assets/textures");
 
+		// Load a default texture
+		if (!pTextureManager->CreateDefault2DTextureFromBMPFileAndLoadToGPU("default.bmp", true)) // NEED TO GENERATE MIP MAPS
+		{
+			std::cerr << "Failed to load texture default.bmp from file to GPU" << std::endl;
+		}
+
 		std::ifstream texturesjson("assets/textures.json");
 		Json::Value textures;
 		texturesjson >> textures;
 		texturesjson.close();
 		for (unsigned i = 0; i < textures["textures"].size(); ++i)
 		{
+			// put textures into queue
 			std::string name = textures["textures"][i].asString();
-			std::cout << "Loading texture: " << name << std::endl;
-			if (!pTextureManager->Create2DTextureFromBMPFile(name, true)) // NEED TO GENERATE MIP MAPS
-			{
-				std::cerr << "Failed to load texture " << name << " to GPU" << std::endl;
-			}
+			vec_texturesToLoadFromFile.push_back(name);
 		}
 
 		// Skyboxes
@@ -422,6 +440,7 @@ int main()
 		}
 	}
 
+
 	float ratio;
 	int width, height;
 	glm::mat4 v, p;
@@ -436,7 +455,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.2f, 0.0f, 0.0f, 1.0f);
 
 	// timing
 	float tt;
@@ -482,7 +501,7 @@ int main()
 		unsigned count = 1;
 		for (unsigned y = 0; y < 10; ++y)
 		{
-			for (unsigned x = 0; x < 10; ++x)
+			for (unsigned x = 0; x < 21; ++x)
 			{
 				cGameObject* cube = new cGameObject();
 				cube->graphics.visible = true;
@@ -494,7 +513,7 @@ int main()
 				cube->mesh.meshName = "cube";
 				cube->mesh.scale = 5.0f;
 
-				cube->transform.position.x = 45.0f + x * -10.0f;
+				cube->transform.position.x = 100.0f + x * -10.0f;
 				cube->transform.position.y = 90.0f + y * -10.0f;
 				cube->transform.position.z = 72.0f;
 				cube->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -544,8 +563,35 @@ int main()
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
 	
+	// Setup threading stuff for texture loading
+	{
+		// Query thread count, want a minimum 4 threads regardless.
+		unsigned numThreads = std::thread::hardware_concurrency();
+		if (numThreads < 4)
+			numThreads = 4;
+
+		for (unsigned i = 0; i < numThreads; ++i)
+		{
+			vec_threadPool.push_back(std::thread(Threaded_LoadTexturesFromFiles));
+			vec_threadPool[i].detach();
+		}
+	}
+
 	while (!glfwWindowShouldClose(window))
 	{
+		// Check if new textures to load in
+		if (!vec_texturesToLoadToGPU.empty())
+		{
+			texture_mutex.lock();
+			auto texture = vec_texturesToLoadToGPU[0];
+			if (!pTextureManager->LoadTextureToGPU(texture, true)) // NEED TO GENERATE MIP MAPS
+			{
+				std::cerr << "Failed to load texture " << texture->getFileNameFullPath() << " to GPU" << std::endl;
+			}
+			vec_texturesToLoadToGPU.erase(vec_texturesToLoadToGPU.begin());
+			texture_mutex.unlock();
+		}
+
 		glfwPollEvents();
 
 		// Timing

@@ -40,6 +40,10 @@ public:
 										   std::string posZ_fileName, std::string negZ_fileName, 
 										   /*GLenum textureUnit,*/ bool bIsSeamless,
 										   GLenum &errorEnum, std::string &errorString, std::string &errorDetails );
+
+	bool CreateTextureFromBMPFile(std::string textureName, std::string fileNameFullPath);
+	bool LoadToGPU(bool generateMipMap);
+
 	bool CreateNewBMPFromCurrentTexture( int mipMapLevel );
 	//bool LoadBMP( std::string fileName );
 	bool LoadBMP2( std::string fileName );		// Faster loader

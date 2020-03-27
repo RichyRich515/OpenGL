@@ -16,13 +16,22 @@ cBasicTextureManager* cBasicTextureManager::getTextureManager()
 	return &cBasicTextureManager::pBasicTextureManager;
 }
 
-bool cBasicTextureManager::Create2DTextureFromBMPFile(std::string textureFileName, bool bGenerateMIPMap)
+bool cBasicTextureManager::LoadTextureToGPU(CTextureFromBMP* texture, bool generateMipMaps)
+{
+	if (!texture->LoadToGPU(generateMipMaps))
+	{
+		return false;
+	}
+
+	this->m_map_TexNameToTexture[texture->getTextureName()] = texture;
+	return true;
+}
+
+bool cBasicTextureManager::CreateDefault2DTextureFromBMPFileAndLoadToGPU(std::string textureFileName, bool generateMipMaps)
 {
 	std::string fileToLoadFullPath = this->m_basePath + "/" + textureFileName;
-
-
 	CTextureFromBMP* pTempTexture = new CTextureFromBMP();
-	if (!pTempTexture->CreateNewTextureFromBMPFile2(textureFileName, fileToLoadFullPath, /*textureUnit,*/ bGenerateMIPMap))
+	if (!pTempTexture->CreateNewTextureFromBMPFile2(textureFileName, fileToLoadFullPath, generateMipMaps))
 	{
 		this->m_appendErrorString("Can't load ");
 		this->m_appendErrorString(fileToLoadFullPath);
@@ -30,12 +39,23 @@ bool cBasicTextureManager::Create2DTextureFromBMPFile(std::string textureFileNam
 		return false;
 	}
 
-	// Texture is loaded OK
-	//this->m_nextTextureUnitOffset++;
-
-	this->m_map_TexNameToTexture[textureFileName] = pTempTexture;
+	this->defaultTexture = pTempTexture;
 
 	return true;
+}
+
+CTextureFromBMP* cBasicTextureManager::Create2DTextureFromBMPFile(std::string textureFileName)
+{
+	std::string fileToLoadFullPath = this->m_basePath + "/" + textureFileName;
+	CTextureFromBMP* pTempTexture = new CTextureFromBMP();
+	if (!pTempTexture->CreateTextureFromBMPFile(textureFileName, fileToLoadFullPath))
+	{
+		this->m_appendErrorString("Can't load ");
+		this->m_appendErrorString(fileToLoadFullPath);
+		this->m_appendErrorString("\n");
+		return nullptr;
+	}
+	return pTempTexture;
 }
 
 
@@ -49,14 +69,14 @@ void cBasicTextureManager::m_appendErrorString(std::string nextErrorText)
 
 GLuint cBasicTextureManager::getTextureIDFromName(std::string textureFileName)
 {
-	std::map< std::string, CTextureFromBMP* >::iterator itTexture
-		= this->m_map_TexNameToTexture.find(textureFileName);
-	// Found it?
+	auto itTexture = this->m_map_TexNameToTexture.find(textureFileName);
 	if (itTexture == this->m_map_TexNameToTexture.end())
 	{
-		return 0;
+		if (defaultTexture)
+			return defaultTexture->getTextureNumber();
+		else
+			return 0;
 	}
-	// Reutrn texture number (from OpenGL genTexture)
 	return itTexture->second->getTextureNumber();
 }
 

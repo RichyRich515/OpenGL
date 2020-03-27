@@ -9,7 +9,13 @@ class cBasicTextureManager
 public:
 	static cBasicTextureManager* getTextureManager();
 
-	bool Create2DTextureFromBMPFile(std::string textureFileName, bool bGenerateMIPMap);
+	// return nullptr on error
+	CTextureFromBMP* Create2DTextureFromBMPFile(std::string textureFileName);
+
+	bool LoadTextureToGPU(CTextureFromBMP* texture, bool generateMipMaps);
+
+	// return false on error
+	bool CreateDefault2DTextureFromBMPFileAndLoadToGPU(std::string textureFileName, bool generateMipMaps);
 
 	// Picks a random texture from the textures loaded
 	std::string PickRandomTexture(void);
@@ -25,6 +31,8 @@ public:
 	GLuint getTextureIDFromName(std::string textureFileName);
 
 	void SetBasePath(std::string basepath);
+
+	CTextureFromBMP* defaultTexture = nullptr;
 
 private:
 	std::string m_basePath;
