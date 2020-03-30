@@ -9,15 +9,16 @@ in vec4 fUVx2;
 //out vec4 outColour;
 
 // Deferred
-out vec4 colourBuffer;
-out vec4 worldNormalBuffer;			// if W is 0 run light, if W is 1, do not run light
-out vec4 worldVertexPositionBuffer;	// ignore W for now
-out vec4 specularBuffer;			// rgb Colour and w power
+layout(location = 0) out vec4 colourBuffer;
+layout(location = 1) out vec4 worldNormalBuffer;			// if W is 0 run light, if W is 1, do not run light
+layout(location = 2) out vec4 worldVertexPositionBuffer;	// ignore W for now
+layout(location = 3) out vec4 specularBuffer;				// rgb Colour and w power
 
-const float VERTEX_IS_LIT = 0.0f;
-const float VERTEX_IS_NOT_LIT = 1.0f;
+const float VERTEX_IS_NOT_LIT = 0.0f;
+const float VERTEX_IS_LIT = 1.0f;
 
 uniform float passCount;
+
 uniform sampler2D secondPassColourSamp;
 uniform sampler2D secondPassWorldNormalSamp;			// if W is 0 run light, if W is 1, do not run light
 uniform sampler2D secondPassWorldVertexPositionSamp;	// ignore W for now
@@ -49,33 +50,22 @@ uniform vec4 textparams00;
 uniform vec4 textparams01;
 uniform vec4 textparams02;
 uniform vec4 textparams03;
-uniform vec4 textparams04;
-uniform vec4 textparams05;
 
 // Texture samplers
 uniform sampler2D textSamp00;
 uniform sampler2D textSamp01;
 uniform sampler2D textSamp02;
 uniform sampler2D textSamp03;
-uniform sampler2D textSamp04;
-uniform sampler2D textSamp05;
 
 uniform vec4 heightparams;
 uniform sampler2D heightSamp;
 
-// x: offsetX
-// y: offsetY
-// z: cutoff
-// w: tiling
 uniform vec4 discardparams;
 uniform sampler2D discardSamp;
 
 uniform samplerCube skyboxSamp00;
-uniform samplerCube skyboxSamp01;
 
 
-
-// Fragment shader
 struct sLight
 {
 	vec4 position;
@@ -112,27 +102,36 @@ void main()
 		vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
 		vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
 
-		/*colourBuffer.rgb = vertexWorldNormal.xyz;
-		colourBuffer.a = 1.0f;
-		return;*/
+		if (vertexWorldNormal.w == VERTEX_IS_LIT)
+		{
+			vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
+			if (length(lightContribution.xyz) < length(ambientColour.xyz))
+			{
+				colourBuffer = vertexColour * ambientColour;
+			}
+			else
+			{
 
-		if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT)
+				colourBuffer = vertexColour * lightContribution;
+			}
+
+			colourBuffer.a = 1.0f;
+		}
+		else // Not lit
 		{
 			colourBuffer.rgb = vertexColour.xyz;
 			colourBuffer.a = 1.0f;
-			return;
 		}
-		else // is lit
-		{
-			colourBuffer = calculateLightContrib(vertexColour.xyz, vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
-			colourBuffer.a = 1.0f;
-		}
-
-		//colourBuffer.rgb = vertexWorldNormal.xyz;
-		//colourBuffer.a = 1.0f;
 
 		return;
 	}
+
+	worldNormalBuffer.xyz = fNormal.xyz;
+	worldNormalBuffer.w = params1.z;
+	worldVertexPositionBuffer.xyz = fVertWorldLocation.xyz;
+	worldVertexPositionBuffer.w = 1.0f;
+	specularBuffer = specularColour;
+
 
 	if (params2.x != 0.0) // Skybox
 	{
@@ -210,29 +209,6 @@ void main()
 	{
 		colourBuffer = diffuseColour;
 	}
-
-	worldNormalBuffer.xyz = fNormal.xyz;							// if W is 0 run light, if W is 1, do not run light
-	worldNormalBuffer.w = VERTEX_IS_LIT;
-	worldVertexPositionBuffer.xyz = fVertWorldLocation.xyz; // ignore W for now
-	worldVertexPositionBuffer.w = 1.0f;
-	specularBuffer = specularColour;						// rgb Colour and w power
-
-
-	//vec3 lightTex = textured * lightColoured.rgb;
-
-	//if (length(lightColoured.rgb) < length(ambientColour.rgb))
-	//	lightTex = textured * ambientColour.rgb;
-
-	//	colourBuffer.rgb = lightTex;
-	//}
-	//else // no texture
-	//{
-	//if (length(lightColoured.rgb) < length(ambientColour.rgb))
-	//	colourBuffer.rgb = color.rgb * ambientColour.rgb;
-	//else
-	//	colourBuffer.rgb = lightColoured.rgb + (color * ambientColour.rgb);
-	//}
-
 }
 
 

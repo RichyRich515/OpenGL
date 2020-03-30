@@ -64,7 +64,6 @@ constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
 constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
 #endif
 
-
 cPhysicsManager* pPhysicsManager;
 
 namespace std
@@ -473,7 +472,8 @@ int main()
 	glEnable(GL_DEPTH_TEST);	// Test with buffer when drawing
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.2f, 0.0f, 0.0f, 1.0f);
+	glDepthFunc(GL_LESS);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// timing
 	float tt;
@@ -500,6 +500,7 @@ int main()
 			std::cout << "FBO init error: " << fboError << std::endl;
 		}
 
+		fbo->clearBuffers();
 		// for resizing
 		//fbo->reset();
 	}
@@ -708,6 +709,7 @@ int main()
 
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//fbo->clearBuffers();
 
 			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(v));
 			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(p));
@@ -746,6 +748,7 @@ int main()
 				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
 				glBindVertexArray(0);
 			}
+
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 		}
@@ -840,8 +843,6 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window); // Draws to screen
-
-		fbo->clearBuffers(true, true);
 
 		world->doDeferredActions();
 		cKeyboardManager::update();

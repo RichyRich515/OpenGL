@@ -41,32 +41,32 @@ bool cFBO_deferred::init(int width, int height, std::string& error)
 	glGenTextures(1, &(this->colourBuffer_0_ID));
 	glBindTexture(GL_TEXTURE_2D, this->colourBuffer_0_ID);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 	// Create the worldNormal buffer (texture)
 	glGenTextures(1, &(this->worldNormalBuffer_1_ID));
 	glBindTexture(GL_TEXTURE_2D, this->worldNormalBuffer_1_ID);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 	// Create the worldVertexPosition buffer (texture)
 	glGenTextures(1, &(this->worldVertexPositionBuffer_2_ID));
 	glBindTexture(GL_TEXTURE_2D, this->worldVertexPositionBuffer_2_ID);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 	// Create the specular buffer (texture)
 	glGenTextures(1, &(this->specularBuffer_3_ID));
 	glBindTexture(GL_TEXTURE_2D, this->specularBuffer_3_ID);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 
@@ -99,10 +99,10 @@ bool cFBO_deferred::init(int width, int height, std::string& error)
 
 	static const GLenum draw_buffers[] =
 	{
-		GL_COLOR_ATTACHMENT0,	// Colour
-		GL_COLOR_ATTACHMENT1,	// World Normal
-		GL_COLOR_ATTACHMENT2,	// World Vertex Position
-		GL_COLOR_ATTACHMENT3	// Specular
+		GL_COLOR_ATTACHMENT0, // Colour
+		GL_COLOR_ATTACHMENT1, // World Normal
+		GL_COLOR_ATTACHMENT2, // World Vertex Position
+		GL_COLOR_ATTACHMENT3 // Specular
 	};
 	glDrawBuffers((sizeof(draw_buffers) / sizeof(draw_buffers[0])), draw_buffers);
 
@@ -147,18 +147,22 @@ void cFBO_deferred::clearColourBuffer(int bufferindex)
 void cFBO_deferred::clearBuffers(bool bClearColour, bool bClearDepth)
 {
 	glViewport(0, 0, this->width, this->height);
+
 	GLfloat	zero = 0.0f;
 	GLfloat one = 1.0f;
+	GLfloat	zero_vec4[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	GLfloat one_vec4[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 	if (bClearColour)
 	{
-		glClearBufferfv(GL_COLOR, 0, &zero);	// Colour
-		glClearBufferfv(GL_COLOR, 1, &zero);	// world normal
-		glClearBufferfv(GL_COLOR, 2, &zero);	// world vertex position
-		glClearBufferfv(GL_COLOR, 3, &zero);	// specular
+		glClearBufferfv(GL_COLOR, 0, zero_vec4); // Colour
+		glClearBufferfv(GL_COLOR, 1, zero_vec4); // world normal
+		glClearBufferfv(GL_COLOR, 2, zero_vec4); // world vertex position
+		glClearBufferfv(GL_COLOR, 3, zero_vec4); // specular
 	}
 	if (bClearDepth)
 	{
-		glClearBufferfv(GL_DEPTH, 0, &one);		// Depth is normalized 0.0 to 1.0f
+		glClearBufferfv(GL_DEPTH, 0, one_vec4);		// Depth is normalized 0.0 to 1.0f
 	}
 	// If buffer is GL_STENCIL, drawbuffer must be zero, and value points to a 
 	//  single value to clear the stencil buffer to. Masking is performed in the 
@@ -170,10 +174,7 @@ void cFBO_deferred::clearBuffers(bool bClearColour, bool bClearDepth)
 	{	// Clear stencil
 		//GLint intZero = 0;
 		//glClearBufferiv(GL_STENCIL, 0, &intZero );
-		glClearBufferfi(GL_DEPTH_STENCIL,
-			0,		// Must be zero
-			1.0f,	// Clear value for depth
-			0);	// Clear value for stencil
+		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);	// Clear value for stencil
 	}
 
 	return;
