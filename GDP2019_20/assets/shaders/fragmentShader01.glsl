@@ -1,11 +1,29 @@
 #version 420
 
-uniform vec4 eyeLocation;
-
 in vec4 fColour;
 in vec4 fVertWorldLocation;
 in vec4 fNormal;
 in vec4 fUVx2;
+
+// Normal
+//out vec4 outColour;
+
+// Deferred
+out vec4 colourBuffer;
+out vec4 worldNormalBuffer;			// if W is 0 run light, if W is 1, do not run light
+out vec4 worldVertexPositionBuffer;	// ignore W for now
+out vec4 specularBuffer;			// rgb Colour and w power
+
+const float VERTEX_IS_LIT = 0.0f;
+const float VERTEX_IS_NOT_LIT = 1.0f;
+
+uniform float passCount;
+uniform sampler2D secondPassColourSamp;
+uniform sampler2D secondPassWorldNormalSamp;			// if W is 0 run light, if W is 1, do not run light
+uniform sampler2D secondPassWorldVertexPositionSamp;	// ignore W for now
+uniform sampler2D secondPassSpecularSamp;				// rgb Colour and w power
+
+uniform vec4 eyeLocation;
 
 uniform vec4 ambientColour;
 uniform vec4 diffuseColour;
@@ -55,10 +73,7 @@ uniform sampler2D discardSamp;
 uniform samplerCube skyboxSamp00;
 uniform samplerCube skyboxSamp01;
 
-uniform sampler2D secondPassSamp;
-uniform float passCount;
 
-out vec4 pixelColour; // RGB A (0 to 1) 
 
 // Fragment shader
 struct sLight
@@ -89,32 +104,55 @@ void main()
 	if (passCount == 2)
 	{
 		// TODO: pass viewport size
-		float s = gl_FragCoord.x / 1920;
-		float t = gl_FragCoord.y / 1080;
-		pixelColour = texture(secondPassSamp, vec2(s, t));
+		float s = gl_FragCoord.x / 1920.0f;
+		float t = gl_FragCoord.y / 1080.0f;
+		vec2 st = vec2(s, t);
+		vec4 vertexColour = texture(secondPassColourSamp, st);
+		vec4 vertexWorldNormal = texture(secondPassWorldNormalSamp, st);
+		vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
+		vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
+
+		/*colourBuffer.rgb = vertexWorldNormal.xyz;
+		colourBuffer.a = 1.0f;
+		return;*/
+
+		if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT)
+		{
+			colourBuffer.rgb = vertexColour.xyz;
+			colourBuffer.a = 1.0f;
+			return;
+		}
+		else // is lit
+		{
+			colourBuffer = calculateLightContrib(vertexColour.xyz, vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
+			colourBuffer.a = 1.0f;
+		}
+
+		//colourBuffer.rgb = vertexWorldNormal.xyz;
+		//colourBuffer.a = 1.0f;
+
 		return;
 	}
-	
-	vec3 norm = normalize(fNormal.xyz);
+
 	if (params2.x != 0.0) // Skybox
 	{
-		vec3 skyboxColor = texture(skyboxSamp00, -norm).rgb;
-		pixelColour.rgb = skyboxColor;
-		pixelColour.a = 1.0;
+		vec3 skyboxColor = texture(skyboxSamp00, -fNormal.xyz).rgb;
+		colourBuffer.rgb = skyboxColor;
+		colourBuffer.a = 1.0;
 		return;
 	}
 
 	if (params1.w != 0.0) // normals as color
 	{
-		pixelColour.rgb = norm;
-		pixelColour.a = 1.0;
+		colourBuffer.rgb = fNormal.xyz;
+		colourBuffer.a = 1.0;
 		return;
 	}
 
 	if (params1.z == 0.0) // do not light
 	{
-		pixelColour = diffuseColour;
-		pixelColour.a = 1.0;
+		colourBuffer = diffuseColour;
+		colourBuffer.a = 1.0;
 		return;
 	}
 
@@ -136,9 +174,6 @@ void main()
 			color.rgb = texture(skyboxSamp00, refractVector.xyz).rgb;
 		}
 	}
-	
-	vec2 textparams00xy = textparams00.xy;
-	vec4 specular = specularColour;
 
 	if (discardparams.w != 0) // discard mode
 	{
@@ -147,10 +182,9 @@ void main()
 			discard;
 	}
 
-	vec4 lightColoured = calculateLightContrib(color, norm, fVertWorldLocation.xyz, specular);
 	if (textparams00.w != 0.0) // texture
 	{
-		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00xy).rgb;
+		vec3 textCol = texture(textSamp00, fUVx2.st * textparams00.w + textparams00.xy).rgb;
 		vec3 textured = textCol.rgb * textparams00.z;
 
 		if (textparams01.w != 0.0)
@@ -169,22 +203,36 @@ void main()
 				}
 			}
 		}
-		vec3 lightTex = textured * lightColoured.rgb;
-
-		if (length(lightColoured.rgb) < length(ambientColour.rgb))
-			lightTex = textured * ambientColour.rgb;
-
-		pixelColour.rgb = lightTex;
+		colourBuffer.rgb = textured.rgb;
+		colourBuffer.a = diffuseColour.a;
 	}
-	else // no texture
+	else
 	{
-		if (length(lightColoured.rgb) < length(ambientColour.rgb))
-			pixelColour.rgb = color.rgb * ambientColour.rgb;
-		else
-			pixelColour.rgb = lightColoured.rgb + (color * ambientColour.rgb);
+		colourBuffer = diffuseColour;
 	}
 
-	pixelColour.a = diffuseColour.a;
+	worldNormalBuffer.xyz = fNormal.xyz;							// if W is 0 run light, if W is 1, do not run light
+	worldNormalBuffer.w = VERTEX_IS_LIT;
+	worldVertexPositionBuffer.xyz = fVertWorldLocation.xyz; // ignore W for now
+	worldVertexPositionBuffer.w = 1.0f;
+	specularBuffer = specularColour;						// rgb Colour and w power
+
+
+	//vec3 lightTex = textured * lightColoured.rgb;
+
+	//if (length(lightColoured.rgb) < length(ambientColour.rgb))
+	//	lightTex = textured * ambientColour.rgb;
+
+	//	colourBuffer.rgb = lightTex;
+	//}
+	//else // no texture
+	//{
+	//if (length(lightColoured.rgb) < length(ambientColour.rgb))
+	//	colourBuffer.rgb = color.rgb * ambientColour.rgb;
+	//else
+	//	colourBuffer.rgb = lightColoured.rgb + (color * ambientColour.rgb);
+	//}
+
 }
 
 

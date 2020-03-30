@@ -163,6 +163,7 @@
     <ClCompile Include="cCommand.cpp" />
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
+    <ClCompile Include="cFBO_deferred.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cMesh.cpp" />
     <ClCompile Include="cPhysicsGameObject.cpp" />
@@ -205,7 +206,8 @@
     <ClInclude Include="cCamera.hpp" />
     <ClInclude Include="cClothMeshComponent.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
-    <ClInclude Include="cFBO.h" />
+    <ClInclude Include="cFBO.hpp" />
+    <ClInclude Include="cFBO_deferred.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cPhysicsGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />

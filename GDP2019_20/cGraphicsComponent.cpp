@@ -48,9 +48,9 @@ void cGraphicsComponent::render(float dt, float tt)
 		GLuint texture_ul = pTextureManager->getTextureIDFromName(this->textures[0].fileName);
 		if (texture_ul)
 		{
-			glActiveTexture(GL_TEXTURE0 + 0);
+			glActiveTexture(GL_TEXTURE0 + 1);
 			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp00"), 0);
+			glUniform1i(pShader->getUniformLocID("textSamp00"), 1);
 			glUniform4f(pShader->getUniformLocID("textparams00"),
 				this->textures[0].xOffset,
 				this->textures[0].yOffset,
@@ -64,9 +64,9 @@ void cGraphicsComponent::render(float dt, float tt)
 		texture_ul = pTextureManager->getTextureIDFromName(this->textures[1].fileName);
 		if (texture_ul)
 		{
-			glActiveTexture(GL_TEXTURE0 + 1);
+			glActiveTexture(GL_TEXTURE0 + 2);
 			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp01"), 1);
+			glUniform1i(pShader->getUniformLocID("textSamp01"), 2);
 			glUniform4f(pShader->getUniformLocID("textparams01"),
 				this->textures[1].xOffset,
 				this->textures[1].yOffset,
@@ -80,9 +80,9 @@ void cGraphicsComponent::render(float dt, float tt)
 		texture_ul = pTextureManager->getTextureIDFromName(this->textures[2].fileName);
 		if (texture_ul)
 		{
-			glActiveTexture(GL_TEXTURE0 + 2);
+			glActiveTexture(GL_TEXTURE0 + 3);
 			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp02"), 2);
+			glUniform1i(pShader->getUniformLocID("textSamp02"), 3);
 			glUniform4f(pShader->getUniformLocID("textparams02"),
 				this->textures[2].xOffset,
 				this->textures[2].yOffset,
@@ -96,9 +96,9 @@ void cGraphicsComponent::render(float dt, float tt)
 		texture_ul = pTextureManager->getTextureIDFromName(this->textures[3].fileName);
 		if (texture_ul)
 		{
-			glActiveTexture(GL_TEXTURE0 + 3);
+			glActiveTexture(GL_TEXTURE0 + 4);
 			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("textSamp03"), 3);
+			glUniform1i(pShader->getUniformLocID("textSamp03"), 4);
 			glUniform4f(pShader->getUniformLocID("textparams03"),
 				this->textures[3].xOffset,
 				this->textures[3].yOffset,
@@ -114,9 +114,9 @@ void cGraphicsComponent::render(float dt, float tt)
 		texture_ul = pTextureManager->getTextureIDFromName(this->heightmap.fileName);
 		if (texture_ul)
 		{
-			glActiveTexture(GL_TEXTURE0 + 40);
+			glActiveTexture(GL_TEXTURE0 + 20);
 			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("heightSamp"), 40);
+			glUniform1i(pShader->getUniformLocID("heightSamp"), 20);
 			glUniform4f(pShader->getUniformLocID("heightparams"),
 				this->heightmap.xOffset,
 				this->heightmap.yOffset,
@@ -132,9 +132,9 @@ void cGraphicsComponent::render(float dt, float tt)
 		texture_ul = pTextureManager->getTextureIDFromName(this->discardmap.fileName);
 		if (texture_ul)
 		{
-			glActiveTexture(GL_TEXTURE0 + 50);
+			glActiveTexture(GL_TEXTURE0 + 30);
 			glBindTexture(GL_TEXTURE_2D, texture_ul);
-			glUniform1i(pShader->getUniformLocID("discardSamp"), 50);
+			glUniform1i(pShader->getUniformLocID("discardSamp"), 30);
 			glUniform4f(pShader->getUniformLocID("discardparams"),
 				this->discardmap.xOffset,
 				this->discardmap.yOffset,

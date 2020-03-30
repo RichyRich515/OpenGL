@@ -5,8 +5,6 @@ uniform mat4 matModelInverseTranspose;	// inverse transpose
 uniform mat4 matView;					// View or Camera
 uniform mat4 matProjection;				// Projection
 
-uniform float offset;
-
 in vec4 vColour;
 in vec4 vPosition;
 in vec4 vNormal;
@@ -37,9 +35,7 @@ uniform bool isSkinnedMesh;
 void main()
 {
 	vec4 vertPosition = vPosition;
-	vertPosition += vNormal * offset;
 
-	
 	// Height map
 	if (heightparams.w != 0.0)
 	{

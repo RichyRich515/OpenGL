@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <thread>
 #include <mutex>
 
@@ -51,7 +52,7 @@
 
 #include "cParticleEmitter.hpp"
 
-#include "cFBO.h"
+#include "cFBO_deferred.hpp"
 
 #include "cPhysicsManager.hpp"
 
@@ -89,11 +90,12 @@ GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
 
-cFBO* fbo = nullptr;
+cFBO_deferred* fbo = nullptr;
 
 
 // multithreaded texture loader
 std::vector<std::thread> vec_threadPool;
+std::vector<bool> vec_threadsDone;
 std::vector<std::string> vec_texturesToLoadFromFile;
 std::vector<CTextureFromBMP*> vec_texturesToLoadToGPU;
 std::mutex texture_mutex;
@@ -243,7 +245,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-static void Threaded_LoadTexturesFromFiles()
+void Threaded_LoadTexturesFromFiles(unsigned thread_id)
 {
 	while (!vec_texturesToLoadFromFile.empty())
 	{
@@ -265,6 +267,8 @@ static void Threaded_LoadTexturesFromFiles()
 			texture_mutex.unlock();
 		}
 	}
+	vec_threadsDone[thread_id] = true;
+	std::cout << "Thread done" << std::endl;
 }
 
 int main()
@@ -321,7 +325,6 @@ int main()
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -419,6 +422,21 @@ int main()
 			vec_texturesToLoadFromFile.push_back(name);
 		}
 
+		// Setup threading stuff for texture loading
+		{
+			// Query thread count, want a minimum 4 threads regardless.
+			unsigned numThreads = std::thread::hardware_concurrency();
+			if (numThreads < 4)
+				numThreads = 4;
+
+			for (unsigned i = 0; i < numThreads; ++i)
+			{
+				vec_threadsDone.push_back(false);
+				vec_threadPool.push_back(std::thread(Threaded_LoadTexturesFromFiles, i));
+				vec_threadPool[i].detach();
+			}
+		}
+
 		// Skyboxes
 		for (unsigned i = 0; i < textures["skyboxes"].size(); ++i)
 		{
@@ -474,7 +492,7 @@ int main()
 
 	// Frame Buffer stuff
 	{
-		fbo = new cFBO();
+		fbo = new cFBO_deferred();
 		// Usually make this the size of the screen which we can get from opengl
 		std::string fboError;
 		if (!fbo->init(width, height, fboError))
@@ -515,7 +533,7 @@ int main()
 
 				cube->transform.position.x = 100.0f + x * -10.0f;
 				cube->transform.position.y = 90.0f + y * -10.0f;
-				cube->transform.position.z = 72.0f;
+				cube->transform.position.z = 120.0f;
 				cube->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 				cube->transform.updateMatricis();
 				world->addGameObject(cube);
@@ -563,34 +581,32 @@ int main()
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
 	
-	// Setup threading stuff for texture loading
-	{
-		// Query thread count, want a minimum 4 threads regardless.
-		unsigned numThreads = std::thread::hardware_concurrency();
-		if (numThreads < 4)
-			numThreads = 4;
+	bool done_loading = false;
 
-		for (unsigned i = 0; i < numThreads; ++i)
+	// Wait for threads to load in all the textures
+	do
+	{
+		done_loading = true;
+		for (bool b : vec_threadsDone)
 		{
-			vec_threadPool.push_back(std::thread(Threaded_LoadTexturesFromFiles));
-			vec_threadPool[i].detach();
+			if (b == false)
+			{
+				done_loading = false;
+				break;
+			}
+		}
+	} while (!done_loading);
+	
+	for (auto texture : vec_texturesToLoadToGPU)
+	{
+		if (!pTextureManager->LoadTextureToGPU(texture, true)) // NEED TO GENERATE MIP MAPS
+		{
+			std::cerr << "Failed to load texture " << texture->getFileNameFullPath() << " to GPU" << std::endl;
 		}
 	}
 
 	while (!glfwWindowShouldClose(window))
 	{
-		// Check if new textures to load in
-		if (!vec_texturesToLoadToGPU.empty())
-		{
-			texture_mutex.lock();
-			auto texture = vec_texturesToLoadToGPU[0];
-			if (!pTextureManager->LoadTextureToGPU(texture, true)) // NEED TO GENERATE MIP MAPS
-			{
-				std::cerr << "Failed to load texture " << texture->getFileNameFullPath() << " to GPU" << std::endl;
-			}
-			vec_texturesToLoadToGPU.erase(vec_texturesToLoadToGPU.begin());
-			texture_mutex.unlock();
-		}
 
 		glfwPollEvents();
 
@@ -779,10 +795,22 @@ int main()
 			// 2. clear actual screen buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// 3. use the FBO colour texture as the texture on the tri
-			glActiveTexture(GL_TEXTURE0 + 40);
-			glBindTexture(GL_TEXTURE_2D, fbo->colourTexture_0_ID);
-			glUniform1i(pShader->getUniformLocID("secondPassSamp"), 40);
+			// 3. use the FBO colour buffer as the texture on the tri
+			glActiveTexture(GL_TEXTURE0 + 50);
+			glBindTexture(GL_TEXTURE_2D, fbo->colourBuffer_0_ID);
+			glUniform1i(pShader->getUniformLocID("secondPassColourSamp"), 50);
+
+			glActiveTexture(GL_TEXTURE0 + 51);
+			glBindTexture(GL_TEXTURE_2D, fbo->worldNormalBuffer_1_ID);
+			glUniform1i(pShader->getUniformLocID("secondPassWorldNormalSamp"), 51);
+
+			glActiveTexture(GL_TEXTURE0 + 52);
+			glBindTexture(GL_TEXTURE_2D, fbo->worldVertexPositionBuffer_2_ID);
+			glUniform1i(pShader->getUniformLocID("secondPassWorldVertexPositionSamp"), 52);
+
+			glActiveTexture(GL_TEXTURE0 + 53);
+			glBindTexture(GL_TEXTURE_2D, fbo->specularBuffer_3_ID);
+			glUniform1i(pShader->getUniformLocID("secondPassSpecularSamp"), 53);
 
 			glUniform1f(pShader->getUniformLocID("passCount"), 2);
 
@@ -812,6 +840,8 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window); // Draws to screen
+
+		fbo->clearBuffers(true, true);
 
 		world->doDeferredActions();
 		cKeyboardManager::update();

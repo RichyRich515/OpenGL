@@ -1,4 +1,4 @@
-#include "cFBO.h"
+#include "cFBO.hpp"
 
 
 // Calls shutdown(), then init()

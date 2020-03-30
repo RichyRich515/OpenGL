@@ -207,6 +207,9 @@
     <ClCompile Include="cFBO.cpp">
       <Filter>Managers</Filter>
     </ClCompile>
+    <ClCompile Include="cFBO_deferred.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLCommon.h">
@@ -347,7 +350,10 @@
     <ClInclude Include="cClothMeshComponent.hpp">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="cFBO.h">
+    <ClInclude Include="cFBO_deferred.hpp">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO.hpp">
       <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
