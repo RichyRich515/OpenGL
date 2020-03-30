@@ -89,6 +89,10 @@ GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
 
+int window_width = 1920;
+int window_height = 1080;
+
+
 cFBO_deferred* fbo = nullptr;
 
 
@@ -289,7 +293,7 @@ int main()
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-		window = glfwCreateWindow(1920, 1080, "", NULL, NULL);
+		window = glfwCreateWindow(window_width, window_height, "", NULL, NULL);
 		if (!window)
 		{
 			glfwTerminate();
@@ -297,7 +301,7 @@ int main()
 		}
 
 		glfwSetKeyCallback(window, key_callback);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
 		glfwMakeContextCurrent(window);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		glfwSwapInterval(0); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
@@ -510,73 +514,13 @@ int main()
 	cWorld::debugMode = false;
 	pKeyboardManager = new cKeyboardManager();
 
-	// Load physics library
-	pPhysicsManager = new cPhysicsManager(physics_library_name);
-
 	openSceneFromFile("assets/scenes/scene1.json");
-
-	// setup textured cubes
-	{
-		unsigned count = 1;
-		for (unsigned y = 0; y < 10; ++y)
-		{
-			for (unsigned x = 0; x < 21; ++x)
-			{
-				cGameObject* cube = new cGameObject();
-				cube->graphics.visible = true;
-				cube->graphics.lighting = true;
-				cube->graphics.textures[0].fileName = "texture (" + std::to_string(count) + ").bmp";
-				cube->graphics.textures[0].blend = 1.0f;
-				cube->graphics.textures[0].tiling = 1.0f;
-
-				cube->mesh.meshName = "cube";
-				cube->mesh.scale = 5.0f;
-
-				cube->transform.position.x = 100.0f + x * -10.0f;
-				cube->transform.position.y = 90.0f + y * -10.0f;
-				cube->transform.position.z = 120.0f;
-				cube->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-				cube->transform.updateMatricis();
-				world->addGameObject(cube);
-				++count;
-			}
-		}
-	}
 
 	camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
 	camera->forward.y = sin(glm::radians(camera->pitch));
 	camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
 	camera->forward = glm::normalize(camera->forward);
 	camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
-
-	std::vector<cPhysicsGameObject*> balls;
-
-	world->message(sMessage("Get Balls", (void*)&balls));
-	int current_ball_idx = 8;
-
-	float cam_rot = 0.0f;
-	float zoom_amount = 0.0f;
-	constexpr float MAX_ZOOM_IN = -32.0f;
-	constexpr float MAX_ZOOM_OUT = 32.0f;
-
-	constexpr float force_amount = 20.0f;
-
-	auto pPhysicsFactory = cPhysicsManager::getFactory();
-	auto physWorld = cPhysicsManager::getWorld();
-
-	// Cloth needs to be at the end
-	cPhysicsGameObject* clothgo = (cPhysicsGameObject*)world->vecGameObjects[28];
-
-	glm::vec3 wind_direction = glm::normalize(glm::vec3(0.5f, 0.5f, 4.0f));
-	float wind_force = 1.0f;
-
-	float cam_dist = 64.0f + 1.0f * zoom_amount;
-	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
-	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 40.0f, ball_pos.z + cam_dist * cos(cam_rot));
-	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos + glm::vec3(0.0f, 20.0f, 0.0f) - camera->position);
-
-	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
-	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
@@ -632,12 +576,8 @@ int main()
 
 			static float dt_scale = 1.0f;
 			ImGui::Begin("Debug Information");
-			if (balls.size())
-			{
-				ImGui::SliderInt("Current Ball", &current_ball_idx, 0, balls.size() - 1);
-				ImGui::Text("Current Ball Position: %s", std::to_string(balls[current_ball_idx]->getPosition()).c_str());
-			}
 
+			ImGui::Text("Camera Pos: %s", std::to_string(camera->position).c_str());
 			ImGui::Checkbox("Draw Debug(~)", &cWorld::debugMode);
 			ImGui::SliderFloat("dt Scale", &dt_scale, 0.001f, 2.0f);
 			if (ImGui::Button("Reset dt Scale"))
@@ -651,53 +591,54 @@ int main()
 
 		// Camera orientation movement
 		{
-			float cam_dist = -64.0f + 1.0f * zoom_amount;
-			ball_pos = balls[current_ball_idx]->getPosition();
-			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
+			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
+			lastcursorX = (float)cursorX;
+			lastcursorY = (float)cursorY;
 
-			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
-			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
+			// Lock pitch
+			if (camera->pitch > 89.9f)
+				camera->pitch = 89.9f;
+			else if (camera->pitch < -89.9f)
+				camera->pitch = -89.9f;
+
+			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward.y = sin(glm::radians(camera->pitch));
+			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward = glm::normalize(camera->forward);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 		}
 
 		// keyboard inputs
 		{
 			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
-				cWorld::debugMode = !cWorld::debugMode;
-
-			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
-			int ymov = 0;
-			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
-
-			if (xmov || ymov || zmov)
 			{
-				// move the ball relative to the camera
-				balls[current_ball_idx]->physics->ApplyForce((glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
+				world->debugMode = !world->debugMode;
+				if (world->debugMode)
+				{
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					float halfwidth = window_width * 0.5f;
+					float halfheight = window_height * 0.5f;
+					glfwSetCursorPos(window, halfwidth, halfheight);
+					cursorX = halfwidth;
+					lastcursorX = halfwidth;
+					cursorY = halfheight;
+					lastcursorY = halfheight;
+				}
+				else
+				{
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				}
 			}
 
-			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
+			int xMove = pKeyboardManager->keyDown(GLFW_KEY_A) - pKeyboardManager->keyDown(GLFW_KEY_D);
+			int yMove = pKeyboardManager->keyDown(GLFW_KEY_SPACE) - pKeyboardManager->keyDown(GLFW_KEY_C);
+			int zMove = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 
-			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-			zoom_amount += zoomFactor * camera->speed * dt;
-
-			if (zoom_amount > MAX_ZOOM_OUT)
-				zoom_amount = MAX_ZOOM_OUT;
-			else if (zoom_amount < MAX_ZOOM_IN)
-				zoom_amount = MAX_ZOOM_IN;
-
-			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
-			{
-				balls[current_ball_idx]->graphics.color = old_color;
-				++current_ball_idx;
-				if (current_ball_idx >= balls.size())
-					current_ball_idx = 0;
-
-				old_color = balls[current_ball_idx]->graphics.color;
-
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
-			}
+			camera->position += zMove * camera->speed * dt * glm::normalize(glm::cross(camera->up, camera->right));
+			camera->position += -xMove * camera->speed * dt * camera->right;
+			camera->position += yMove * camera->speed * dt * camera->up;
 		}
 
 		// shader uniforms
@@ -759,10 +700,6 @@ int main()
 			world->vecGameObjects[i]->update(dt, tt);
 		}
 		
-		clothgo->physics->ApplyForce(wind_direction * (sinf(tt / 4.0f) + 1.0f) * wind_force);
-
-		physWorld->Update(dt);
-
 		// pre frame, then render
 		{
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
