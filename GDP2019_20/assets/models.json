@@ -14,5 +14,13 @@
 	{
 		"name": "triangle",
 		"location": "assets/models/triangle.ply"
+	},
+	{
+		"name": "barrel",
+		"location": "assets/models/barrel.ply"
+	},
+	{
+		"name": "cone",
+		"location": "assets/models/traffic_cone.ply"
 	}
 ]

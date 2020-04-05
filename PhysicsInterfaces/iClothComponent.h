@@ -31,6 +31,7 @@ namespace nPhysics
 
 	protected:
 		iClothComponent() : iPhysicsComponent(ePhysicsComponentType::cloth) {}
+
 	private:
 		iClothComponent(const iClothComponent& other) = delete;
 		iClothComponent& operator=(const iClothComponent& other) = delete;

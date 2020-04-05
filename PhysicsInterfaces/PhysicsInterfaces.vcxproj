@@ -148,8 +148,11 @@
   <ItemGroup>
     <ClInclude Include="eComponentType.h" />
     <ClInclude Include="iBallComponent.h" />
+    <ClInclude Include="iBoxComponent.h" />
     <ClInclude Include="iClothComponent.h" />
     <ClInclude Include="iCollisionListener.h" />
+    <ClInclude Include="iConeComponent.h" />
+    <ClInclude Include="iCylinderComponent.h" />
     <ClInclude Include="iDebugRenderer.h" />
     <ClInclude Include="iPhysicsComponent.h" />
     <ClInclude Include="iPhysicsFactory.h" />

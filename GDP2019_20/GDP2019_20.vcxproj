@@ -252,8 +252,6 @@
     <ClInclude Include="Texture\CTextureFromBMP.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\LuaScripts\init.lua" />
-    <None Include="assets\LuaScripts\init_pelican.lua" />
     <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\models.json" />
     <None Include="assets\scenes\scene1.json" />

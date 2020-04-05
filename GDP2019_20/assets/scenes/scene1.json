@@ -454,6 +454,255 @@
 
 		{
 			"type": "physics",
+			"name": "box1",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "texture (4).bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "cube",
+				"scale": 2.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.1,
+				"extents": [ 4.0, 4.0, 4.0 ],
+				"mass": 10.0,
+				"position": [ 20.0, 2.0, 0.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "box2",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "texture (4).bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "cube",
+				"scale": 2.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.1,
+				"extents": [ 4.0, 4.0, 4.0 ],
+				"mass": 10.0,
+				"position": [ 20.0, 10.0, 0.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "box3",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "texture (3).bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "cube",
+				"scale": 5.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.1,
+				"extents": [ 10.0, 10.0, 10.0 ],
+				"mass": 50.0,
+				"position": [ 20.0, 5.0, 20.0 ]
+			}
+		},
+
+		{
+			"type": "physics",
+			"name": "barrel1",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "barrel_red.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "barrel",
+				"scale": 5.0
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.1,
+				"extents": [ 3.6, 5.0, 3.6 ],
+				"mass": 30.0,
+				"position": [ 10.0, 8.0, -10.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "barrel2",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "barrel_blue.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "barrel",
+				"scale": 5.0
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.1,
+				"extents": [ 3.6, 5.0, 3.6 ],
+				"mass": 30.0,
+				"position": [ 11.5, 15.0, -11.5 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "barrel3",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "barrel_yellow.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "barrel",
+				"scale": 5.0
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.1,
+				"extents": [ 3.6, 5.0, 3.6 ],
+				"mass": 30.0,
+				"position": [ 13.0, 8.0, -13.0 ]
+			}
+		},
+
+		{
+			"type": "physics",
+			"name": "cone1",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "traffic_cone.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "cone",
+				"scale": 2.0
+			},
+			"physics": {
+				"type": "cone",
+				"elasticity": 0.1,
+				"radius": 0.6,
+				"height": 2.0,
+				"mass": 4.0,
+				"position": [ -10.0, 20.0, -10.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "cone2",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "traffic_cone.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "cone",
+				"scale": 2.0
+			},
+			"physics": {
+				"type": "cone",
+				"elasticity": 0.1,
+				"radius": 0.6,
+				"height": 2.0,
+				"mass": 4.0,
+				"position": [ -10.0, 20.0, -12.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "cone3",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "traffic_cone.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "cone",
+				"scale": 2.0
+			},
+			"physics": {
+				"type": "cone",
+				"elasticity": 0.1,
+				"radius": 0.6,
+				"height": 2.0,
+				"mass": 4.0,
+				"position": [ -10.0, 20.0, -14.0 ]
+			}
+		},
+
+		{
+			"type": "physics",
 			"name": "ground",
 			"graphics": {
 				"lighting": true,
@@ -523,24 +772,6 @@
 				"type": "plane",
 				"normal": [ 0.0, 0.0, 1.0 ],
 				"point": [ 0.0, 0.0, -64.0 ]
-			}
-		},
-		{
-			"type": "physics",
-			"name": "cloth",
-			"graphics": {
-				"lighting": true,
-				"color": [ 1.0, 0.2, 0.2, 1.0 ]
-			},
-			"physics": {
-				"type": "cloth",
-				"cornerA": [ -10.0, 20.0, 20.0 ],
-				"cornerB": [ 10.0, 20.0, 20.0 ],
-				"downDirection": [ 0.0, -1.0, 0.0 ],
-				"nodeMass": 0.5,
-				"numNodesAcross": 25,
-				"numNodesDown": 24,
-				"springConstant": 200.0
 			}
 		}
 	],
@@ -631,50 +862,6 @@
 				1.0,
 				1.0,
 				100.0
-			]
-		},
-		{
-			"atten": [
-				0.0,
-				0.039999999105930328,
-				0.0,
-				1000.0
-			],
-			"diffuse": [
-				1.0,
-				1.0,
-				0.80000001192092896,
-				1.0
-			],
-			"direction": [
-				-0.85000002384185791,
-				-0.51999998092651367,
-				-0.029999999329447746,
-				1.0
-			],
-			"param1": [
-				1.0,
-				10.0,
-				15.0,
-				0.0
-			],
-			"param2": [
-				1.0,
-				0.0,
-				0.0,
-				0.0
-			],
-			"position": [
-				-60.0,
-				41.0,
-				-50.0,
-				0.0
-			],
-			"specular": [
-				0.0,
-				0.0,
-				0.0,
-				0.0
 			]
 		}
 	],

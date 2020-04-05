@@ -20,7 +20,7 @@ const float VERTEX_IS_LIT = 1.0f;
 uniform float passCount;
 
 uniform sampler2D secondPassColourSamp;
-uniform sampler2D secondPassWorldNormalSamp;			// if W is 0 run light, if W is 1, do not run light
+uniform sampler2D secondPassWorldNormalSamp;			// if W is 0 do not light, if 1 then run lighting
 uniform sampler2D secondPassWorldVertexPositionSamp;	// ignore W for now
 uniform sampler2D secondPassSpecularSamp;				// rgb Colour and w power
 
@@ -102,7 +102,12 @@ void main()
 		vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
 		vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
 
-		if (vertexWorldNormal.w == VERTEX_IS_LIT)
+		if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
+		{
+			colourBuffer.rgb = vertexColour.xyz;
+			colourBuffer.a = 1.0f;
+		}
+		else
 		{
 			vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
 			if (length(lightContribution.xyz) < length(ambientColour.xyz))
@@ -117,11 +122,6 @@ void main()
 
 			colourBuffer.a = 1.0f;
 		}
-		else // Not lit
-		{
-			colourBuffer.rgb = vertexColour.xyz;
-			colourBuffer.a = 1.0f;
-		}
 
 		return;
 	}
@@ -129,7 +129,7 @@ void main()
 	worldNormalBuffer.xyz = fNormal.xyz;
 	worldNormalBuffer.w = params1.z;
 	worldVertexPositionBuffer.xyz = fVertWorldLocation.xyz;
-	worldVertexPositionBuffer.w = 1.0f;
+	worldVertexPositionBuffer.w = VERTEX_IS_NOT_LIT;
 	specularBuffer = specularColour;
 
 
@@ -153,6 +153,10 @@ void main()
 		colourBuffer = diffuseColour;
 		colourBuffer.a = 1.0;
 		return;
+	}
+	else
+	{
+		worldVertexPositionBuffer.w = VERTEX_IS_LIT;
 	}
 
 	vec3 color = diffuseColour.rgb;

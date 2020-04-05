@@ -13,6 +13,10 @@
 	],
 	"textures": [
 		"terrain_texture.bmp",
+		"barrel_blue.bmp",
+		"barrel_red.bmp",
+		"barrel_yellow.bmp",
+		"traffic_cone.bmp",
 		"texture (1).bmp",
 		"texture (2).bmp",
 		"texture (3).bmp",

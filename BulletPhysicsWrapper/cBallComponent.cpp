@@ -21,7 +21,6 @@ namespace nPhysics
 			shape->calculateLocalInertia(mass, localInertia);
 		}
 
-		// TODO: ????
 		btDefaultMotionState* motionState = new btDefaultMotionState(transform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 		rbInfo.m_restitution = def.Elasticity;

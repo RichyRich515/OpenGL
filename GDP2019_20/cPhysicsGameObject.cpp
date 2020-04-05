@@ -72,6 +72,40 @@ void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
 			this->physics = cPhysicsManager::getFactory()->CreateBall(def);
 			cPhysicsManager::getWorld()->AddComponent(this->physics);
 		}
+		else if (type == "box")
+		{
+			nPhysics::sBoxDef def;
+			def.Elasticity = obj["physics"]["elasticity"] ? obj["physics"]["elasticity"].asFloat() : 0.0f;
+			def.Extents = obj["physics"]["extents"] ? Json::toVec3(obj["physics"]["extents"]) : glm::vec3(1.0f);
+			def.Mass = obj["physics"]["mass"] ? obj["physics"]["mass"].asFloat() : 0.0f;
+			def.Position = obj["physics"]["position"] ? Json::toVec3(obj["physics"]["position"]) : glm::vec3(0.0f);
+
+			this->physics = cPhysicsManager::getFactory()->CreateBox(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
+		else if (type == "cylinder")
+		{
+			nPhysics::sCylinderDef def;
+			def.Elasticity = obj["physics"]["elasticity"] ? obj["physics"]["elasticity"].asFloat() : 0.0f;
+			def.Extents = obj["physics"]["extents"] ? Json::toVec3(obj["physics"]["extents"]) : glm::vec3(1.0f);
+			def.Mass = obj["physics"]["mass"] ? obj["physics"]["mass"].asFloat() : 0.0f;
+			def.Position = obj["physics"]["position"] ? Json::toVec3(obj["physics"]["position"]) : glm::vec3(0.0f);
+
+			this->physics = cPhysicsManager::getFactory()->CreateCylinder(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
+		else if (type == "cone")
+		{
+			nPhysics::sConeDef def;
+			def.Elasticity = obj["physics"]["elasticity"] ? obj["physics"]["elasticity"].asFloat() : 0.0f;
+			def.Radius = obj["physics"]["radius"] ? obj["physics"]["radius"].asFloat() : 1.0f;
+			def.Height = obj["physics"]["height"] ? obj["physics"]["height"].asFloat() : 1.0f;
+			def.Mass = obj["physics"]["mass"] ? obj["physics"]["mass"].asFloat() : 0.0f;
+			def.Position = obj["physics"]["position"] ? Json::toVec3(obj["physics"]["position"]) : glm::vec3(0.0f);
+
+			this->physics = cPhysicsManager::getFactory()->CreateCone(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
 		else if (type == "plane")
 		{
 			glm::vec3 point = obj["physics"]["point"] ? Json::toVec3(obj["physics"]["point"]) : glm::vec3(0.0f);

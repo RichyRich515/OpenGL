@@ -1,5 +1,8 @@
 #include "cPhysicsWorld.hpp"
 #include "cBallComponent.hpp"
+#include "cBoxComponent.hpp"
+#include "cConeComponent.hpp"
+#include "cCylinderComponent.hpp"
 #include "cPlaneComponent.hpp"
 
 nPhysics::cPhysicsWorld::cPhysicsWorld()
@@ -30,24 +33,17 @@ nPhysics::cPhysicsWorld::~cPhysicsWorld()
 		delete this->dispatcher;
 	if (this->collisionConfiguration)
 		delete this->collisionConfiguration;
-	//
-	//delete dynamicsWorld;
-	//delete solver;
-	//delete overlappingPairCache;
-	//delete dispatcher;
-	//delete collisionConfiguration;
 }
 
 void nPhysics::cPhysicsWorld::Update(float dt)
 {
-	// TODO: check substeps
 	this->dynamicsWorld->stepSimulation(dt, 10);
+
 	// TODO: collisionlistening
 	//if (this->collisionListener)
 	//{
 	//	
 	//}
-
 }
 
 bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
@@ -56,6 +52,15 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 	{
 	case ePhysicsComponentType::ball:
 		this->dynamicsWorld->addRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::box:
+		this->dynamicsWorld->addRigidBody(reinterpret_cast<cBoxComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::cylinder:
+		this->dynamicsWorld->addRigidBody(reinterpret_cast<cCylinderComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::cone:
+		this->dynamicsWorld->addRigidBody(reinterpret_cast<cConeComponent*>(component)->body);
 		return true;
 	case ePhysicsComponentType::plane:
 		this->dynamicsWorld->addRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
@@ -72,12 +77,19 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 	case ePhysicsComponentType::ball:
 		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
 		return true;
+	case ePhysicsComponentType::box:
+		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cBoxComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::cylinder:
+		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cCylinderComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::cone:
+		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cConeComponent*>(component)->body);
+		return true;
 	case ePhysicsComponentType::plane:
-		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cBallComponent*>(component)->body);
+		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
 		return true;
 	default:
 		return false;
 	}
 }
-
-// TODO: SetCollisionListener

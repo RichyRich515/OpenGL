@@ -28,41 +28,28 @@
 #include <json/json.h>
 #include "JsonHelper.hpp"
 
-#include "cCamera.hpp"
-#include "cMesh.hpp"
 #include "cModelLoader.hpp"
 #include "cVAOManager.hpp"
 #include "cShaderManager.hpp"
 #include "Texture/cBasicTextureManager.h"
+#include "cKeyboardManager.hpp"
+#include "cPhysicsManager.hpp"
+#include "cFactoryManager.hpp"
 
+#include "iGameObjectFactory.hpp"
+
+#include "DebugRenderer/cDebugRenderer.h"
+#include "cFBO_deferred.hpp"
+#include "cMesh.hpp"
+
+#include "cWorld.hpp"
+#include "cCamera.hpp"
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
-#include "cClothMeshComponent.hpp"
-#include "cAnimatedGameObject.hpp"
 #include "cLight.hpp"
-#include "cKeyboardManager.hpp"
 
-#include "iGameObjectFactory.hpp"
-#include "cFactoryManager.hpp"
-
-#include "DebugRenderer/cDebugRenderer.h"
-
-#include "cWorld.hpp"
-
-#include "cParticleEmitter.hpp"
-
-#include "cFBO_deferred.hpp"
-
-#include "cPhysicsManager.hpp"
-
-#define MY_PHYSICS
-
-#ifdef MY_PHYSICS
-constexpr char physics_library_name[21] = "MyPhysicsWrapper.dll";
-#else
 constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
-#endif
 
 cPhysicsManager* pPhysicsManager;
 
@@ -457,7 +444,6 @@ int main()
 		}
 	}
 
-
 	float ratio;
 	int width, height;
 	glm::mat4 v, p;
@@ -564,12 +550,6 @@ int main()
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
 
-	// Cloth needs to be at the end
-	cPhysicsGameObject* clothgo = (cPhysicsGameObject*)world->vecGameObjects[28];
-
-	glm::vec3 wind_direction = glm::normalize(glm::vec3(0.5f, 0.5f, 4.0f));
-	float wind_force = 1.0f;
-
 	float cam_dist = 64.0f + 1.0f * zoom_amount;
 	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
 	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 40.0f, ball_pos.z + cam_dist * cos(cam_rot));
@@ -608,7 +588,6 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-
 		glfwPollEvents();
 
 		// Timing
@@ -758,8 +737,6 @@ int main()
 		{
 			world->vecGameObjects[i]->update(dt, tt);
 		}
-		
-		clothgo->physics->ApplyForce(wind_direction * (sinf(tt / 4.0f) + 1.0f) * wind_force);
 
 		physWorld->Update(dt);
 
@@ -870,7 +847,6 @@ int main()
 		delete pModelLoader;
 		delete pVAOManager;
 		delete pKeyboardManager;
-		//delete pTextureManager;
 		delete cWorld::pDebugRenderer;
 
 		delete fbo;

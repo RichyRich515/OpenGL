@@ -42,5 +42,14 @@
     <ClInclude Include="iClothComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="iBoxComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iCylinderComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iConeComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

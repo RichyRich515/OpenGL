@@ -17,6 +17,7 @@ namespace nPhysics
 	protected:
 		iPhysicsComponent(ePhysicsComponentType componentType)
 			: mComponentType(componentType) {}
+
 	private:
 		ePhysicsComponentType mComponentType;
 
