@@ -22,5 +22,13 @@
 	{
 		"name": "cone",
 		"location": "assets/models/traffic_cone.ply"
+	},
+	{
+		"name": "container",
+		"location": "assets/models/container.ply"
+	},
+	{
+		"name": "crate",
+		"location": "assets/models/crate.ply"
 	}
 ]

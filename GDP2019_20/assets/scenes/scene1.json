@@ -454,22 +454,22 @@
 
 		{
 			"type": "physics",
-			"name": "box1",
+			"name": "crate1",
 			"graphics": {
 				"lighting": true,
 				"texture": {
 					"textures": [
 						{
 							"blend": 1.0,
-							"name": "texture (4).bmp",
+							"name": "crate.bmp",
 							"tiling": 1.0
 						}
 					]
 				}
 			},
 			"mesh": {
-				"meshName": "cube",
-				"scale": 2.0
+				"meshName": "crate",
+				"scale": 4.0
 			},
 			"physics": {
 				"type": "box",
@@ -481,22 +481,22 @@
 		},
 		{
 			"type": "physics",
-			"name": "box2",
+			"name": "crate2",
 			"graphics": {
 				"lighting": true,
 				"texture": {
 					"textures": [
 						{
 							"blend": 1.0,
-							"name": "texture (4).bmp",
+							"name": "crate.bmp",
 							"tiling": 1.0
 						}
 					]
 				}
 			},
 			"mesh": {
-				"meshName": "cube",
-				"scale": 2.0
+				"meshName": "crate",
+				"scale": 4.0
 			},
 			"physics": {
 				"type": "box",
@@ -504,6 +504,87 @@
 				"extents": [ 4.0, 4.0, 4.0 ],
 				"mass": 10.0,
 				"position": [ 20.0, 10.0, 0.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "crate3",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "crate.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "crate",
+				"scale": 4.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.1,
+				"extents": [ 4.0, 4.0, 4.0 ],
+				"mass": 10.0,
+				"position": [ -50.0, 2.0, 40.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "crate4",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "crate.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "crate",
+				"scale": 4.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.1,
+				"extents": [ 4.0, 4.0, 4.0 ],
+				"mass": 10.0,
+				"position": [ -50.0, 6.0, 40.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "crate5",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "crate.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "crate",
+				"scale": 4.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.1,
+				"extents": [ 4.0, 4.0, 4.0 ],
+				"mass": 10.0,
+				"position": [ -46.0, 2.0, 40.0 ]
 			}
 		},
 		{
@@ -531,6 +612,33 @@
 				"extents": [ 10.0, 10.0, 10.0 ],
 				"mass": 50.0,
 				"position": [ 20.0, 5.0, 20.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "container1",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "container.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "container",
+				"scale": 40.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.5,
+				"extents": [ 40.0, 16.3, 16.0 ],
+				"mass": 0.0,
+				"position": [ -44.0, 8.15, 50.0 ]
 			}
 		},
 

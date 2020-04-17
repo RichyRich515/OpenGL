@@ -627,7 +627,8 @@ int main()
 			ImGui::SliderFloat("dt Scale", &dt_scale, 0.001f, 2.0f);
 			if (ImGui::Button("Reset dt Scale"))
 				dt_scale = 1.0f;
-			dt *= dt_scale;
+			if (cWorld::debugMode)
+				dt *= dt_scale;
 
 			ImGui::Text("dt = %0.3fs", dt);
 			ImGui::Text("Avg %0.3f ms/frame (%0.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
