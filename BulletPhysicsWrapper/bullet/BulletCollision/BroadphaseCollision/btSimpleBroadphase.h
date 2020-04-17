@@ -103,7 +103,7 @@ protected:
 
 protected:
 public:
-	btSimpleBroadphase(int maxProxies = 16384, btOverlappingPairCache* overlappingPairCache = 0);
+	btSimpleBroadphase(int maxProxies = 16384, btOverlappingPairCache* broadphase = 0);
 	virtual ~btSimpleBroadphase();
 
 	static bool aabbOverlap(btSimpleBroadphaseProxy* proxy0, btSimpleBroadphaseProxy* proxy1);

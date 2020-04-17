@@ -6,6 +6,7 @@
 #include "cConeComponent.hpp"
 #include "cPlaneComponent.hpp"
 #include "cClothComponent.hpp"
+#include "cCharacterComponent.hpp"
 
 // Export function from DLL
 extern "C" __declspec(dllexport) nPhysics::iPhysicsFactory* MakePhysicsFactory();
@@ -46,6 +47,11 @@ namespace nPhysics
 	iClothComponent* cPhysicsFactory::CreateCloth(const sClothDef& def)
 	{
 		return new cClothComponent(def);
+	}
+
+	iCharacterComponent* cPhysicsFactory::CreateCharacter(const sCharacterDef& def)
+	{
+		return new cCharacterComponent(def);
 	}
 }
 

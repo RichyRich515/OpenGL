@@ -1,5 +1,4 @@
 #pragma once
-
 #include <iConeComponent.h>
 #include <btBulletDynamicsCommon.h>
 

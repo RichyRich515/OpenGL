@@ -25,6 +25,7 @@ namespace nPhysics
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 		rbInfo.m_restitution = def.Elasticity;
 		this->body = new btRigidBody(rbInfo);
+		this->body->setLinearVelocity(nConvert::ToBullet(def.InitialVelocity));
 		this->body->setUserPointer(this);
 	}
 

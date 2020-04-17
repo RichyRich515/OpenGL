@@ -12,6 +12,7 @@
 		}
 	],
 	"textures": [
+		"crosshair.bmp",
 		"terrain_texture.bmp",
 		"barrel_blue.bmp",
 		"barrel_red.bmp",

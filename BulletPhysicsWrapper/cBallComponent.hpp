@@ -1,5 +1,4 @@
 #pragma once
-
 #include <iBallComponent.h>
 #include <btBulletDynamicsCommon.h>
 

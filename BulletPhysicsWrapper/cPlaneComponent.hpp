@@ -1,5 +1,4 @@
 #pragma once
-
 #include <iPlaneComponent.h>
 #include <btBulletDynamicsCommon.h>
 

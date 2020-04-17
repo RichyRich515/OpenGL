@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cAnimatedGameObject.cpp" />
+    <ClCompile Include="cBulletGameObject.cpp" />
     <ClCompile Include="cCamera.cpp" />
     <ClCompile Include="cClothMeshComponent.cpp" />
     <ClCompile Include="cCommand.cpp" />
@@ -203,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cAnimatedGameObject.hpp" />
+    <ClInclude Include="cBulletGameObject.hpp" />
     <ClInclude Include="cCamera.hpp" />
     <ClInclude Include="cClothMeshComponent.hpp" />
     <ClInclude Include="cFactoryManager.hpp" />
@@ -252,7 +254,6 @@
     <ClInclude Include="Texture\CTextureFromBMP.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\models.json" />
     <None Include="assets\scenes\scene1.json" />
     <None Include="assets\shaders\fragmentShader01.glsl" />

@@ -24,6 +24,8 @@ uniform sampler2D secondPassWorldNormalSamp;			// if W is 0 do not light, if 1 t
 uniform sampler2D secondPassWorldVertexPositionSamp;	// ignore W for now
 uniform sampler2D secondPassSpecularSamp;				// rgb Colour and w power
 
+uniform sampler2D fullScreenOverlaySamp;
+
 uniform vec4 eyeLocation;
 
 uniform vec4 ambientColour;
@@ -123,6 +125,7 @@ void main()
 			colourBuffer.a = 1.0f;
 		}
 
+		colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
 		return;
 	}
 

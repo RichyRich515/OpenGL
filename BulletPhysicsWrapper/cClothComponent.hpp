@@ -1,5 +1,4 @@
 #pragma once
-
 #include <iClothComponent.h>
 
 namespace nPhysics

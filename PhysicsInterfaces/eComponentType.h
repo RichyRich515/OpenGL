@@ -9,6 +9,7 @@ namespace nPhysics
 		cylinder,
 		cone,
 		plane,
-		cloth
+		cloth,
+		character,
 	};
 }

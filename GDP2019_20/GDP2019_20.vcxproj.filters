@@ -210,6 +210,9 @@
     <ClCompile Include="cFBO_deferred.cpp">
       <Filter>Managers</Filter>
     </ClCompile>
+    <ClCompile Include="cBulletGameObject.cpp">
+      <Filter>CustomObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLCommon.h">
@@ -356,6 +359,9 @@
     <ClInclude Include="cFBO.hpp">
       <Filter>Managers</Filter>
     </ClInclude>
+    <ClInclude Include="cBulletGameObject.hpp">
+      <Filter>CustomObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl">
@@ -364,7 +370,6 @@
     <None Include="assets\shaders\vertexShader01.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="assets\LuaScripts\test.lua" />
     <None Include="assets\models.json">
       <Filter>Resource Files</Filter>
     </None>

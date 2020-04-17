@@ -15,5 +15,6 @@ namespace nPhysics
 		virtual iConeComponent* CreateCone(const sConeDef& def) override;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) override;
 		virtual iClothComponent* CreateCloth(const sClothDef& def) override;
+		virtual iCharacterComponent* CreateCharacter(const sCharacterDef& def) override;
 	};
 }

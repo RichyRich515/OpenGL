@@ -6,6 +6,7 @@
 #include "iConeComponent.h"
 #include "iPlaneComponent.h"
 #include "iClothComponent.h"
+#include "iCharacterComponent.h"
 
 namespace nPhysics
 {
@@ -22,5 +23,6 @@ namespace nPhysics
 		virtual iConeComponent* CreateCone(const sConeDef& def) = 0;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) = 0;
 		virtual iClothComponent* CreateCloth(const sClothDef& def) = 0;
+		virtual iCharacterComponent* CreateCharacter(const sCharacterDef& def) = 0;
 	};
 }

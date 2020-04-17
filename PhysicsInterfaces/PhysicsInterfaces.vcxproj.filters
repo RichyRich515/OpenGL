@@ -51,5 +51,8 @@
     <ClInclude Include="iConeComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="iCharacterComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

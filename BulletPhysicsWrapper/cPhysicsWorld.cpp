@@ -4,6 +4,8 @@
 #include "cConeComponent.hpp"
 #include "cCylinderComponent.hpp"
 #include "cPlaneComponent.hpp"
+#include "cCharacterComponent.hpp"
+#include "bullet/BulletCollision/CollisionDispatch/btGhostObject.h"
 
 nPhysics::cPhysicsWorld::cPhysicsWorld()
 {
@@ -11,13 +13,15 @@ nPhysics::cPhysicsWorld::cPhysicsWorld()
 
 	this->dispatcher = new btCollisionDispatcher(this->collisionConfiguration);
 
-	this->overlappingPairCache = new btDbvtBroadphase();
+	this->broadphase = new btDbvtBroadphase();
+	this->ghostPairCallback = new btGhostPairCallback();
+	this->broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(this->ghostPairCallback);
 
 	this->solver = new btSequentialImpulseConstraintSolver();
 
-	this->dynamicsWorld = new btDiscreteDynamicsWorld(this->dispatcher, this->overlappingPairCache, this->solver, this->collisionConfiguration);
+	this->dynamicsWorld = new btDiscreteDynamicsWorld(this->dispatcher, this->broadphase, this->solver, this->collisionConfiguration);
 
-	// TODO: from def
+	// TODO: from def?
 	this->dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
 }
 
@@ -27,8 +31,10 @@ nPhysics::cPhysicsWorld::~cPhysicsWorld()
 		delete this->dynamicsWorld;
 	if (this->solver)
 		delete this->solver;
-	if (this->overlappingPairCache)
-		delete this->overlappingPairCache;
+	if (this->ghostPairCallback)
+		delete this->ghostPairCallback;
+	if (this->broadphase)
+		delete this->broadphase;
 	if (this->dispatcher)
 		delete this->dispatcher;
 	if (this->collisionConfiguration)
@@ -37,7 +43,7 @@ nPhysics::cPhysicsWorld::~cPhysicsWorld()
 
 void nPhysics::cPhysicsWorld::Update(float dt)
 {
-	this->dynamicsWorld->stepSimulation(dt, 10);
+	this->dynamicsWorld->stepSimulation(dt, 100);
 
 	// TODO: collisionlistening
 	//if (this->collisionListener)
@@ -65,6 +71,10 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 	case ePhysicsComponentType::plane:
 		this->dynamicsWorld->addRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
 		return true;
+	case ePhysicsComponentType::character:
+		this->dynamicsWorld->addCollisionObject(reinterpret_cast<cCharacterComponent*>(component)->ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+		this->dynamicsWorld->addCharacter(reinterpret_cast<cCharacterComponent*>(component)->character);
+		return true;
 	default:
 		return false;
 	}
@@ -88,6 +98,9 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 		return true;
 	case ePhysicsComponentType::plane:
 		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::character:
+		this->dynamicsWorld->removeCharacter(reinterpret_cast<cCharacterComponent*>(component)->character);
 		return true;
 	default:
 		return false;

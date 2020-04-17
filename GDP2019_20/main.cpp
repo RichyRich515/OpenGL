@@ -47,6 +47,7 @@
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
+#include "cBulletGameObject.hpp"
 #include "cLight.hpp"
 
 constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
@@ -78,7 +79,6 @@ std::map<std::string, cMesh*> mapMeshes;
 
 cFBO_deferred* fbo = nullptr;
 
-
 // multithreaded texture loader
 std::vector<std::thread> vec_threadPool;
 std::vector<bool> vec_threadsDone;
@@ -91,6 +91,7 @@ iGameObjectFactory* pGameObjectFactory;
 cBasicTextureManager* pTextureManager;
 cKeyboardManager* pKeyboardManager = NULL;
 bool ctrl_pressed = false, shift_pressed = false;
+bool left_mouse_down = false;
 
 // Max lights from the shader
 constexpr unsigned MAX_LIGHTS = 20;
@@ -171,7 +172,6 @@ void openSceneFromFile(std::string filename)
 	{
 		std::cout << "Invalid factory [" << world_node["factoryType"].asString() << "]\nexiting" << std::endl;
 		exit(EXIT_FAILURE);
-		// TODO: cleanup??
 	}
 
 	for (auto g : world->vecGameObjects)
@@ -230,6 +230,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			ctrl_pressed = false;
 	}
 }
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		left_mouse_down = true;
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+		left_mouse_down = false;
+}
 
 void Threaded_LoadTexturesFromFiles(unsigned thread_id)
 {
@@ -263,9 +270,6 @@ int main()
 	srand(time(NULL));
 	GLFWwindow* window;
 
-	// GL 3.0 + GLSL 130
-	const char* glsl_version = "#version 420";
-
 	// GLFW setup
 	{
 		glfwSetErrorCallback(error_callback);
@@ -284,7 +288,8 @@ int main()
 		}
 
 		glfwSetKeyCallback(window, key_callback);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
+		glfwSetMouseButtonCallback(window, mouse_button_callback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Disable cursor and lock to window
 		glfwMakeContextCurrent(window);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		glfwSwapInterval(0); // Same idea as vsync, setting this to 0 would result in unlocked framerate and potentially cause screen tearing
@@ -314,7 +319,7 @@ int main()
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init(glsl_version);
+		ImGui_ImplOpenGL3_Init("#version 420");
 	}
 
 	cModelLoader* pModelLoader = new cModelLoader();
@@ -535,28 +540,28 @@ int main()
 	camera->forward = glm::normalize(camera->forward);
 	camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 
-	std::vector<cPhysicsGameObject*> balls;
-
-	world->message(sMessage("Get Balls", (void*)&balls));
-	int current_ball_idx = 8;
-
-	float cam_rot = 0.0f;
-	float zoom_amount = 0.0f;
-	constexpr float MAX_ZOOM_IN = -32.0f;
-	constexpr float MAX_ZOOM_OUT = 32.0f;
-
-	constexpr float force_amount = 20.0f;
-
 	auto pPhysicsFactory = cPhysicsManager::getFactory();
 	auto physWorld = cPhysicsManager::getWorld();
 
-	float cam_dist = 64.0f + 1.0f * zoom_amount;
-	glm::vec3 ball_pos = balls[current_ball_idx]->getPosition();
-	glm::vec3 camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 40.0f, ball_pos.z + cam_dist * cos(cam_rot));
-	glm::vec3 camera_wanted_forward = glm::normalize(ball_pos + glm::vec3(0.0f, 20.0f, 0.0f) - camera->position);
+	nPhysics::sCharacterDef def;
+	def.Height = 7.5f;
+	def.Radius = 2.0f;
+	def.Mass = 20.0f;
+	def.Position = glm::vec3(0, 10, -60);
+	def.JumpSpeed = 20.0f;
+	nPhysics::iCharacterComponent* physicscharacter = pPhysicsFactory->CreateCharacter(def);
 
-	glm::vec4 old_color = balls[current_ball_idx]->graphics.color;
-	balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+	pPhysicsManager->getWorld()->AddComponent(physicscharacter);
+
+	cGameObject* character = new cGameObject();
+	character->graphics.visible = true;
+	character->graphics.lighting = true;
+	character->graphics.color = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+
+	character->mesh.meshName = "sphere";
+	character->mesh.scale = 4.0f;
+
+	world->addGameObject(character);
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
@@ -586,6 +591,9 @@ int main()
 		}
 	}
 
+	const float SHOOT_COOLDOWN_TIME = 1.0f;
+	float shoot_cooldown_timer = 0.0f;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -601,6 +609,8 @@ int main()
 
 			if (pKeyboardManager->keyDown('G'))
 				dt *= 10;
+
+			shoot_cooldown_timer -= dt;
 		}
 
 		// imgui
@@ -611,12 +621,8 @@ int main()
 
 			static float dt_scale = 1.0f;
 			ImGui::Begin("Debug Information");
-			if (balls.size())
-			{
-				ImGui::SliderInt("Current Ball", &current_ball_idx, 0, balls.size() - 1);
-				ImGui::Text("Current Ball Position: %s", std::to_string(balls[current_ball_idx]->getPosition()).c_str());
-			}
-
+			ImGui::Text("Position: %s", std::to_string(camera->position).c_str());
+			ImGui::Text("Facing: %s", std::to_string(camera->forward).c_str());
 			ImGui::Checkbox("Draw Debug(~)", &cWorld::debugMode);
 			ImGui::SliderFloat("dt Scale", &dt_scale, 0.001f, 2.0f);
 			if (ImGui::Button("Reset dt Scale"))
@@ -630,13 +636,22 @@ int main()
 
 		// Camera orientation movement
 		{
-			float cam_dist = -64.0f + 1.0f * zoom_amount;
-			ball_pos = balls[current_ball_idx]->getPosition();
-			camera_wanted_position = glm::vec3(ball_pos.x + cam_dist * sin(cam_rot), 20.0f, ball_pos.z + cam_dist * cos(cam_rot));
-			camera_wanted_forward = glm::normalize(ball_pos - camera->position);
+			glfwGetCursorPos(window, &cursorX, &cursorY);
+			camera->yaw += ((float)cursorX - lastcursorX) * camera->sensitivity * dt;
+			camera->pitch += (lastcursorY - (float)cursorY) * camera->sensitivity * dt;
+			lastcursorX = (float)cursorX;
+			lastcursorY = (float)cursorY;
 
-			camera->position = glm::mix(camera->position, camera_wanted_position, camera->speed * dt / 5.0f);
-			camera->forward = glm::mix(camera->forward, camera_wanted_forward, camera->speed * dt / 2.5f);
+			// Lock pitch
+			if (camera->pitch > 89.9f)
+				camera->pitch = 89.9f;
+			else if (camera->pitch < -89.9f)
+				camera->pitch = -89.9f;
+
+			camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward.y = sin(glm::radians(camera->pitch));
+			camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
+			camera->forward = glm::normalize(camera->forward);
 			camera->right = glm::normalize(glm::cross(camera->forward, camera->up));
 		}
 
@@ -651,31 +666,50 @@ int main()
 
 			if (xmov || ymov || zmov)
 			{
-				// move the ball relative to the camera
-				balls[current_ball_idx]->physics->ApplyForce((glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * force_amount);
+				// Move player character when pressing directions
+				physicscharacter->Move((glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * 0.3f, dt);
+			}
+			else
+			{
+				glm::vec3 new_vel;
+				physicscharacter->GetVelocity(new_vel);
+				new_vel.x = 0;
+				// HACK: keep y velocity so gravity works...
+				new_vel.z = 0;
+				physicscharacter->Move(new_vel, dt);
 			}
 
-			int rotFactor = pKeyboardManager->keyDown(GLFW_KEY_Q) - pKeyboardManager->keyDown(GLFW_KEY_E);
-			cam_rot += -rotFactor * (camera->speed * glm::pi<float>() / 180.0f) * 2.0f * dt;
-
-			int zoomFactor = pKeyboardManager->keyDown(GLFW_KEY_R) - pKeyboardManager->keyDown(GLFW_KEY_F);
-			zoom_amount += zoomFactor * camera->speed * dt;
-
-			if (zoom_amount > MAX_ZOOM_OUT)
-				zoom_amount = MAX_ZOOM_OUT;
-			else if (zoom_amount < MAX_ZOOM_IN)
-				zoom_amount = MAX_ZOOM_IN;
-
-			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE))
+			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE) && physicscharacter->CanJump())
 			{
-				balls[current_ball_idx]->graphics.color = old_color;
-				++current_ball_idx;
-				if (current_ball_idx >= balls.size())
-					current_ball_idx = 0;
+				physicscharacter->Jump();
+			}
 
-				old_color = balls[current_ball_idx]->graphics.color;
+			// shooting
+			if (left_mouse_down && shoot_cooldown_timer <= 0.0f)
+			{
+				shoot_cooldown_timer = SHOOT_COOLDOWN_TIME;
+				nPhysics::sBallDef bulletdef;
+				bulletdef.Position = camera->position + camera->forward * 5.0f;
+				bulletdef.Mass = 1.0f;
+				bulletdef.Radius = 0.2f;
+				bulletdef.Elasticity = 1.0f;
+				bulletdef.InitialVelocity = camera->forward * 100.0f;
 
-				balls[current_ball_idx]->graphics.color = glm::vec4(1.0f);
+				auto physbullet = pPhysicsFactory->CreateBall(bulletdef);
+				pPhysicsManager->getWorld()->AddComponent(physbullet);
+				
+				auto bullet = new cBulletGameObject();
+				bullet->graphics.color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+				bullet->graphics.visible = true;
+				bullet->graphics.lighting = true;
+				
+				bullet->physics = physbullet;
+				bullet->mesh = new cMeshComponent();
+				bullet->mesh->scale = 0.2f;
+				bullet->mesh->meshName = "sphere";
+				bullet->name = "bullet";
+
+				world->addGameObject(bullet);
 			}
 		}
 
@@ -740,6 +774,15 @@ int main()
 
 		physWorld->Update(dt);
 
+		glm::mat4 t;
+		physicscharacter->GetTransform(t);
+		character->transform.position.x = glm::mix(character->transform.matWorld[3][0], t[3][0], dt * 5.0f);
+		character->transform.position.y = glm::mix(character->transform.matWorld[3][1], t[3][1], dt * 10.0f);
+		character->transform.position.z = glm::mix(character->transform.matWorld[3][2], t[3][2], dt * 5.0f);
+		character->transform.orientation = glm::cross(camera->right, camera->up);
+		character->transform.updateMatricis();
+		camera->position = glm::vec3(character->transform.matWorld[3]) + glm::vec3(0.0, 7.0f, 0.0);
+
 		// pre frame, then render
 		{
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
@@ -752,15 +795,7 @@ int main()
 			}
 		}
 
-		// draw debug
-		if (cWorld::debugMode)
-		{
-			cWorld::pDebugRenderer->addLine(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.0f);
-			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, -200.0f, 0.0f), glm::vec3(0.0f, 200.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-			cWorld::pDebugRenderer->addLine(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0.0f, 0.0f, 200.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
-			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
-		}
-
+		
 		// render fbo to tri
 		{
 			glUseProgram(program);
@@ -792,6 +827,11 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, fbo->specularBuffer_3_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassSpecularSamp"), 53);
 
+			// Fullscreen overlay
+			glActiveTexture(GL_TEXTURE0 + 60);
+			glBindTexture(GL_TEXTURE_2D, pTextureManager->getTextureIDFromName("crosshair.bmp"));
+			glUniform1i(pShader->getUniformLocID("fullScreenOverlaySamp"), 60);
+
 			glUniform1f(pShader->getUniformLocID("passCount"), 2);
 
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -815,9 +855,17 @@ int main()
 				glBindVertexArray(0);
 			}
 		}
-		
+
+		// draw debug
+		if (cWorld::debugMode)
+		{
+			cWorld::pDebugRenderer->RenderDebugObjects(v, p, dt);
+		}
+
+		// need to render each frame even if not rendering
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		if (cWorld::debugMode)
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window); // Draws to screen
 

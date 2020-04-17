@@ -6,10 +6,11 @@ namespace nPhysics
 {
 	struct sBallDef
 	{
-		float Mass;
-		float Radius;
-		glm::vec3 Position;
-		float Elasticity;
+		float Mass = 1.0f;
+		float Radius = 1.0f;
+		glm::vec3 Position = glm::vec3(0.0f);
+		float Elasticity = 0.5f;
+		glm::vec3 InitialVelocity = glm::vec3(0.0f);
 	};
 
 	class iBallComponent : public iPhysicsComponent

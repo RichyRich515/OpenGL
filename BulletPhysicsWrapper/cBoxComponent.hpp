@@ -1,5 +1,4 @@
 #pragma once
-
 #include <iBoxComponent.h>
 #include <btBulletDynamicsCommon.h>
 
