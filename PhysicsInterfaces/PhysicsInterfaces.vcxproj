@@ -159,6 +159,10 @@
     <ClInclude Include="iPhysicsFactory.h" />
     <ClInclude Include="iPhysicsWorld.h" />
     <ClInclude Include="iPlaneComponent.h" />
+    <ClInclude Include="iSlidingBoxComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="iSwingingConeComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

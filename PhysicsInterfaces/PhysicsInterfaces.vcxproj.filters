@@ -54,5 +54,13 @@
     <ClInclude Include="iCharacterComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="iSlidingBoxComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="iSwingingConeComponent.h">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

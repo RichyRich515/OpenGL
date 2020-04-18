@@ -582,7 +582,7 @@ int main()
 			}
 		}
 	} while (!done_loading);
-	
+
 	for (auto texture : vec_texturesToLoadToGPU)
 	{
 		if (!pTextureManager->LoadTextureToGPU(texture, true)) // NEED TO GENERATE MIP MAPS
@@ -796,7 +796,6 @@ int main()
 			}
 		}
 
-		
 		// render fbo to tri
 		{
 			glUseProgram(program);

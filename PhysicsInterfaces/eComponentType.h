@@ -6,10 +6,12 @@ namespace nPhysics
 	{
 		ball,
 		box,
+		sliding_box,
 		cylinder,
 		cone,
+		swinging_cone,
 		plane,
 		cloth,
-		character,
+		character
 	};
 }

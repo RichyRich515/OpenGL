@@ -14,6 +14,7 @@ namespace nPhysics
 		btGhostPairCallback* ghostPairCallback;
 		btSequentialImpulseConstraintSolver* solver;
 		btDiscreteDynamicsWorld* dynamicsWorld;
+
 	public:
 		cPhysicsWorld();
 		virtual ~cPhysicsWorld();

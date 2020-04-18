@@ -2,8 +2,10 @@
 #include "cPhysicsWorld.hpp"
 #include "cBallComponent.hpp"
 #include "cBoxComponent.hpp"
+#include "cSlidingBoxComponent.hpp"
 #include "cCylinderComponent.hpp"
 #include "cConeComponent.hpp"
+#include "cSwingingConeComponent.hpp"
 #include "cPlaneComponent.hpp"
 #include "cClothComponent.hpp"
 #include "cCharacterComponent.hpp"
@@ -29,6 +31,11 @@ namespace nPhysics
 		return new cBoxComponent(def);
 	}
 
+	iSlidingBoxComponent* cPhysicsFactory::CreateSlidingBox(const sSlidingBoxDef& def)
+	{
+		return new cSlidingBoxComponent(def);
+	}
+
 	iCylinderComponent* cPhysicsFactory::CreateCylinder(const sCylinderDef& def)
 	{
 		return new cCylinderComponent(def);
@@ -37,6 +44,11 @@ namespace nPhysics
 	iConeComponent* cPhysicsFactory::CreateCone(const sConeDef& def)
 	{
 		return new cConeComponent(def);
+	}
+
+	iSwingingConeComponent* cPhysicsFactory::CreateSwingingCone(const sSwingingConeDef& def)
+	{
+		return new cSwingingConeComponent(def);
 	}
 
 	iPlaneComponent* cPhysicsFactory::CreatePlane(const sPlaneDef& def)

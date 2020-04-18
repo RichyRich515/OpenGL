@@ -34,5 +34,13 @@
 	{
 		"name": "bell",
 		"location": "assets/models/bell.ply"
+	},
+	{
+		"name": "train",
+		"location": "assets/models/train.ply"
+	},
+	{
+		"name": "rails",
+		"location": "assets/models/rails.ply"
 	}
 ]

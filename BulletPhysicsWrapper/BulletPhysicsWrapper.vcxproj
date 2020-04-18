@@ -179,6 +179,8 @@
     <ClCompile Include="cPhysicsFactory.cpp" />
     <ClCompile Include="cPhysicsWorld.cpp" />
     <ClCompile Include="cPlaneComponent.cpp" />
+    <ClCompile Include="cSlidingBoxComponent.cpp" />
+    <ClCompile Include="cSwingingConeComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet\btBulletCollisionCommon.h" />
@@ -421,6 +423,8 @@
     <ClInclude Include="cPhysicsFactory.hpp" />
     <ClInclude Include="cPhysicsWorld.hpp" />
     <ClInclude Include="cPlaneComponent.hpp" />
+    <ClInclude Include="cSlidingBoxComponent.hpp" />
+    <ClInclude Include="cSwingingConeComponent.hpp" />
     <ClInclude Include="nConvert.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

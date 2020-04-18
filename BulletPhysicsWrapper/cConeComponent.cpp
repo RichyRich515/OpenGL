@@ -23,6 +23,10 @@ nPhysics::cConeComponent::cConeComponent(sConeDef def)
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 	rbInfo.m_restitution = def.Elasticity;
 	this->body = new btRigidBody(rbInfo);
+	// fix eternal spinning
+	this->body->setFriction(0.4f);
+	this->body->setRollingFriction(0.4f);
+	this->body->setSpinningFriction(0.4f);
 	this->body->setUserPointer(this);
 }
 
