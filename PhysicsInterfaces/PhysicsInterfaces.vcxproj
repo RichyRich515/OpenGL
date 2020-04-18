@@ -155,6 +155,7 @@
     <ClInclude Include="iConeComponent.h" />
     <ClInclude Include="iCylinderComponent.h" />
     <ClInclude Include="iDebugRenderer.h" />
+    <ClInclude Include="iFreeSwingingCylinderComponent.h" />
     <ClInclude Include="iPhysicsComponent.h" />
     <ClInclude Include="iPhysicsFactory.h" />
     <ClInclude Include="iPhysicsWorld.h" />

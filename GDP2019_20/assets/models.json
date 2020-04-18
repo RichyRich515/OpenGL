@@ -42,5 +42,9 @@
 	{
 		"name": "rails",
 		"location": "assets/models/rails.ply"
+	},
+	{
+		"name": "pipe",
+		"location": "assets/models/pipe.ply"
 	}
 ]

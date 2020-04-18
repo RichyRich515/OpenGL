@@ -977,6 +977,35 @@
 			}
 		},
 
+
+		{
+			"type": "physics",
+			"name": "pipe",
+			"graphics": {
+				"lighting": true,
+				"texture": {
+					"textures": [
+						{
+							"blend": 1.0,
+							"name": "pipe.bmp",
+							"tiling": 1.0
+						}
+					]
+				}
+			},
+			"mesh": {
+				"meshName": "pipe",
+				"scale": 20.0
+			},
+			"physics": {
+				"type": "free_swinging_cylinder",
+				"elasticity": 0.5,
+				"extents": [ 4.0, 20.0, 4.0 ],
+				"mass": 30.0,
+				"position": [ 7.0, 26.0, -17.0 ]
+			}
+		},
+
 		{
 			"type": "physics",
 			"name": "ground",

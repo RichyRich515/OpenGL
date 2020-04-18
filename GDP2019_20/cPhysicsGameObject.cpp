@@ -105,6 +105,17 @@ void cPhysicsGameObject::instatiateBaseVariables(const Json::Value& obj)
 			this->physics = cPhysicsManager::getFactory()->CreateCylinder(def);
 			cPhysicsManager::getWorld()->AddComponent(this->physics);
 		}
+		else if (type == "free_swinging_cylinder")
+		{
+			nPhysics::sFreeSwingingCylinderDef def;
+			def.Elasticity = obj["physics"]["elasticity"] ? obj["physics"]["elasticity"].asFloat() : 0.0f;
+			def.Extents = obj["physics"]["extents"] ? Json::toVec3(obj["physics"]["extents"]) : glm::vec3(1.0f);
+			def.Mass = obj["physics"]["mass"] ? obj["physics"]["mass"].asFloat() : 0.0f;
+			def.Position = obj["physics"]["position"] ? Json::toVec3(obj["physics"]["position"]) : glm::vec3(0.0f);
+
+			this->physics = cPhysicsManager::getFactory()->CreateFreeSwingingCylinder(def);
+			cPhysicsManager::getWorld()->AddComponent(this->physics);
+		}
 		else if (type == "cone")
 		{
 			nPhysics::sConeDef def;

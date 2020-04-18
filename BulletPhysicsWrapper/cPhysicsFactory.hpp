@@ -13,6 +13,7 @@ namespace nPhysics
 		virtual iBoxComponent* CreateBox(const sBoxDef& def) override;
 		virtual iSlidingBoxComponent* CreateSlidingBox(const sSlidingBoxDef& def) override;
 		virtual iCylinderComponent* CreateCylinder(const sCylinderDef& def) override;
+		virtual iFreeSwingingCylinderComponent* CreateFreeSwingingCylinder(const sFreeSwingingCylinderDef& def) override;
 		virtual iConeComponent* CreateCone(const sConeDef& def) override;
 		virtual iSwingingConeComponent* CreateSwingingCone(const sSwingingConeDef& def) override;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) override;

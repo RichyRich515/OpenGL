@@ -4,6 +4,7 @@
 #include "iBoxComponent.h"
 #include "iSlidingBoxComponent.h"
 #include "iCylinderComponent.h"
+#include "iFreeSwingingCylinderComponent.h"
 #include "iConeComponent.h"
 #include "iPlaneComponent.h"
 #include "iClothComponent.h"
@@ -23,6 +24,7 @@ namespace nPhysics
 		virtual iBoxComponent* CreateBox(const sBoxDef& def) = 0;
 		virtual iSlidingBoxComponent* CreateSlidingBox(const sSlidingBoxDef& def) = 0;
 		virtual iCylinderComponent* CreateCylinder(const sCylinderDef& def) = 0;
+		virtual iFreeSwingingCylinderComponent* CreateFreeSwingingCylinder(const sFreeSwingingCylinderDef& def) = 0;
 		virtual iConeComponent* CreateCone(const sConeDef& def) = 0;
 		virtual iSwingingConeComponent* CreateSwingingCone(const sSwingingConeDef& def) = 0;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) = 0;

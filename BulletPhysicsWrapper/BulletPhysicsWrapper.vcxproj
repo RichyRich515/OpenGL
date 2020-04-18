@@ -176,6 +176,7 @@
     <ClCompile Include="cClothComponent.cpp" />
     <ClCompile Include="cConeComponent.cpp" />
     <ClCompile Include="cCylinderComponent.cpp" />
+    <ClCompile Include="cFreeSwingingCylinderComponent.cpp" />
     <ClCompile Include="cPhysicsFactory.cpp" />
     <ClCompile Include="cPhysicsWorld.cpp" />
     <ClCompile Include="cPlaneComponent.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="cClothComponent.hpp" />
     <ClInclude Include="cConeComponent.hpp" />
     <ClInclude Include="cCylinderComponent.hpp" />
+    <ClInclude Include="cFreeSwingingCylinderComponent.hpp" />
     <ClInclude Include="cPhysicsFactory.hpp" />
     <ClInclude Include="cPhysicsWorld.hpp" />
     <ClInclude Include="cPlaneComponent.hpp" />

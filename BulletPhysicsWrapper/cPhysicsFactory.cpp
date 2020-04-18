@@ -4,6 +4,7 @@
 #include "cBoxComponent.hpp"
 #include "cSlidingBoxComponent.hpp"
 #include "cCylinderComponent.hpp"
+#include "cFreeSwingingCylinderComponent.hpp"
 #include "cConeComponent.hpp"
 #include "cSwingingConeComponent.hpp"
 #include "cPlaneComponent.hpp"
@@ -39,6 +40,11 @@ namespace nPhysics
 	iCylinderComponent* cPhysicsFactory::CreateCylinder(const sCylinderDef& def)
 	{
 		return new cCylinderComponent(def);
+	}
+
+	iFreeSwingingCylinderComponent* cPhysicsFactory::CreateFreeSwingingCylinder(const sFreeSwingingCylinderDef& def)
+	{
+		return new cFreeSwingingCylinderComponent(def);
 	}
 
 	iConeComponent* cPhysicsFactory::CreateCone(const sConeDef& def)

@@ -5,6 +5,7 @@
 #include "cConeComponent.hpp"
 #include "cSwingingConeComponent.hpp"
 #include "cCylinderComponent.hpp"
+#include "cFreeSwingingCylinderComponent.hpp"
 #include "cPlaneComponent.hpp"
 #include "cCharacterComponent.hpp"
 #include "bullet/BulletCollision/CollisionDispatch/btGhostObject.h"
@@ -71,6 +72,10 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 	case ePhysicsComponentType::cylinder:
 		this->dynamicsWorld->addRigidBody(reinterpret_cast<cCylinderComponent*>(component)->body);
 		return true;
+	case ePhysicsComponentType::free_swinging_cylinder:
+		this->dynamicsWorld->addRigidBody(reinterpret_cast<cFreeSwingingCylinderComponent*>(component)->body);
+		this->dynamicsWorld->addConstraint(reinterpret_cast<cFreeSwingingCylinderComponent*>(component)->constraint);
+		return true;
 	case ePhysicsComponentType::cone:
 		this->dynamicsWorld->addRigidBody(reinterpret_cast<cConeComponent*>(component)->body);
 		return true;
@@ -107,6 +112,10 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 		return true;
 	case ePhysicsComponentType::cylinder:
 		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cCylinderComponent*>(component)->body);
+		return true;
+	case ePhysicsComponentType::free_swinging_cylinder:
+		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cFreeSwingingCylinderComponent*>(component)->body);
+		this->dynamicsWorld->removeConstraint(reinterpret_cast<cFreeSwingingCylinderComponent*>(component)->constraint);
 		return true;
 	case ePhysicsComponentType::cone:
 		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cConeComponent*>(component)->body);

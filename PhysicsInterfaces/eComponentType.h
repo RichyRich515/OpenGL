@@ -8,6 +8,7 @@ namespace nPhysics
 		box,
 		sliding_box,
 		cylinder,
+		free_swinging_cylinder,
 		cone,
 		swinging_cone,
 		plane,
