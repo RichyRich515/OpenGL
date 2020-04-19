@@ -39,14 +39,14 @@ WARNING:
 6. Implemented collision feedback influencing the game
 	Bullets knock over objects and push them around, can also walk into them but this hardly moves them.. 
 		Character controller seems to be lacking in the collision detection/response for this regard.
-	Powerup increases bullet size and rate of fire, and plays sound when picked up 
+	Powerup (ghost object) increases bullet size and rate of fire, and plays sound when picked up 
 		(to the left of your starting position, semi-transparent purple sphere)
 	Sound when certain objects are hit with bullet 
-		(Only the bell)
+		(Only the bell, works a little strange, I think I have my collision listener setup done incorrectly...)
 
 
 Controls
 	WASD to move
 	Space to jump
 	Aim with mouse
-	Left mouse button to shoot
+	Left mouse button to shoot (Can hold down to fire automatically)
