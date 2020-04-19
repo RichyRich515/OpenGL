@@ -57,3 +57,13 @@ void nPhysics::cSwingingConeComponent::ApplyForce(const glm::vec3& force)
 	this->body->activate(true);
 	this->body->applyCentralForce(nConvert::ToBullet(force));
 }
+
+int nPhysics::cSwingingConeComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cSwingingConeComponent::setID(int id)
+{
+	this->body->setUserIndex(id);
+}

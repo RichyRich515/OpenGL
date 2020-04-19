@@ -161,6 +161,7 @@
     <ClInclude Include="iPhysicsWorld.h" />
     <ClInclude Include="iPlaneComponent.h" />
     <ClInclude Include="iSlidingBoxComponent.h" />
+    <ClInclude Include="iTriggerSphereComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="iSwingingConeComponent.h" />

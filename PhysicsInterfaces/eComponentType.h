@@ -13,6 +13,7 @@ namespace nPhysics
 		swinging_cone,
 		plane,
 		cloth,
+		trigger_sphere,
 		character
 	};
 }

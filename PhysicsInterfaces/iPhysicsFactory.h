@@ -8,6 +8,7 @@
 #include "iConeComponent.h"
 #include "iPlaneComponent.h"
 #include "iClothComponent.h"
+#include "iTriggerSphereComponent.h"
 #include "iCharacterComponent.h"
 #include "iSwingingConeComponent.h"
 
@@ -29,6 +30,7 @@ namespace nPhysics
 		virtual iSwingingConeComponent* CreateSwingingCone(const sSwingingConeDef& def) = 0;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) = 0;
 		virtual iClothComponent* CreateCloth(const sClothDef& def) = 0;
+		virtual iTriggerSphereComponent* CreateTriggerSphere(const sTriggerSphereDef& def) = 0;
 		virtual iCharacterComponent* CreateCharacter(const sCharacterDef& def) = 0;
 	};
 }

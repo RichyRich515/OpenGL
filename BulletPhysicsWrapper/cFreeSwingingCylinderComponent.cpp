@@ -66,3 +66,13 @@ void nPhysics::cFreeSwingingCylinderComponent::ApplyForce(const glm::vec3& force
 	this->body->activate(true);
 	this->body->applyCentralForce(nConvert::ToBullet(force));
 }
+
+int nPhysics::cFreeSwingingCylinderComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cFreeSwingingCylinderComponent::setID(int id)
+{
+	this->body->setUserIndex(id);
+}

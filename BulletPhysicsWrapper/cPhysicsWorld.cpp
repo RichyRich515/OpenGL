@@ -7,8 +7,42 @@
 #include "cCylinderComponent.hpp"
 #include "cFreeSwingingCylinderComponent.hpp"
 #include "cPlaneComponent.hpp"
+#include "cTriggerSphereComponent.hpp"
 #include "cCharacterComponent.hpp"
 #include "bullet/BulletCollision/CollisionDispatch/btGhostObject.h"
+#include <iPhysicsComponent.h>
+#include <iostream>
+
+// from https://rdmilligan.wordpress.com/2018/01/31/bullet-physics-collision-detection/
+void WorldTickCallback(btDynamicsWorld* world, btScalar timestep)
+{
+	std::vector<nPhysics::iPhysicsComponent*>* listeners = (std::vector<nPhysics::iPhysicsComponent*>*)world->getWorldUserInfo();
+	if (listeners == nullptr)
+		return;
+
+	int numManifolds = world->getDispatcher()->getNumManifolds();
+
+	for (int i = numManifolds - 1; i >= 0; --i)
+	{
+		btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+		const btCollisionObject* obA = contactManifold->getBody0();
+		const btCollisionObject* obB = contactManifold->getBody1();
+		nPhysics::iPhysicsComponent* userA = (nPhysics::iPhysicsComponent*)obA->getUserPointer();
+		nPhysics::iPhysicsComponent* userB = (nPhysics::iPhysicsComponent*)obB->getUserPointer();
+
+		for (auto listener : *listeners)
+		{
+			if (listener == userA)
+			{
+				listener->OnCollision(userB);
+			}
+			else if (listener == userB)
+			{
+				listener->OnCollision(userA);
+			}
+		}
+	}
+}
 
 nPhysics::cPhysicsWorld::cPhysicsWorld()
 {
@@ -25,7 +59,9 @@ nPhysics::cPhysicsWorld::cPhysicsWorld()
 	this->dynamicsWorld = new btDiscreteDynamicsWorld(this->dispatcher, this->broadphase, this->solver, this->collisionConfiguration);
 
 	// TODO: from def?
-	this->dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
+	this->dynamicsWorld->setGravity(btVector3(0, -9.8f, 0));
+	this->dynamicsWorld->setInternalTickCallback(&WorldTickCallback);
+	this->dynamicsWorld->setWorldUserInfo(&(this->collision_listeners));
 }
 
 nPhysics::cPhysicsWorld::~cPhysicsWorld()
@@ -47,12 +83,6 @@ nPhysics::cPhysicsWorld::~cPhysicsWorld()
 void nPhysics::cPhysicsWorld::Update(float dt)
 {
 	this->dynamicsWorld->stepSimulation(dt, 100);
-
-	// TODO: collisionlistening
-	//if (this->collisionListener)
-	//{
-	//	
-	//}
 }
 
 bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
@@ -86,6 +116,9 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 	case ePhysicsComponentType::plane:
 		this->dynamicsWorld->addRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
 		return true;
+	case ePhysicsComponentType::trigger_sphere:
+		this->dynamicsWorld->addCollisionObject(reinterpret_cast<cTriggerSphereComponent*>(component)->ghostObject);
+		return true;
 	case ePhysicsComponentType::character:
 		// add ghost object separately
 		this->dynamicsWorld->addCollisionObject(reinterpret_cast<cCharacterComponent*>(component)->ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
@@ -98,6 +131,9 @@ bool nPhysics::cPhysicsWorld::AddComponent(iPhysicsComponent* component)
 
 bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 {
+	if (component == nullptr)
+		return false;
+
 	switch (component->GetComponentType())
 	{
 	case ePhysicsComponentType::ball:
@@ -127,6 +163,9 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 	case ePhysicsComponentType::plane:
 		this->dynamicsWorld->removeRigidBody(reinterpret_cast<cPlaneComponent*>(component)->body);
 		return true;
+	case ePhysicsComponentType::trigger_sphere:
+		this->dynamicsWorld->removeCollisionObject(reinterpret_cast<cTriggerSphereComponent*>(component)->ghostObject);
+		return true;
 	case ePhysicsComponentType::character:
 		this->dynamicsWorld->removeCollisionObject(reinterpret_cast<cCharacterComponent*>(component)->ghostObject);
 		this->dynamicsWorld->removeCharacter(reinterpret_cast<cCharacterComponent*>(component)->character);
@@ -134,4 +173,32 @@ bool nPhysics::cPhysicsWorld::RemoveComponent(iPhysicsComponent* component)
 	default:
 		return false;
 	}
+}
+
+bool nPhysics::cPhysicsWorld::AddCollisionListener(iPhysicsComponent* component)
+{
+	if (component == nullptr)
+		return false;
+
+	auto itr = std::find(this->collision_listeners.begin(), this->collision_listeners.end(), component);
+	if (itr == this->collision_listeners.end())
+	{
+		this->collision_listeners.push_back(component);
+		return true;
+	}
+	return false;
+}
+
+bool nPhysics::cPhysicsWorld::RemoveCollisionListener(iPhysicsComponent* component)
+{
+	if (component == nullptr)
+		return false;
+
+	auto itr = std::find(this->collision_listeners.begin(), this->collision_listeners.end(), component);
+	if (itr != this->collision_listeners.end())
+	{
+		this->collision_listeners.erase(itr);
+		return true;
+	}
+	return false;
 }

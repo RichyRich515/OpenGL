@@ -38,3 +38,13 @@ void nPhysics::cPlaneComponent::ApplyForce(const glm::vec3& force)
 {
 	// do nothing
 }
+
+int nPhysics::cPlaneComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cPlaneComponent::setID(int id)
+{
+	this->body->setUserIndex(id);
+}

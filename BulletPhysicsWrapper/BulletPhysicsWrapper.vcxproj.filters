@@ -507,6 +507,9 @@
     <ClCompile Include="cFreeSwingingCylinderComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cTriggerSphereComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cBallComponent.hpp">
@@ -1239,6 +1242,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cFreeSwingingCylinderComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTriggerSphereComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

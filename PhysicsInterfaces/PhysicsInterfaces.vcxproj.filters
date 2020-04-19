@@ -60,6 +60,9 @@
     <ClInclude Include="iFreeSwingingCylinderComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="iTriggerSphereComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="iSwingingConeComponent.h">

@@ -1,7 +1,11 @@
 Richard Woods
-OpenGL
 Physics Final Project
 FPS tech demo
+
+
+WARNING:
+	Check volume before starting, might be a bit loud... 
+	Start low and turn up after testing the gunshot sound
 
 
 1. Implemented at least 3 shapes not covered in class (ball/plane)
@@ -14,7 +18,7 @@ FPS tech demo
 2. Implemented 3 constraints
 	Train = Slider Constraint, stays on the rails and stops at the ends
 	Bell = Hinge Constraint, only swings along the one axis
-	Pipe = Cone Twist Constraint, spins and swings around freely up to a certain angle
+	Pipe = Cone Twist Constraint, spins and swings around freely in all directions but cannot translate
 
 
 3. btKinematicCharacterController (see controls)
@@ -35,7 +39,10 @@ FPS tech demo
 6. Implemented collision feedback influencing the game
 	Bullets knock over objects and push them around, can also walk into them but this hardly moves them.. 
 		Character controller seems to be lacking in the collision detection/response for this regard.
-	Powerup increases bullet size and rate of fire
+	Powerup increases bullet size and rate of fire, and plays sound when picked up 
+		(to the left of your starting position, semi-transparent purple sphere)
+	Sound when certain objects are hit with bullet 
+		(Only the bell)
 
 
 Controls

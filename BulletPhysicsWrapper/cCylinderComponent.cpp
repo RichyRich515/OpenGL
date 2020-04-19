@@ -49,3 +49,13 @@ void nPhysics::cCylinderComponent::ApplyForce(const glm::vec3& force)
 	this->body->activate(true);
 	this->body->applyCentralForce(nConvert::ToBullet(force));
 }
+
+int nPhysics::cCylinderComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cCylinderComponent::setID(int id)
+{
+	this->body->setUserIndex(id);
+}

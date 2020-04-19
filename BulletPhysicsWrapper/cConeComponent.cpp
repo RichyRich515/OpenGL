@@ -53,3 +53,13 @@ void nPhysics::cConeComponent::ApplyForce(const glm::vec3& force)
 	this->body->activate(true);
 	this->body->applyCentralForce(nConvert::ToBullet(force));
 }
+
+int nPhysics::cConeComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cConeComponent::setID(int id)
+{
+	return this->body->setUserIndex(id);
+}

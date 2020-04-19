@@ -9,18 +9,6 @@ cDebugRenderer* cWorld::pDebugRenderer;
 
 sMessage cWorld::message(sMessage const& msg)
 {
-	if (msg.name == "Get Balls")
-	{
-		auto v = (std::vector<iGameObject*>*) msg.data.vp;
-		
-		for (auto go : vecGameObjects)
-		{
-			if (go->name.substr(0, 4) == "ball")
-			{
-				v->push_back(go);
-			}
-		}
-	}
 	return sMessage();
 }
 
@@ -47,6 +35,14 @@ void cWorld::deferredAddGameObject(iGameObject* go)
 void cWorld::deferredDeleteGameObject(iGameObject* go)
 {
 	deferred_deletes.emplace(go);
+}
+
+iGameObject* cWorld::getGameObjectByName(std::string const& name)
+{
+	auto itr = std::find_if(this->vecGameObjects.begin(), this->vecGameObjects.end(), [name](iGameObject const* go) { return go->name == name; });
+	if (itr == this->vecGameObjects.end())
+		return nullptr;
+	return (*itr);
 }
 
 void cWorld::doDeferredActions()

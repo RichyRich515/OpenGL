@@ -17,6 +17,8 @@
 #include <functional>
 #include <thread>
 #include <mutex>
+// OpenAL
+#include <cSound.h>
 
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
@@ -69,7 +71,9 @@ static void error_callback(int error, const char* description)
 
 constexpr float MAX_DELTA_TIME = 0.017f;
 
+cFBO_deferred* fbo = nullptr;
 cCamera* camera;
+cSound* pSound = nullptr;
 
 // TODO: Get this outta global space
 cShaderManager::cShaderProgram* pShader;
@@ -77,7 +81,6 @@ GLuint program = 0;
 
 std::map<std::string, cMesh*> mapMeshes;
 
-cFBO_deferred* fbo = nullptr;
 
 // multithreaded texture loader
 std::vector<std::thread> vec_threadPool;
@@ -87,9 +90,9 @@ std::vector<CTextureFromBMP*> vec_texturesToLoadToGPU;
 std::mutex texture_mutex;
 
 // factory for any game object
-iGameObjectFactory* pGameObjectFactory;
-cBasicTextureManager* pTextureManager;
-cKeyboardManager* pKeyboardManager = NULL;
+iGameObjectFactory* pGameObjectFactory = nullptr;
+cBasicTextureManager* pTextureManager = nullptr;
+cKeyboardManager* pKeyboardManager = nullptr;
 bool ctrl_pressed = false, shift_pressed = false;
 bool left_mouse_down = false;
 
@@ -249,7 +252,7 @@ void Threaded_LoadTexturesFromFiles(unsigned thread_id)
 
 		//std::cout << "Loading texture: " << name << std::endl;
 		CTextureFromBMP* texture = pTextureManager->Create2DTextureFromBMPFile(name);
-		if (texture == nullptr) 
+		if (texture == nullptr)
 		{
 			std::cerr << "Failed to load texture " << name << " from file" << std::endl;
 		}
@@ -262,6 +265,21 @@ void Threaded_LoadTexturesFromFiles(unsigned thread_id)
 	}
 	vec_threadsDone[thread_id] = true;
 	std::cout << "Thread done" << std::endl;
+}
+
+// collisions seem to detect multiple times so put a cooldown on this
+const float BELL_SOUND_COOLDOWN_TIME = 0.25f;
+float bell_sound_cooldown_timer;
+
+void PlayBellSound(nPhysics::iPhysicsComponent* other)
+{
+	if (other->getID() != -1)
+		return;
+	if (bell_sound_cooldown_timer <= 0)
+	{
+		bell_sound_cooldown_timer = BELL_SOUND_COOLDOWN_TIME;
+		pSound->Play("bell", true);
+	}
 }
 
 int main()
@@ -449,13 +467,27 @@ int main()
 		}
 	}
 
+	// setup audio
+	{
+		pSound = new cSound();
+		std::string err;
+		if (!pSound->Init(err))
+		{
+			std::cerr << "Error: sound init failed" << std::endl << err << std::endl;
+		}
+		pSound->setFileBasePath("assets/audio/");
+		pSound->LoadFromFile("gunshot.wav", "gunshot", cSound::TYPE_STATIC, true);
+		pSound->LoadFromFile("bell.wav", "bell", cSound::TYPE_STATIC, true);
+		pSound->LoadFromFile("powerup.wav", "powerup", cSound::TYPE_STATIC, true);
+	}
+
 	float ratio;
 	int width, height;
 	glm::mat4 v, p;
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float)height;
 
-	float fov = 65.0f;
+	float fov = 70.0f;
 
 	glViewport(0, 0, width, height);
 
@@ -506,34 +538,6 @@ int main()
 
 	openSceneFromFile("assets/scenes/scene1.json");
 
-	// setup textured cubes
-	{
-		unsigned count = 1;
-		for (unsigned y = 0; y < 10; ++y)
-		{
-			for (unsigned x = 0; x < 21; ++x)
-			{
-				cGameObject* cube = new cGameObject();
-				cube->graphics.visible = true;
-				cube->graphics.lighting = true;
-				cube->graphics.textures[0].fileName = "texture (" + std::to_string(count) + ").bmp";
-				cube->graphics.textures[0].blend = 1.0f;
-				cube->graphics.textures[0].tiling = 1.0f;
-
-				cube->mesh.meshName = "cube";
-				cube->mesh.scale = 5.0f;
-
-				cube->transform.position.x = 100.0f + x * -10.0f;
-				cube->transform.position.y = 90.0f + y * -10.0f;
-				cube->transform.position.z = 120.0f;
-				cube->transform.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-				cube->transform.updateMatricis();
-				world->addGameObject(cube);
-				++count;
-			}
-		}
-	}
-
 	camera->forward.x = cos(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
 	camera->forward.y = sin(glm::radians(camera->pitch));
 	camera->forward.z = sin(glm::radians(camera->yaw)) * cos(glm::radians(camera->pitch));
@@ -566,7 +570,7 @@ int main()
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
 	lastcursorY = cursorY;
-	
+
 	bool done_loading = false;
 
 	// Wait for threads to load in all the textures
@@ -591,8 +595,35 @@ int main()
 		}
 	}
 
+	const int BULLET_ID = -1;
 	const float SHOOT_COOLDOWN_TIME = 1.0f;
 	float shoot_cooldown_timer = 0.0f;
+	bool powered_up = false;
+
+	nPhysics::sTriggerSphereDef tsdef;
+	tsdef.Position = glm::vec3(40.0f, 7.5f, -40.0f);
+	tsdef.Radius = 2.0f;
+
+	auto physpowerup = pPhysicsFactory->CreateTriggerSphere(tsdef);
+	pPhysicsManager->getWorld()->AddComponent(physpowerup);
+
+	auto powerup = new cPhysicsGameObject();
+	powerup->graphics.color = glm::vec4(1.0f, 0.25f, 1.0f, 0.25f);
+	powerup->graphics.visible = true;
+	powerup->graphics.lighting = true;
+
+	powerup->physics = physpowerup;
+	powerup->mesh = new cMeshComponent();
+	powerup->mesh->scale = 4.0f;
+	powerup->mesh->meshName = "sphere";
+	powerup->name = "powerup";
+	world->addGameObject(powerup);
+
+
+	// Register the bell as a listener
+	cPhysicsGameObject* bell = (cPhysicsGameObject*)world->getGameObjectByName("bell");
+	bell->physics->SetOnCollisionFunction(&PlayBellSound);
+	pPhysicsManager->getWorld()->AddCollisionListener(bell->physics);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -611,6 +642,7 @@ int main()
 				dt *= 10;
 
 			shoot_cooldown_timer -= dt;
+			bell_sound_cooldown_timer -= dt;
 		}
 
 		// imgui
@@ -688,28 +720,30 @@ int main()
 			// shooting
 			if (left_mouse_down && shoot_cooldown_timer <= 0.0f)
 			{
-				shoot_cooldown_timer = SHOOT_COOLDOWN_TIME;
+				shoot_cooldown_timer = powered_up ? SHOOT_COOLDOWN_TIME * 0.5f : SHOOT_COOLDOWN_TIME;
+				pSound->Play("gunshot", true);
+
 				nPhysics::sBallDef bulletdef;
 				bulletdef.Position = camera->position + camera->forward * 5.0f;
-				bulletdef.Mass = 1.0f;
-				bulletdef.Radius = 0.2f;
+				bulletdef.Mass = powered_up ? 5.0f : 1.0f;
+				bulletdef.Radius = powered_up ? 0.75f : 0.2f;
 				bulletdef.Elasticity = 1.0f;
 				bulletdef.InitialVelocity = camera->forward * 100.0f;
 
 				auto physbullet = pPhysicsFactory->CreateBall(bulletdef);
 				pPhysicsManager->getWorld()->AddComponent(physbullet);
-				
+				physbullet->setID(BULLET_ID); // Set to a specific number for the sound check trigger
+
 				auto bullet = new cBulletGameObject();
 				bullet->graphics.color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 				bullet->graphics.visible = true;
 				bullet->graphics.lighting = true;
-				
+
 				bullet->physics = physbullet;
 				bullet->mesh = new cMeshComponent();
-				bullet->mesh->scale = 0.2f;
+				bullet->mesh->scale = powered_up ? 1.0f : 0.2f;
 				bullet->mesh->meshName = "sphere";
 				bullet->name = "bullet";
-
 				world->addGameObject(bullet);
 			}
 		}
@@ -774,6 +808,21 @@ int main()
 		}
 
 		physWorld->Update(dt);
+
+		// check for powerup collision
+		if (!powered_up && physpowerup->IsTriggeredBy(physicscharacter->getID()))
+		{
+			powered_up = true;
+			pPhysicsManager->getWorld()->RemoveComponent(powerup->physics);
+			world->deferredDeleteGameObject(powerup);
+			powerup = nullptr;
+
+			pSound->Play("powerup", true);
+		}
+		else if (powerup)
+		{
+			powerup->mesh->scale = (sin(tt * 2.0f) * 0.5f + 0.5f) + 3.5f;
+		}
 
 		glm::mat4 t;
 		physicscharacter->GetTransform(t);

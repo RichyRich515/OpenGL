@@ -1,6 +1,7 @@
 #pragma once
 #include <iPhysicsWorld.h>
 #include <btBulletDynamicsCommon.h>
+#include <vector>
 #include "bullet/BulletCollision/CollisionDispatch/btGhostObject.h"
 
 namespace nPhysics
@@ -15,6 +16,8 @@ namespace nPhysics
 		btSequentialImpulseConstraintSolver* solver;
 		btDiscreteDynamicsWorld* dynamicsWorld;
 
+		std::vector<iPhysicsComponent*> collision_listeners;
+
 	public:
 		cPhysicsWorld();
 		virtual ~cPhysicsWorld();
@@ -22,5 +25,8 @@ namespace nPhysics
 		virtual void Update(float dt) override;
 		virtual bool AddComponent(iPhysicsComponent* component) override;
 		virtual bool RemoveComponent(iPhysicsComponent* component) override;
+
+		virtual bool AddCollisionListener(iPhysicsComponent* component) override;
+		virtual bool RemoveCollisionListener(iPhysicsComponent* component) override;
 	};
 }

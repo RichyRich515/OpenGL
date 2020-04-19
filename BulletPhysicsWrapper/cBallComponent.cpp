@@ -52,4 +52,14 @@ namespace nPhysics
 		this->body->activate(true);
 		this->body->applyCentralForce(nConvert::ToBullet(force));
 	}
+
+	int cBallComponent::getID()
+	{
+		return this->body->getUserIndex();
+	}
+
+	void cBallComponent::setID(int id)
+	{
+		this->body->setUserIndex(id);
+	}
 }

@@ -182,6 +182,7 @@
     <ClCompile Include="cPlaneComponent.cpp" />
     <ClCompile Include="cSlidingBoxComponent.cpp" />
     <ClCompile Include="cSwingingConeComponent.cpp" />
+    <ClCompile Include="cTriggerSphereComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet\btBulletCollisionCommon.h" />
@@ -427,6 +428,7 @@
     <ClInclude Include="cPlaneComponent.hpp" />
     <ClInclude Include="cSlidingBoxComponent.hpp" />
     <ClInclude Include="cSwingingConeComponent.hpp" />
+    <ClInclude Include="cTriggerSphereComponent.hpp" />
     <ClInclude Include="nConvert.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

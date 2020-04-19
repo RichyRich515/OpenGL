@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDP2019_20", "GDP2019_20\GDP2019_20.vcxproj", "{AC89A0D6-36A9-4B42-948D-5A55BA436D9A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C568A429-216F-481D-B768-9AC284704D85} = {C568A429-216F-481D-B768-9AC284704D85}
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0} = {5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}
 		{A44B93D1-0135-4E82-9646-94295A87E37E} = {A44B93D1-0135-4E82-9646-94295A87E37E}
 	EndProjectSection
 EndProject
@@ -20,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyPhysicsWrapper", "MyPhysi
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletPhysicsWrapper", "BulletPhysicsWrapper\BulletPhysicsWrapper.vcxproj", "{C568A429-216F-481D-B768-9AC284704D85}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenALSound", "OpenALSound\OpenALSound.vcxproj", "{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +72,14 @@ Global
 		{C568A429-216F-481D-B768-9AC284704D85}.Release|x64.Build.0 = Release|x64
 		{C568A429-216F-481D-B768-9AC284704D85}.Release|x86.ActiveCfg = Release|Win32
 		{C568A429-216F-481D-B768-9AC284704D85}.Release|x86.Build.0 = Release|Win32
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Debug|x64.ActiveCfg = Debug|x64
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Debug|x64.Build.0 = Debug|x64
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Debug|x86.ActiveCfg = Debug|Win32
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Debug|x86.Build.0 = Debug|Win32
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Release|x64.ActiveCfg = Release|x64
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Release|x64.Build.0 = Release|x64
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Release|x86.ActiveCfg = Release|Win32
+		{5F0CCEAC-D40A-47D0-A0F1-D5BB8BC0C3D0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

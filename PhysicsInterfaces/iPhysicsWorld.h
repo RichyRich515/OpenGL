@@ -11,5 +11,8 @@ namespace nPhysics
 		virtual void Update(float dt) = 0;
 		virtual bool AddComponent(iPhysicsComponent* component) = 0;
 		virtual bool RemoveComponent(iPhysicsComponent* component) = 0;
+
+		virtual bool AddCollisionListener(iPhysicsComponent* component) = 0;
+		virtual bool RemoveCollisionListener(iPhysicsComponent* component) = 0;
 	};
 }

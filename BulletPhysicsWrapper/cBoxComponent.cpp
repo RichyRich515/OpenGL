@@ -49,3 +49,13 @@ void nPhysics::cBoxComponent::ApplyForce(const glm::vec3& force)
 	this->body->activate(true);
 	this->body->applyCentralForce(nConvert::ToBullet(force));
 }
+
+int nPhysics::cBoxComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cBoxComponent::setID(int id)
+{
+	this->body->setUserIndex(id);
+}

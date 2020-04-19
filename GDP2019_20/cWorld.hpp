@@ -28,6 +28,7 @@ public:
 	void deferredAddGameObject(iGameObject* go);
 	void deferredDeleteGameObject(iGameObject* go);
 
+	iGameObject* getGameObjectByName(std::string const& name);
 
 	void doDeferredActions();
 

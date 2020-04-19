@@ -18,5 +18,9 @@ namespace nPhysics
 		virtual void GetTransform(glm::mat4& transformOut) override;
 
 		virtual void ApplyForce(const glm::vec3& force) override;
+
+		// Inherited via iConeComponent
+		virtual int getID() override;
+		virtual void setID(int id) override;
 	};
 }

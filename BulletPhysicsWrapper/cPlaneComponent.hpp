@@ -19,5 +19,9 @@ namespace nPhysics
 
 		// Inherited via iPlaneComponent
 		virtual void ApplyForce(const glm::vec3& force) override;
+
+		// Inherited via iPlaneComponent
+		virtual int getID() override;
+		virtual void setID(int id) override;
 	};
 }

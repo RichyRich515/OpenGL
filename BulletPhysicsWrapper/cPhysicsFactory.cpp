@@ -9,6 +9,7 @@
 #include "cSwingingConeComponent.hpp"
 #include "cPlaneComponent.hpp"
 #include "cClothComponent.hpp"
+#include "cTriggerSphereComponent.hpp"
 #include "cCharacterComponent.hpp"
 
 // Export function from DLL
@@ -24,52 +25,87 @@ namespace nPhysics
 
 	iBallComponent* cPhysicsFactory::CreateBall(const sBallDef& def)
 	{
-		return new cBallComponent(def);
+		auto component = new cBallComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iBoxComponent* cPhysicsFactory::CreateBox(const sBoxDef& def)
 	{
-		return new cBoxComponent(def);
+		auto component = new cBoxComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iSlidingBoxComponent* cPhysicsFactory::CreateSlidingBox(const sSlidingBoxDef& def)
 	{
-		return new cSlidingBoxComponent(def);
+		auto component = new cSlidingBoxComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iCylinderComponent* cPhysicsFactory::CreateCylinder(const sCylinderDef& def)
 	{
-		return new cCylinderComponent(def);
+		auto component = new cCylinderComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iFreeSwingingCylinderComponent* cPhysicsFactory::CreateFreeSwingingCylinder(const sFreeSwingingCylinderDef& def)
 	{
-		return new cFreeSwingingCylinderComponent(def);
+		auto component = new cFreeSwingingCylinderComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iConeComponent* cPhysicsFactory::CreateCone(const sConeDef& def)
 	{
-		return new cConeComponent(def);
+		auto component = new cConeComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iSwingingConeComponent* cPhysicsFactory::CreateSwingingCone(const sSwingingConeDef& def)
 	{
-		return new cSwingingConeComponent(def);
+		auto component = new cSwingingConeComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iPlaneComponent* cPhysicsFactory::CreatePlane(const sPlaneDef& def)
 	{
-		return new cPlaneComponent(def);
+		auto component = new cPlaneComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iClothComponent* cPhysicsFactory::CreateCloth(const sClothDef& def)
 	{
-		return new cClothComponent(def);
+		return nullptr;
+	}
+
+	iTriggerSphereComponent* cPhysicsFactory::CreateTriggerSphere(const sTriggerSphereDef& def)
+	{
+		auto component = new cTriggerSphereComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 
 	iCharacterComponent* cPhysicsFactory::CreateCharacter(const sCharacterDef& def)
 	{
-		return new cCharacterComponent(def);
+		auto component = new cCharacterComponent(def);
+		component->setID(next_id);
+		++next_id;
+		return component;
 	}
 }
 

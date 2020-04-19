@@ -60,3 +60,13 @@ void nPhysics::cSlidingBoxComponent::ApplyForce(const glm::vec3& force)
 	this->body->activate(true);
 	this->body->applyCentralForce(nConvert::ToBullet(force));
 }
+
+int nPhysics::cSlidingBoxComponent::getID()
+{
+	return this->body->getUserIndex();
+}
+
+void nPhysics::cSlidingBoxComponent::setID(int id)
+{
+	this->body->setUserIndex(id);
+}

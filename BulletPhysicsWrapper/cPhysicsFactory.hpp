@@ -6,6 +6,7 @@ namespace nPhysics
 	class cPhysicsFactory : public iPhysicsFactory
 	{
 	private:
+		int next_id = 0;
 
 	public:
 		virtual iPhysicsWorld* CreateWorld() override;
@@ -18,6 +19,7 @@ namespace nPhysics
 		virtual iSwingingConeComponent* CreateSwingingCone(const sSwingingConeDef& def) override;
 		virtual iPlaneComponent* CreatePlane(const sPlaneDef& def) override;
 		virtual iClothComponent* CreateCloth(const sClothDef& def) override;
+		virtual iTriggerSphereComponent* CreateTriggerSphere(const sTriggerSphereDef& def) override;
 		virtual iCharacterComponent* CreateCharacter(const sCharacterDef& def) override;
 	};
 }

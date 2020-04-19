@@ -26,5 +26,8 @@ namespace nPhysics
 		virtual void Move(glm::vec3 v, float time) override;
 		virtual bool CanJump() override;
 		virtual void GetVelocity(glm::vec3& v) override;
+
+		virtual int getID() override;
+		virtual void setID(int id) override;
 	};
 }

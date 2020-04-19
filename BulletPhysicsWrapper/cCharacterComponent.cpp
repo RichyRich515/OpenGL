@@ -51,6 +51,16 @@ void nPhysics::cCharacterComponent::GetVelocity(glm::vec3& v)
 	nConvert::ToSimple(this->character->getLinearVelocity(), v);
 }
 
+int nPhysics::cCharacterComponent::getID()
+{
+	return this->ghostObject->getUserIndex();
+}
+
+void nPhysics::cCharacterComponent::setID(int id)
+{
+	this->ghostObject->setUserIndex(id);
+}
+
 void nPhysics::cCharacterComponent::Move(glm::vec3 v, float time)
 {
 	this->character->setLinearVelocity(nConvert::ToBullet(v));
