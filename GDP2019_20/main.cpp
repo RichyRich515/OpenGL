@@ -599,6 +599,7 @@ int main()
 	emitter1->parentOffset = glm::vec3(0.0f, 3.5f, -4.5f);
 
 	bool blur_second_pass = false;
+	bool night_vision_second_pass = false;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -690,6 +691,10 @@ int main()
 			{
 				blur_second_pass = !blur_second_pass;
 			}
+			if (pKeyboardManager->keyPressed('N'))
+			{
+				night_vision_second_pass = !night_vision_second_pass;
+			}
 
 
 			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE) && physicscharacter->CanJump())
@@ -744,7 +749,7 @@ int main()
 			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience.r, ambience.g, ambience.b, ambience.a);
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
-			glUniform4f(pShader->getUniformLocID("secondPassParams00"), (float)blur_second_pass, 0.0f, 0.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("secondPassParams00"), (float)blur_second_pass, (float)night_vision_second_pass, 0.0f, 0.0f);
 		}
 
 		// draw Skybox

@@ -19,8 +19,8 @@ const float VERTEX_IS_LIT = 1.0f;
 
 uniform float passCount;
 
-// x: blur second pass
-// y:
+// x: blur
+// y: Night vision
 // z:
 // w:
 uniform vec4 secondPassParams00;
@@ -98,40 +98,75 @@ uniform sLight lights[NUMBEROFLIGHTS];
 vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 vertexWorldPos, vec4 vertexSpecular);
 
 // two pass kernal, do horizontal then do vertical
+// This example is a kernel calculated at http://dev.theomader.com/gaussian-kernel-calculator/
+// sigma = 1.0
+// size = 5
+const int BLUR_KERNEL_SIZE = 25; // n^2
+
 // x: xoffset
 // y: yoffset
 // z:
-// z: weight
-const int BLUR_KERNEL_SIZE = 9;
+// w: weight
 const vec4 BLUR_KERNEL[BLUR_KERNEL_SIZE] =
 {
-	vec4(0.0, 0.0, 0.0, 0.150342),
-	vec4(2.0, 0.0, 0.0, 0.023792),
-	vec4(-2.0, 0.0, 0.0, 0.023792),
-	vec4(1.0, 0.0, 0.0, 0.094907),
-	vec4(-1.0, 0.0, 0.0, 0.094907),
-	vec4(0.0, 2.0, 0.0, 0.023792),
-	vec4(0.0, -2.0, 0.0, 0.023792),
-	vec4(0.0, 1.0, 0.0, 0.094907),
-	vec4(0.0, -1.0, 0.0, 0.094907)
+	// row 1
+	vec4(-2.0, -2.0, 0.0, 0.003765),
+	vec4(-1.0, -2.0, 0.0, 0.015019),
+	vec4( 0.0, -2.0, 0.0, 0.023792),
+	vec4( 1.0, -2.0, 0.0, 0.015019),
+	vec4( 2.0, -2.0, 0.0, 0.003765),
+
+	// row 2
+	vec4(-2.0, -1.0, 0.0, 0.015019),
+	vec4(-1.0, -1.0, 0.0, 0.059912),
+	vec4( 0.0, -1.0, 0.0, 0.094907),
+	vec4( 1.0, -1.0, 0.0, 0.059912),
+	vec4( 2.0, -1.0, 0.0, 0.015019),
+	
+	// row 3
+	vec4(-2.0,  0.0, 0.0, 0.023792),
+	vec4(-1.0,  0.0, 0.0, 0.094907),
+	vec4( 0.0,  0.0, 0.0, 0.150342),
+	vec4( 1.0,  0.0, 0.0, 0.094907),
+	vec4( 2.0,  0.0, 0.0, 0.023792),
+
+	// row 4
+	vec4(-2.0,  1.0, 0.0, 0.015019),
+	vec4(-1.0,  1.0, 0.0, 0.059912),
+	vec4( 0.0,  1.0, 0.0, 0.094907),
+	vec4( 1.0,  1.0, 0.0, 0.059912),
+	vec4( 2.0,  1.0, 0.0, 0.015019),
+
+	// row 5
+	vec4(-2.0,  2.0, 0.0, 0.003765),
+	vec4(-1.0,  2.0, 0.0, 0.015019),
+	vec4( 0.0,  2.0, 0.0, 0.023792),
+	vec4( 1.0,  2.0, 0.0, 0.015019),
+	vec4( 2.0,  2.0, 0.0, 0.003765)
 };
 
 void main()  
 {
 	if (passCount == 2)
 	{
-		// Blur or naw
+		vec3 ambience = ambientColour.rgb;
+		// Night vision?
+		if (secondPassParams00.y != 0)
+		{
+			ambience = vec3(0.1, 3.0, 0.1);
+		}
+
+		// Blur?
 		if (secondPassParams00.x != 0.0)
 		{
-			colourBuffer = vec4(1.0, 0.0, 0.0, 1.0);
 			for (int i = 0; i < BLUR_KERNEL_SIZE; ++i)
 			{
 				float s = (gl_FragCoord.x + BLUR_KERNEL[i].x) / 1920.0;
 				float t = (gl_FragCoord.y + BLUR_KERNEL[i].y) / 1080.0;
 				if (s > 1920.0 || s < 0 || t > 1080.0 || t < 0)
 					continue;
-
 				vec2 st = vec2(s, t);
+
 				vec4 vertexColour = texture(secondPassColourSamp, st);
 				vec4 vertexWorldNormal = texture(secondPassWorldNormalSamp, st);
 				vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
@@ -139,30 +174,23 @@ void main()
 
 				if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
 				{
-					colourBuffer.rgb += vertexColour.rgb * BLUR_KERNEL[i].z;
+					colourBuffer.rgb += vertexColour.rgb * BLUR_KERNEL[i].w;
 				}
 				else
 				{
 					vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
-					if (length(lightContribution.xyz) < length(ambientColour.xyz))
+					if (length(lightContribution.xyz) < length(ambience))
 					{
-						colourBuffer.rgb += vertexColour.rgb * ambientColour.rgb * BLUR_KERNEL[i].z;
+						colourBuffer.rgb += vertexColour.rgb * ambience * BLUR_KERNEL[i].w;
 					}
 					else
 					{
 
-						colourBuffer.rgb += vertexColour.rgb * lightContribution.rgb * BLUR_KERNEL[i].z;
+						colourBuffer.rgb += vertexColour.rgb * lightContribution.rgb * BLUR_KERNEL[i].w;
 					}
 				}
 			}
 
-			// don't blur overlay
-			float s = gl_FragCoord.x / 1920.0f;
-			float t = gl_FragCoord.y / 1080.0f;
-			vec2 st = vec2(s, t);
-			colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
-			colourBuffer.a = 1.0f;
-			return;
 		}
 		else
 		{
@@ -177,28 +205,31 @@ void main()
 
 			if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
 			{
-				colourBuffer.rgb = vertexColour.xyz;
-				colourBuffer.a = 1.0f;
+				colourBuffer.rgb = vertexColour.rgb;
 			}
 			else
 			{
 				vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
-				if (length(lightContribution.xyz) < length(ambientColour.xyz))
+				if (length(lightContribution.xyz) < length(ambience))
 				{
-					colourBuffer = vertexColour * ambientColour;
+					colourBuffer.rgb = vertexColour.rgb * ambience;
 				}
 				else
 				{
 
-					colourBuffer = vertexColour * lightContribution;
+					colourBuffer.rgb = vertexColour.rgb * lightContribution.rgb;
 				}
 
-				colourBuffer.a = 1.0f;
 			}
-
-			colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
-			return;
 		}
+
+		// don't blur overlay
+		float s = gl_FragCoord.x / 1920.0f;
+		float t = gl_FragCoord.y / 1080.0f;
+		vec2 st = vec2(s, t);
+		colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
+		colourBuffer.a = 1.0f;
+		return;
 		
 	}
 
