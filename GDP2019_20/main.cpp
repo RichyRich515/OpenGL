@@ -42,6 +42,7 @@
 
 #include "DebugRenderer/cDebugRenderer.h"
 #include "cFBO_deferred.hpp"
+#include "cFBO_Shadowmap.hpp"
 #include "cMesh.hpp"
 
 #include "cWorld.hpp"
@@ -73,6 +74,7 @@ static void error_callback(int error, const char* description)
 constexpr float MAX_DELTA_TIME = 0.017f;
 
 cFBO_deferred* fbo = nullptr;
+cFBO_Shadowmap* fboShadowmap = nullptr;
 cCamera* camera;
 cSound* pSound = nullptr;
 
@@ -506,12 +508,16 @@ int main()
 		std::string fboError;
 		if (!fbo->init(width, height, fboError))
 		{
-			std::cout << "FBO init error: " << fboError << std::endl;
+			std::cout << "FBO_deffered init error: " << fboError << std::endl;
 		}
 
 		fbo->clearBuffers();
-		// for resizing
-		//fbo->reset();
+
+		fboShadowmap = new cFBO_Shadowmap();
+		if (!fboShadowmap->init(1024, 1024, fboError))
+		{
+			std::cout << "FBO_shadowmap init error: " << fboError << std::endl;
+		}
 	}
 
 	cWorld::pDebugRenderer = new cDebugRenderer();
@@ -600,6 +606,7 @@ int main()
 
 	bool blur_second_pass = false;
 	bool night_vision_second_pass = false;
+	float edge_detection_second_pass_threshhold = 0.0f;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -687,6 +694,26 @@ int main()
 				physicscharacter->Move(new_vel, dt);
 			}
 
+			if (pKeyboardManager->keyPressed('V'))
+			{
+				if (edge_detection_second_pass_threshhold != 0.0f)
+					edge_detection_second_pass_threshhold = 0.0f;
+				else
+					edge_detection_second_pass_threshhold = 0.5f;
+			}
+			if (pKeyboardManager->keyDown(','))
+			{
+				edge_detection_second_pass_threshhold *= 0.98f;
+				if (edge_detection_second_pass_threshhold < 0.0f)
+					edge_detection_second_pass_threshhold = 0.0f;
+			}
+			else if (pKeyboardManager->keyDown('.'))
+			{
+
+				edge_detection_second_pass_threshhold *= 1.02f;
+				if (edge_detection_second_pass_threshhold > 1.0f)
+					edge_detection_second_pass_threshhold = 1.0f;
+			}
 			if (pKeyboardManager->keyPressed('B'))
 			{
 				blur_second_pass = !blur_second_pass;
@@ -695,6 +722,7 @@ int main()
 			{
 				night_vision_second_pass = !night_vision_second_pass;
 			}
+
 
 
 			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE) && physicscharacter->CanJump())
@@ -737,8 +765,8 @@ int main()
 		{
 			glUseProgram(program);
 			// FOV, aspect ratio, near clip, far clip
-			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 			v = glm::lookAt(camera->position, camera->position + camera->forward, camera->up);
+			p = glm::perspective(glm::radians(fov), ratio, 0.1f, 1000.0f);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo->ID);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -749,7 +777,7 @@ int main()
 			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience.r, ambience.g, ambience.b, ambience.a);
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
-			glUniform4f(pShader->getUniformLocID("secondPassParams00"), (float)blur_second_pass, (float)night_vision_second_pass, 0.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("secondPassParams00"), (float)blur_second_pass, (float)night_vision_second_pass, edge_detection_second_pass_threshhold, 0.0f);
 		}
 
 		// draw Skybox
@@ -799,7 +827,6 @@ int main()
 
 		physWorld->Update(dt);
 
-
 		glm::mat4 t;
 		physicscharacter->GetTransform(t);
 		character->transform.position.x = glm::mix(character->transform.matWorld[3][0], t[3][0], dt * 5.0f);
@@ -809,20 +836,36 @@ int main()
 		character->transform.updateMatricis();
 		camera->position = glm::vec3(character->transform.matWorld[3]) + glm::vec3(0.0, 7.0f, 0.0);
 
-		// pre frame, then render
+		// Render
 		{
-			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-			{
-				world->vecGameObjects[i]->preFrame(dt, tt);
-			}
-
-			//emitter1->preFrame(dt, tt);
-
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 			{
 				world->vecGameObjects[i]->render(dt, tt);
 			}
+		}
 
+		// switch to shadow map and render again from "sun" light perspective
+		{
+			// FOV, aspect ratio, near clip, far clip
+
+			glBindFramebuffer(GL_FRAMEBUFFER, fboShadowmap->ID);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glUniform1f(pShader->getUniformLocID("passCount"), 2);
+
+			glm::vec3 lightInvDir = glm::vec3(world->vecLights[0]->direction.x, world->vecLights[0]->direction.y, world->vecLights[0]->direction.z);
+
+			glm::mat4 vLight = glm::lookAt(lightInvDir, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+			glm::mat4 pLight = glm::ortho<float>(-640, 640, -640, 640, -640, 1280); // TODO: 1280???
+
+			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(vLight));
+			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(pLight));
+
+			// push objects to shader again
+			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+			{
+				world->vecGameObjects[i]->render(dt, tt);
+			}
 		}
 
 		// render fbo to tri

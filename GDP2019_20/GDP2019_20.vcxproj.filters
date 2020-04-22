@@ -213,6 +213,9 @@
     <ClCompile Include="cBulletGameObject.cpp">
       <Filter>CustomObjects</Filter>
     </ClCompile>
+    <ClCompile Include="cFBO_Shadowmap.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLCommon.h">
@@ -361,6 +364,9 @@
     </ClInclude>
     <ClInclude Include="cBulletGameObject.hpp">
       <Filter>CustomObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO_Shadowmap.hpp">
+      <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

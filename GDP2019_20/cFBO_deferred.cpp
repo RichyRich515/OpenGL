@@ -81,7 +81,6 @@ bool cFBO_deferred::init(int width, int height, std::string& error)
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, this->worldVertexPositionBuffer_2_ID, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, this->specularBuffer_3_ID, 0);
 
-	//glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, this->depthTexture_ID, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, this->depthTexture_ID, 0);
 
 	static const GLenum draw_buffers[] =

@@ -165,6 +165,7 @@
     <ClCompile Include="cFactoryManager.cpp" />
     <ClCompile Include="cFBO.cpp" />
     <ClCompile Include="cFBO_deferred.cpp" />
+    <ClCompile Include="cFBO_Shadowmap.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cMesh.cpp" />
     <ClCompile Include="cPhysicsGameObject.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="cFactoryManager.hpp" />
     <ClInclude Include="cFBO.hpp" />
     <ClInclude Include="cFBO_deferred.hpp" />
+    <ClInclude Include="cFBO_Shadowmap.hpp" />
     <ClInclude Include="cGameObject.hpp" />
     <ClInclude Include="cPhysicsGameObject.hpp" />
     <ClInclude Include="cGameObjectFactory.hpp" />

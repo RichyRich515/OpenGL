@@ -126,8 +126,16 @@ const vec4 BLUR_KERNEL[BLUR_KERNEL_SIZE] =
 
 void main()  
 {
+	if (passCount == 3)
+	{
+		// shader map
+
+
+		return
+	}
 	if (passCount == 2)
 	{
+		// deferred render
 		vec3 ambience = ambientColour.rgb;
 
 		// Blur?
@@ -178,23 +186,26 @@ void main()
 			vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
 			vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
 
-			// Edge detection derived from https://computergraphics.stackexchange.com/questions/2450/opengl-detection-of-edges?noredirect=1&lq=1
-			float colourDot = dot(vertexColour.rgb, vec3(0.2, 0.2, 0.2));
-			float colourGrad = fwidth(colourDot);
-
-			float normDot = dot(vertexWorldNormal.rgb, vec3(0.0, 1.0, 0.0));
-			float normGrad = fwidth(normDot);
-
-			bool isEdge = sqrt(normGrad * normGrad + colourGrad * colourGrad) > 0.3;
-			if (isEdge)
+			if (secondPassParams00.z != 0)
 			{
-				colourBuffer = vec4(1.0, 1.0f, 1.0f, 1.0);
-				return;
-			}
-			else
-			{
-				colourBuffer = vec4(0.0, 0.0f, 0.0f, 1.0);
-				return;
+				// Edge detection derived from 
+				// https://computergraphics.stackexchange.com/questions/2450/opengl-detection-of-edges?noredirect=1&lq=1
+				// https://cdn.imgtec.com/sdk-documentation/Edge+Detection.Whitepaper.pdf
+				// convert to hsv https://stackoverflow.com/questions/867653/how-to-implement-grayscale-rendering-in-opengl
+				vec3 grayscaleVertColour = mix(vec3(dot(vertexColour.rgb, vec3(0.2125, 0.7154, 0.0721))), vertexColour.rgb, 0.5);
+				float lum = dot(grayscaleVertColour, vec3(0.2125, 0.7154, 0.0721));
+				float lumGrad = fwidth(lum);
+
+				vec3 eyeVector = normalize(eyeLocation.xyz - vertexWorldPosition.xyz);
+				float normDot = dot(vertexWorldNormal.xyz, eyeVector);
+				float normGrad = fwidth(normDot);
+
+				bool isEdge = normGrad > secondPassParams00.z || lumGrad > secondPassParams00.z;
+				if (isEdge)
+				{
+					colourBuffer = vec4(1.0, 1.0f, 1.0f, 1.0);
+					return;
+				}
 			}
 
 			if (vertexWorldNormal.w != VERTEX_IS_NOT_LIT)
