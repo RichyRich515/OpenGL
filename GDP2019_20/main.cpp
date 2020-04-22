@@ -42,7 +42,6 @@
 
 #include "DebugRenderer/cDebugRenderer.h"
 #include "cFBO_deferred.hpp"
-#include "cFBO_Shadowmap.hpp"
 #include "cMesh.hpp"
 
 #include "cWorld.hpp"
@@ -74,7 +73,6 @@ static void error_callback(int error, const char* description)
 constexpr float MAX_DELTA_TIME = 0.017f;
 
 cFBO_deferred* fbo = nullptr;
-cFBO_Shadowmap* fboShadowmap = nullptr;
 cCamera* camera;
 cSound* pSound = nullptr;
 
@@ -512,12 +510,6 @@ int main()
 		}
 
 		fbo->clearBuffers();
-
-		fboShadowmap = new cFBO_Shadowmap();
-		if (!fboShadowmap->init(1024, 1024, fboError))
-		{
-			std::cout << "FBO_shadowmap init error: " << fboError << std::endl;
-		}
 	}
 
 	cWorld::pDebugRenderer = new cDebugRenderer();
@@ -838,30 +830,6 @@ int main()
 
 		// Render
 		{
-			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
-			{
-				world->vecGameObjects[i]->render(dt, tt);
-			}
-		}
-
-		// switch to shadow map and render again from "sun" light perspective
-		{
-			// FOV, aspect ratio, near clip, far clip
-
-			glBindFramebuffer(GL_FRAMEBUFFER, fboShadowmap->ID);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glUniform1f(pShader->getUniformLocID("passCount"), 2);
-
-			glm::vec3 lightInvDir = glm::vec3(world->vecLights[0]->direction.x, world->vecLights[0]->direction.y, world->vecLights[0]->direction.z);
-
-			glm::mat4 vLight = glm::lookAt(lightInvDir, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-			glm::mat4 pLight = glm::ortho<float>(-640, 640, -640, 640, -640, 1280); // TODO: 1280???
-
-			glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(vLight));
-			glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(pLight));
-
-			// push objects to shader again
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 			{
 				world->vecGameObjects[i]->render(dt, tt);

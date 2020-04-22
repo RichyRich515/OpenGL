@@ -126,13 +126,6 @@ const vec4 BLUR_KERNEL[BLUR_KERNEL_SIZE] =
 
 void main()  
 {
-	if (passCount == 3)
-	{
-		// shader map
-
-
-		return
-	}
 	if (passCount == 2)
 	{
 		// deferred render
