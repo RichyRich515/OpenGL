@@ -194,7 +194,7 @@ public:
 
 #define MAINTAIN_PERSISTENCY 1
 #ifdef MAINTAIN_PERSISTENCY
-		int lifeTime = m_pointCache[insertIndex].getLifeTime();
+		int remainingLife = m_pointCache[insertIndex].getLifeTime();
 		btScalar appliedImpulse = m_pointCache[insertIndex].m_appliedImpulse;
 		btScalar prevRHS = m_pointCache[insertIndex].m_prevRHS;
 		btScalar appliedLateralImpulse1 = m_pointCache[insertIndex].m_appliedImpulseLateral1;
@@ -219,7 +219,7 @@ public:
 
 		if (replacePoint)
 		{
-			btAssert(lifeTime >= 0);
+			btAssert(remainingLife >= 0);
 			void* cache = m_pointCache[insertIndex].m_userPersistentData;
 
 			m_pointCache[insertIndex] = newPoint;
@@ -230,7 +230,7 @@ public:
 			m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
 		}
 
-		m_pointCache[insertIndex].m_lifeTime = lifeTime;
+		m_pointCache[insertIndex].m_lifeTime = remainingLife;
 #else
 		clearUserCache(m_pointCache[insertIndex]);
 		m_pointCache[insertIndex] = newPoint;

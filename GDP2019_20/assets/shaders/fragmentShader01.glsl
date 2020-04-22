@@ -19,6 +19,12 @@ const float VERTEX_IS_LIT = 1.0f;
 
 uniform float passCount;
 
+// x: blur second pass
+// y:
+// z:
+// w:
+uniform vec4 secondPassParams00;
+
 uniform sampler2D secondPassColourSamp;
 uniform sampler2D secondPassWorldNormalSamp;			// if W is 0 do not light, if 1 then run lighting
 uniform sampler2D secondPassWorldVertexPositionSamp;	// ignore W for now
@@ -86,47 +92,114 @@ const int POINT_LIGHT_TYPE = 0;
 const int SPOT_LIGHT_TYPE = 1;
 const int DIRECTIONAL_LIGHT_TYPE = 2;
 
-const int NUMBEROFLIGHTS = 20;
+const int NUMBEROFLIGHTS = 6;
 uniform sLight lights[NUMBEROFLIGHTS];
 
 vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 vertexWorldPos, vec4 vertexSpecular);
-	 
+
+// two pass kernal, do horizontal then do vertical
+// x: xoffset
+// y: yoffset
+// z:
+// z: weight
+const int BLUR_KERNEL_SIZE = 9;
+const vec4 BLUR_KERNEL[BLUR_KERNEL_SIZE] =
+{
+	vec4(0.0, 0.0, 0.0, 0.150342),
+	vec4(2.0, 0.0, 0.0, 0.023792),
+	vec4(-2.0, 0.0, 0.0, 0.023792),
+	vec4(1.0, 0.0, 0.0, 0.094907),
+	vec4(-1.0, 0.0, 0.0, 0.094907),
+	vec4(0.0, 2.0, 0.0, 0.023792),
+	vec4(0.0, -2.0, 0.0, 0.023792),
+	vec4(0.0, 1.0, 0.0, 0.094907),
+	vec4(0.0, -1.0, 0.0, 0.094907)
+};
+
 void main()  
 {
 	if (passCount == 2)
 	{
-		// TODO: pass viewport size
-		float s = gl_FragCoord.x / 1920.0f;
-		float t = gl_FragCoord.y / 1080.0f;
-		vec2 st = vec2(s, t);
-		vec4 vertexColour = texture(secondPassColourSamp, st);
-		vec4 vertexWorldNormal = texture(secondPassWorldNormalSamp, st);
-		vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
-		vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
-
-		if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
+		// Blur or naw
+		if (secondPassParams00.x != 0.0)
 		{
-			colourBuffer.rgb = vertexColour.xyz;
+			colourBuffer = vec4(1.0, 0.0, 0.0, 1.0);
+			for (int i = 0; i < BLUR_KERNEL_SIZE; ++i)
+			{
+				float s = (gl_FragCoord.x + BLUR_KERNEL[i].x) / 1920.0;
+				float t = (gl_FragCoord.y + BLUR_KERNEL[i].y) / 1080.0;
+				if (s > 1920.0 || s < 0 || t > 1080.0 || t < 0)
+					continue;
+
+				vec2 st = vec2(s, t);
+				vec4 vertexColour = texture(secondPassColourSamp, st);
+				vec4 vertexWorldNormal = texture(secondPassWorldNormalSamp, st);
+				vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
+				vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
+
+				if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
+				{
+					colourBuffer.rgb += vertexColour.rgb * BLUR_KERNEL[i].z;
+				}
+				else
+				{
+					vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
+					if (length(lightContribution.xyz) < length(ambientColour.xyz))
+					{
+						colourBuffer.rgb += vertexColour.rgb * ambientColour.rgb * BLUR_KERNEL[i].z;
+					}
+					else
+					{
+
+						colourBuffer.rgb += vertexColour.rgb * lightContribution.rgb * BLUR_KERNEL[i].z;
+					}
+				}
+			}
+
+			// don't blur overlay
+			float s = gl_FragCoord.x / 1920.0f;
+			float t = gl_FragCoord.y / 1080.0f;
+			vec2 st = vec2(s, t);
+			colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
 			colourBuffer.a = 1.0f;
+			return;
 		}
 		else
 		{
-			vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
-			if (length(lightContribution.xyz) < length(ambientColour.xyz))
+			// TODO: pass viewport size
+			float s = gl_FragCoord.x / 1920.0f;
+			float t = gl_FragCoord.y / 1080.0f;
+			vec2 st = vec2(s, t);
+			vec4 vertexColour = texture(secondPassColourSamp, st);
+			vec4 vertexWorldNormal = texture(secondPassWorldNormalSamp, st);
+			vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
+			vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
+
+			if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
 			{
-				colourBuffer = vertexColour * ambientColour;
+				colourBuffer.rgb = vertexColour.xyz;
+				colourBuffer.a = 1.0f;
 			}
 			else
 			{
+				vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
+				if (length(lightContribution.xyz) < length(ambientColour.xyz))
+				{
+					colourBuffer = vertexColour * ambientColour;
+				}
+				else
+				{
 
-				colourBuffer = vertexColour * lightContribution;
+					colourBuffer = vertexColour * lightContribution;
+				}
+
+				colourBuffer.a = 1.0f;
 			}
 
-			colourBuffer.a = 1.0f;
+			colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
+			return;
 		}
-
-		colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
-		return;
+		
 	}
 
 	worldNormalBuffer.xyz = fNormal.xyz;

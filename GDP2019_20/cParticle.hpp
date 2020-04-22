@@ -13,5 +13,6 @@ public:
 	glm::vec3 velocity;
 	float scale;
 	glm::vec4 color;
-	float lifeTime;
+	float remainingLife;
+	float maxLife;
 };

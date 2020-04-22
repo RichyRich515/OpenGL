@@ -902,10 +902,10 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(double deltaTime)
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].b = curTri.colour.b;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].a = 1.0f;
 
-		curTri.lifeTime -= static_cast<float>(deltaTime);
+		curTri.remainingLife -= static_cast<float>(deltaTime);
 
 		// Keep this one? (i.e. is persistent?)
-		if (curTri.lifeTime > 0.0f)
+		if (curTri.remainingLife > 0.0f)
 		{
 			vecTriTemp.push_back(curTri);
 		}
@@ -1001,10 +1001,10 @@ void cDebugRenderer::m_copyLinesIntoRenderBuffer(double deltaTime)
 		this->m_VAOBufferInfoLines.pLocalVertexArray[vertexIndex+1].b = curLine.colour.b;
 		this->m_VAOBufferInfoLines.pLocalVertexArray[vertexIndex+1].a = 1.0f;
 
-		curLine.lifeTime -= static_cast<float>(deltaTime);
+		curLine.remainingLife -= static_cast<float>(deltaTime);
 
 		// Keep this one? (i.e. is persistent?)
-		if (curLine.lifeTime > 0.0f)
+		if (curLine.remainingLife > 0.0f)
 		{
 			vecLinesTemp.push_back(curLine);
 		}
@@ -1051,9 +1051,9 @@ void cDebugRenderer::m_copyPointsIntoRenderBuffer(double deltaTime)
 	return;
 }
 
-void cDebugRenderer::addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float lifeTime/*=0.0f*/)
+void cDebugRenderer::addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float remainingLife/*=0.0f*/)
 {
-	drTri tempTri(v1XYZ, v2XYZ, v3XYZ, colour, lifeTime);
+	drTri tempTri(v1XYZ, v2XYZ, v3XYZ, colour, remainingLife);
 	this->addTriangle(tempTri);
 	return;
 }
@@ -1065,9 +1065,9 @@ void cDebugRenderer::addTriangle(drTri &tri)
 	return;
 }
 
-void cDebugRenderer::addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float lifeTime/*=0.0f*/)
+void cDebugRenderer::addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float remainingLife/*=0.0f*/)
 {
-	drLine tempLine(startXYZ, endXYZ, colour, lifeTime);
+	drLine tempLine(startXYZ, endXYZ, colour, remainingLife);
 	this->addLine(tempLine);
 	return;
 }
@@ -1078,9 +1078,9 @@ void cDebugRenderer::addLine(drLine &line)
 	return;
 }
 
-void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime/*=0.0f*/, float pointSize/*=1.0f*/)
+void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, float remainingLife/*=0.0f*/, float pointSize/*=1.0f*/)
 {
-	drPoint tempPoint(xyz, colour, lifeTime, pointSize);
+	drPoint tempPoint(xyz, colour, remainingLife, pointSize);
 	this->addPoint(tempPoint);
 	return;
 }
@@ -1092,19 +1092,19 @@ void cDebugRenderer::addPoint(drPoint &point)
 }
 
 // Replaces the DrawDebugSphere
-void cDebugRenderer::addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime/*=0.0f*/)
+void cDebugRenderer::addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float remainingLife/*=0.0f*/)
 {
 	iDebugRenderer::sDebugMesh sphereMesh;
 	sphereMesh.name = iDebugRenderer::DEFAULT_DEBUG_SPHERE_MESH_NAME;
 	sphereMesh.scale = scale;
 	sphereMesh.xyz = xyz;
 	sphereMesh.colour = colour;
-	sphereMesh.lifeTime = lifeTime;
+	sphereMesh.remainingLife = remainingLife;
 	this->m_vecMeshes.push_back(sphereMesh);
 	return;
 }
 
-void cDebugRenderer::addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3 orientXYZ_Euler, glm::vec3 colour, float scale, float lifeTime/*=0.0f*/)
+void cDebugRenderer::addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3 orientXYZ_Euler, glm::vec3 colour, float scale, float remainingLife/*=0.0f*/)
 {
 	iDebugRenderer::sDebugMesh debugMesh;
 	debugMesh.name = meshName;
@@ -1112,12 +1112,12 @@ void cDebugRenderer::addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3
 	debugMesh.xyz = xyz;
 	debugMesh.qOrientation = glm::quat(orientXYZ_Euler);
 	debugMesh.colour = colour;
-	debugMesh.lifeTime = lifeTime;
+	debugMesh.remainingLife = remainingLife;
 	this->m_vecMeshes.push_back(debugMesh);
 	return;
 }
 
-void cDebugRenderer::addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat orientXYZ_Quaternion, glm::vec3 colour, float scale, float lifeTime/*=0.0f*/)
+void cDebugRenderer::addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat orientXYZ_Quaternion, glm::vec3 colour, float scale, float remainingLife/*=0.0f*/)
 {
 	iDebugRenderer::sDebugMesh debugMesh;
 	debugMesh.name = meshName;
@@ -1125,7 +1125,7 @@ void cDebugRenderer::addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat
 	debugMesh.xyz = xyz;
 	debugMesh.qOrientation = orientXYZ_Quaternion;
 	debugMesh.colour = colour;
-	debugMesh.lifeTime = lifeTime;
+	debugMesh.remainingLife = remainingLife;
 	this->m_vecMeshes.push_back(debugMesh);
 	return;
 }
@@ -1158,7 +1158,7 @@ iDebugRenderer::sDebugTri::sDebugTri()
 {
 	this->v[0] = glm::vec3(0.0f); this->v[1] = glm::vec3(0.0f); this->v[2] = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);	// white
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
@@ -1169,29 +1169,29 @@ iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
 	this->v[1] = v2;
 	this->v[2] = v3;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
-	this->lifeTime = 1.0f;
+	this->remainingLife = 1.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
 
-iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, float lifeTime/*=0.0f*/)
+iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, float remainingLife/*=0.0f*/)
 {
 	this->v[0] = v1;
 	this->v[1] = v2;
 	this->v[2] = v3;
 	this->colour = colour;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
 
-iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, float lifeTime/*=0.0f*/)
+iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, float remainingLife/*=0.0f*/)
 {
 	this->v[0] = v[0];
 	this->v[1] = v[1];
 	this->v[2] = v[2];
 	this->colour = colour;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
@@ -1201,7 +1201,7 @@ iDebugRenderer::sDebugLine::sDebugLine()
 	this->points[0] = glm::vec3(0.0f);
 	this->points[0] = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);		// white
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
@@ -1211,26 +1211,26 @@ iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end)
 	this->points[0] = start;
 	this->points[1] = end;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
-iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, float lifeTime/*=0.0f*/)
+iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, float remainingLife/*=0.0f*/)
 {
 	this->points[0] = start;
 	this->points[1] = end;
 	this->colour = colour;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
 
-iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, float lifeTime/*=0.0f*/)
+iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, float remainingLife/*=0.0f*/)
 {
 	this->points[0] = points[0];
 	this->points[1] = points[1];
 	this->colour = colour;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
@@ -1243,7 +1243,7 @@ iDebugRenderer::sDebugPoint::sDebugPoint()
 {
 	this->xyz = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);	// white
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->pointSize = cDebugRendererDEFAULT_POINT_SIZE;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
@@ -1254,16 +1254,16 @@ iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz)		// colour=1,1,1		lifeTi
 	this->xyz = xyz;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
 	this->pointSize = 1.0f;
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
-iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime/*=0.0f*/, float pointSize/*=1.0f*/)
+iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float remainingLife/*=0.0f*/, float pointSize/*=1.0f*/)
 {
 	this->xyz = xyz;
 	this->colour = colour;
 	this->pointSize = pointSize;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
@@ -1275,7 +1275,7 @@ iDebugRenderer::sDebugMesh::sDebugMesh()
 	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
 	this->scale = 1.0f;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
@@ -1288,16 +1288,16 @@ iDebugRenderer::sDebugMesh::sDebugMesh(std::string name)
 	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
 	this->scale = 1.0f;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
-	this->lifeTime = 0.0f;
+	this->remainingLife = 0.0f;
 	this->bIgnorDepthBufferOnDraw = true;
 	return;
 }
 
-iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, float lifeTime/*=0.0f*/)
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, float remainingLife/*=0.0f*/)
 {
 	this->name = name;
 	this->xyz = xyz;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
 	this->scale = 1.0f;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
@@ -1305,11 +1305,11 @@ iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, float li
 	return;
 }
 
-iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime/*=0.0f*/)
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float remainingLife/*=0.0f*/)
 {
 	this->name = name;
 	this->xyz = xyz;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
 	this->scale = 1.0f;
 	this->colour = glm::vec3(1.0f,1.0f,1.0f);
@@ -1318,11 +1318,11 @@ iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec
 }
 
 iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 EulerOrientation, glm::vec3 colour, 
-                                       float scale, float lifeTime/*=0.0f*/)
+                                       float scale, float remainingLife/*=0.0f*/)
 {
 	this->name = name;
 	this->xyz = xyz;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->qOrientation = glm::quat(EulerOrientation);
 	this->scale = scale;
 	this->colour = colour;
@@ -1331,11 +1331,11 @@ iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec
 }
 
 iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::quat qOrientation, glm::vec3 colour, 
-                                       float scale, float lifeTime/*=0.0f*/)
+                                       float scale, float remainingLife/*=0.0f*/)
 {
 	this->name = name;
 	this->xyz = xyz;
-	this->lifeTime = lifeTime;
+	this->remainingLife = remainingLife;
 	this->qOrientation = qOrientation;
 	this->scale = scale;
 	this->colour = colour;

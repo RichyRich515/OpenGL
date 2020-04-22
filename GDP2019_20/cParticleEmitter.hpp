@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "cParticle.hpp"
+#include "iGameObject.hpp"
 
 template <class T>
 T randInRange(T min, T max)
@@ -21,6 +23,10 @@ private:
 
 public:
 	cParticleEmitter();
+
+	std::string meshName;
+	iGameObject* parentObject = nullptr;
+	glm::vec3 parentOffset;
 
 	bool active;
 	bool spawnNew;
@@ -58,7 +64,8 @@ public:
 		std::size_t maxParticles);
 
 
-	void update(float dt);
+	void update(float dt, float tt);
+	void render(float dt, float tt);
 	
 	// For drawing
 	void getParticles(std::vector<cParticle*>& vecParticles, glm::vec3 eyePosition = glm::vec3(0.0f, 0.0f, 0.0f), bool isImposter = false);

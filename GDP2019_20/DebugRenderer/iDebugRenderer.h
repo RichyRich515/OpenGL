@@ -20,11 +20,11 @@ public:
 	{
 		sDebugTri();
 		sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3);	// colour = 1,1,1	lifeTime=0.0f
-		sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, float lifeTime=0.0f);
-		sDebugTri(glm::vec3 v[3], glm::vec3 colour, float lifeTime=0.0f);
+		sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, float remainingLife=0.0f);
+		sDebugTri(glm::vec3 v[3], glm::vec3 colour, float remainingLife=0.0f);
 		glm::vec3 v[3];		
 		glm::vec3 colour;
-		float lifeTime;	
+		float remainingLife;	
 		bool bIgnorDepthBufferOnDraw;
 	};
 
@@ -32,11 +32,11 @@ public:
 	{
 		sDebugLine();
 		sDebugLine(glm::vec3 start, glm::vec3 end);		// colour = 1,1,1	lifeTime=0.0f
-		sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, float lifeTime=0.0f);
-		sDebugLine(glm::vec3 points[2], glm::vec3 colour, float lifeTime=0.0f);
+		sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, float remainingLife=0.0f);
+		sDebugLine(glm::vec3 points[2], glm::vec3 colour, float remainingLife=0.0f);
 		glm::vec3 points[2];		
 		glm::vec3 colour;
-		float lifeTime;
+		float remainingLife;
 		bool bIgnorDepthBufferOnDraw;
 	};
 
@@ -44,11 +44,11 @@ public:
 	{
 		sDebugPoint();
 		sDebugPoint(glm::vec3 xyz);		// colour=1,1,1		lifeTime=0.0f	pointSize=1.0f
-		sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime=0.0f, float pointSize=1.0f);
+		sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float remainingLife=0.0f, float pointSize=1.0f);
 		glm::vec3 xyz;		
 		glm::vec3 colour;	
 		float pointSize;
-		float lifeTime;
+		float remainingLife;
 		bool bIgnorDepthBufferOnDraw;
 	};
 
@@ -57,23 +57,23 @@ public:
 		sDebugMesh();
 		std::string name;
 		sDebugMesh(std::string name);	// Assumes a size of 1, colour white
-		sDebugMesh(std::string name, glm::vec3 xyz, float lifeTime=0.0f);
-		sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime=0.0f);
-		sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 EulerOrientation, glm::vec3 colour, float scale, float lifeTime=0.0f);
-		sDebugMesh(std::string name, glm::vec3 xyz, glm::quat qOrientation, glm::vec3 colour, float scale, float lifeTime=0.0f);
+		sDebugMesh(std::string name, glm::vec3 xyz, float remainingLife=0.0f);
+		sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float remainingLife=0.0f);
+		sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 EulerOrientation, glm::vec3 colour, float scale, float remainingLife=0.0f);
+		sDebugMesh(std::string name, glm::vec3 xyz, glm::quat qOrientation, glm::vec3 colour, float scale, float remainingLife=0.0f);
 		glm::vec3 xyz; 		
 		glm::quat qOrientation;		
 		float scale; 
 		glm::vec3 colour;	
-		float lifeTime;
+		float remainingLife;
 		bool bIgnorDepthBufferOnDraw;
 	};
 
-	virtual void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float lifeTime=0.0f) = 0;
+	virtual void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float remainingLife=0.0f) = 0;
 	virtual void addTriangle(sDebugTri &tri) = 0;
-	virtual void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float lifeTime=0.0f) = 0;
+	virtual void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float remainingLife=0.0f) = 0;
 	virtual void addLine(sDebugLine &line) = 0;
-	virtual void addPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime=0.0f, float pointSize=1.0f) = 0;
+	virtual void addPoint(glm::vec3 xyz, glm::vec3 colour, float remainingLife=0.0f, float pointSize=1.0f) = 0;
 	virtual void addPoint(sDebugPoint &point) = 0;
 
 	//virtual void addDebugMesh(sDebugMesh &mesh) = 0;
@@ -81,10 +81,10 @@ public:
 	//virtual void addDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime=0.0f) = 0;
 
 	// Draws a sphere to the scene
-	virtual void addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime=0.0f) = 0;
+	virtual void addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float remainingLife=0.0f) = 0;
 	static const std::string DEFAULT_DEBUG_SPHERE_MESH_NAME;// = "DSPHERE";
-	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3 orientXYZ_Euler, glm::vec3 colour, float scale, float lifeTime=0.0f) = 0;
-	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat orientXYZ_Quaternion, glm::vec3 colour, float scale, float lifeTime=0.0f) = 0;
+	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3 orientXYZ_Euler, glm::vec3 colour, float scale, float remainingLife=0.0f) = 0;
+	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat orientXYZ_Quaternion, glm::vec3 colour, float scale, float remainingLife=0.0f) = 0;
 
 	// Used to draw an arbitrary mesh. If 
 //	virtual void addDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime=0.0f) = 0;

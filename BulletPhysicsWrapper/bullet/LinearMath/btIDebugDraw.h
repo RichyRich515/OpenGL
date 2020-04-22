@@ -122,7 +122,7 @@ public:
 		drawLine(v2, v0, color);
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) = 0;
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int remainingLife, const btVector3& color) = 0;
 
 	virtual void reportErrorWarning(const char* warningString) = 0;
 

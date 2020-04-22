@@ -64,17 +64,17 @@ public:
 
 	static const float DEFAULT_POINT_SIZE;	// = 1.0f;
 
-	virtual void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float lifeTime=0.0f);
+	virtual void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float remainingLife=0.0f);
 	virtual void addTriangle(drTri &tri);
-	virtual void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float lifeTime=0.0f);
+	virtual void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float remainingLife=0.0f);
 	virtual void addLine(drLine &line);
-	virtual void addPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime=0.0f, float pointSize=1.0f);
+	virtual void addPoint(glm::vec3 xyz, glm::vec3 colour, float remainingLife=0.0f, float pointSize=1.0f);
 	virtual void addPoint(drPoint &point);
 
 	// Replaces the DrawDebugSphere
-	virtual void addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime=0.0f);
-	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3 orientXYZ_Euler, glm::vec3 colour, float scale, float lifeTime=0.0f);
-	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat orientXYZ_Quaternion, glm::vec3 colour, float scale, float lifeTime=0.0f);
+	virtual void addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float remainingLife=0.0f);
+	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::vec3 orientXYZ_Euler, glm::vec3 colour, float scale, float remainingLife=0.0f);
+	virtual void addDebugMesh(std::string meshName, glm::vec3 xyz, glm::quat orientXYZ_Quaternion, glm::vec3 colour, float scale, float remainingLife=0.0f);
 
 	// Various meshes that you could load and draw (are drawn with static meshes)
 	// Note: the mesh is ONLY triangles, so NOT indexed (like ply, obj, etc.)

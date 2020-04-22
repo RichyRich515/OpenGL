@@ -51,6 +51,7 @@
 #include "cPhysicsGameObject.hpp"
 #include "cBulletGameObject.hpp"
 #include "cLight.hpp"
+#include "cParticleEmitter.hpp"
 
 constexpr char physics_library_name[25] = "BulletPhysicsWrapper.dll";
 
@@ -267,21 +268,6 @@ void Threaded_LoadTexturesFromFiles(unsigned thread_id)
 	std::cout << "Thread done" << std::endl;
 }
 
-// collisions seem to detect multiple times so put a cooldown on this
-const float BELL_SOUND_COOLDOWN_TIME = 0.25f;
-float bell_sound_cooldown_timer;
-
-void PlayBellSound(nPhysics::iPhysicsComponent* other)
-{
-	if (other->getID() != -1)
-		return;
-	if (bell_sound_cooldown_timer <= 0)
-	{
-		bell_sound_cooldown_timer = BELL_SOUND_COOLDOWN_TIME;
-		pSound->Play("bell", true);
-	}
-}
-
 int main()
 {
 	std::cout << "start" << std::endl;
@@ -476,9 +462,9 @@ int main()
 			std::cerr << "Error: sound init failed" << std::endl << err << std::endl;
 		}
 		pSound->setFileBasePath("assets/audio/");
-		pSound->LoadFromFile("gunshot.wav", "gunshot", cSound::TYPE_STATIC, true);
-		pSound->LoadFromFile("bell.wav", "bell", cSound::TYPE_STATIC, true);
-		pSound->LoadFromFile("powerup.wav", "powerup", cSound::TYPE_STATIC, true);
+		//pSound->LoadFromFile("gunshot.wav", "gunshot", cSound::TYPE_STATIC, true);
+		//pSound->LoadFromFile("bell.wav", "bell", cSound::TYPE_STATIC, true);
+		//pSound->LoadFromFile("powerup.wav", "powerup", cSound::TYPE_STATIC, true);
 	}
 
 	float ratio;
@@ -600,30 +586,19 @@ int main()
 	float shoot_cooldown_timer = 0.0f;
 	bool powered_up = false;
 
-	nPhysics::sTriggerSphereDef tsdef;
-	tsdef.Position = glm::vec3(40.0f, 7.5f, -40.0f);
-	tsdef.Radius = 2.0f;
+	cParticleEmitter* emitter1 = new cParticleEmitter();
+	emitter1->init(glm::vec3(-40.0f, 8.0f, -4.5f), glm::vec3(0.0f),
+		glm::vec3(-0.25f, 4.0f, -0.25f), glm::vec3(0.25f, 4.5f, 0.25f),
+		glm::vec3(0.0f), glm::vec3(0.0f),
+		3.0f, 3.5f, 
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.75f, 0.75f, 0.75f, 1.0f),
+		0.0f, 2.0f, 
+		0, 2, 1000);
 
-	auto physpowerup = pPhysicsFactory->CreateTriggerSphere(tsdef);
-	pPhysicsManager->getWorld()->AddComponent(physpowerup);
+	emitter1->parentObject = world->getGameObjectByName("train");
+	emitter1->parentOffset = glm::vec3(0.0f, 3.5f, -4.5f);
 
-	auto powerup = new cPhysicsGameObject();
-	powerup->graphics.color = glm::vec4(1.0f, 0.25f, 1.0f, 0.25f);
-	powerup->graphics.visible = true;
-	powerup->graphics.lighting = true;
-
-	powerup->physics = physpowerup;
-	powerup->mesh = new cMeshComponent();
-	powerup->mesh->scale = 4.0f;
-	powerup->mesh->meshName = "sphere";
-	powerup->name = "powerup";
-	world->addGameObject(powerup);
-
-
-	// Register the bell as a listener
-	cPhysicsGameObject* bell = (cPhysicsGameObject*)world->getGameObjectByName("bell");
-	bell->physics->SetOnCollisionFunction(&PlayBellSound);
-	pPhysicsManager->getWorld()->AddCollisionListener(bell->physics);
+	bool blur_second_pass = false;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -642,7 +617,6 @@ int main()
 				dt *= 10;
 
 			shoot_cooldown_timer -= dt;
-			bell_sound_cooldown_timer -= dt;
 		}
 
 		// imgui
@@ -712,6 +686,12 @@ int main()
 				physicscharacter->Move(new_vel, dt);
 			}
 
+			if (pKeyboardManager->keyPressed('B'))
+			{
+				blur_second_pass = !blur_second_pass;
+			}
+
+
 			if (pKeyboardManager->keyPressed(GLFW_KEY_SPACE) && physicscharacter->CanJump())
 			{
 				physicscharacter->Jump();
@@ -764,6 +744,7 @@ int main()
 			glUniform4f(eyeLocation_loc, camera->position.x, camera->position.y, camera->position.z, 1.0f);
 			glUniform4f(pShader->getUniformLocID("ambientColour"), ambience.r, ambience.g, ambience.b, ambience.a);
 			glUniform1f(pShader->getUniformLocID("passCount"), 1);
+			glUniform4f(pShader->getUniformLocID("secondPassParams00"), (float)blur_second_pass, 0.0f, 0.0f, 0.0f);
 		}
 
 		// draw Skybox
@@ -802,27 +783,17 @@ int main()
 		}
 
 		// update
-		for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 		{
-			world->vecGameObjects[i]->update(dt, tt);
+			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
+			{
+				world->vecGameObjects[i]->update(dt, tt);
+			}
+
+			emitter1->update(dt, tt);
 		}
 
 		physWorld->Update(dt);
 
-		// check for powerup collision
-		if (!powered_up && physpowerup->IsTriggeredBy(physicscharacter->getID()))
-		{
-			powered_up = true;
-			pPhysicsManager->getWorld()->RemoveComponent(powerup->physics);
-			world->deferredDeleteGameObject(powerup);
-			powerup = nullptr;
-
-			pSound->Play("powerup", true);
-		}
-		else if (powerup)
-		{
-			powerup->mesh->scale = (sin(tt * 2.0f) * 0.5f + 0.5f) + 3.5f;
-		}
 
 		glm::mat4 t;
 		physicscharacter->GetTransform(t);
@@ -839,10 +810,15 @@ int main()
 			{
 				world->vecGameObjects[i]->preFrame(dt, tt);
 			}
+
+			//emitter1->preFrame(dt, tt);
+
 			for (unsigned i = 0; i != world->vecGameObjects.size(); ++i)
 			{
 				world->vecGameObjects[i]->render(dt, tt);
 			}
+
+			emitter1->render(dt, tt);
 		}
 
 		// render fbo to tri
@@ -914,7 +890,9 @@ int main()
 		// need to render each frame even if not rendering
 		ImGui::Render();
 		if (cWorld::debugMode)
+		{
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		}
 
 		glfwSwapBuffers(window); // Draws to screen
 

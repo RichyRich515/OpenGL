@@ -1,4 +1,7 @@
 #include "cParticleEmitter.hpp"
+#include "cShaderManager.hpp"
+#include "cVAOManager.hpp"
+#include "GLCommon.h"
 
 cParticleEmitter::cParticleEmitter()
 {
@@ -27,7 +30,7 @@ void cParticleEmitter::init(glm::vec3 pos, glm::vec3 particleAccel,
 	for (std::size_t i = 0; i < maxParticles; ++i)
 	{
 		cParticle* p = new cParticle();
-		p->lifeTime = 0.0f;
+		p->remainingLife = 0.0f;
 		this->vecParticles.push_back(p);
 	}
 	this->position = pos;
@@ -46,31 +49,75 @@ void cParticleEmitter::init(glm::vec3 pos, glm::vec3 particleAccel,
 	this->newPerUpdateMax = maxNewParticlesPerUpdate;
 }
 
-void cParticleEmitter::update(float dt)
+void cParticleEmitter::update(float dt, float tt)
 {
 	if (!active)
 		return;
 
-	for (cParticle* p : vecParticles)
+	if (this->parentObject)
 	{
-		p->lifeTime -= dt;
-		if (p->lifeTime >= 0.0f)
+		this->position = this->parentObject->getPosition() + this->parentOffset;
+	}
+
+
+	if (spawnNew)
+	{
+		for (std::size_t count = randInRange(this->newPerUpdateMin, this->newPerUpdateMax); count > 0; --count)
 		{
-			p->velocity += this->particleAcceleration * dt;
-			p->position += p->velocity * dt;
-			p->color = glm::mix(endColor, startColor, p->lifeTime);
-			p->scale = glm::mix(endScale, startScale, p->lifeTime);
+			if (!this->createNewParticle())
+				break; // No more open slots in pool
 		}
 	}
 
-	if (!spawnNew)
-		return;
-
-	for (std::size_t count = randInRange(this->newPerUpdateMin, this->newPerUpdateMax); count > 0; --count)
+	for (cParticle* p : vecParticles)
 	{
-		if (!this->createNewParticle())
-			break; // No more open slots in pool
+		p->remainingLife -= dt;
+		if (p->remainingLife >= 0.0f)
+		{
+			float percentToDeath = p->remainingLife / p->maxLife;
+			p->velocity += this->particleAcceleration * dt;
+			p->position += p->velocity * dt;
+			p->color = glm::mix(endColor, startColor, percentToDeath);
+			p->scale = glm::mix(endScale, startScale, percentToDeath);
+		}
 	}
+
+}
+
+void cParticleEmitter::render(float dt, float tt)
+{
+	if (!this->active)
+		return;
+	
+	if (this->meshName.empty())
+		this->meshName = "sphere";
+
+	sModelDrawInfo info;
+	cVAOManager::getCurrentVAOManager()->FindDrawInfoByModelName(meshName, info);
+
+	auto pShader = cShaderManager::getCurrentShader();
+
+	glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 0.0f);// TODO: figure out specular?
+	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 1.0f, 0.0f);
+
+	glBindVertexArray(info.VAO_ID);
+
+	glm::mat4 m;
+	for (auto p : this->vecParticles)
+	{
+		if (p->remainingLife > 0.0f && p->scale > 0.0f)
+		{
+			m = glm::translate(glm::mat4(1.0f), p->position);
+			m *= glm::scale(glm::mat4(1.0f), glm::vec3(p->scale));
+
+			glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
+			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(m))));
+			
+			glUniform4f(pShader->getUniformLocID("diffuseColour"), p->color.r, p->color.g, p->color.b, p->color.a);
+			glDrawElements(GL_TRIANGLES, info.numberOfIndices, GL_UNSIGNED_INT, 0);
+		}
+	}
+	glBindVertexArray(0);
 }
 
 void cParticleEmitter::getParticles(std::vector<cParticle*>& vecParticles, glm::vec3 eyePosition, bool isImposter)
@@ -81,7 +128,7 @@ void cParticleEmitter::getParticles(std::vector<cParticle*>& vecParticles, glm::
 
 	for (cParticle* p : this->vecParticles)
 	{
-		if (p->lifeTime >= 0)
+		if (p->remainingLife >= 0)
 		{
 			if (isImposter)
 			{
@@ -96,11 +143,10 @@ bool cParticleEmitter::createNewParticle()
 {
 	for (cParticle* p : vecParticles)
 	{
-		if (p->lifeTime <= 0.0f)
+		if (p->remainingLife <= 0.0f)
 		{
-			p->lifeTime = randInRange(this->particleLifeMin, this->particleLifeMax);
-
-			p->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			p->maxLife = randInRange(this->particleLifeMin, this->particleLifeMax);
+			p->remainingLife = p->maxLife;
 
 			p->position.x = randInRange(this->positionOffsetMin.x, positionOffsetMax.x) + this->position.x;
 			p->position.y = randInRange(this->positionOffsetMin.y, positionOffsetMax.y) + this->position.y;
