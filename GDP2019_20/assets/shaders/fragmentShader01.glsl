@@ -59,6 +59,7 @@ uniform vec4 textparams01;
 uniform vec4 textparams02;
 uniform vec4 textparams03;
 
+
 // Texture samplers
 uniform sampler2D textSamp00;
 uniform sampler2D textSamp01;
@@ -70,6 +71,10 @@ uniform sampler2D heightSamp;
 
 uniform vec4 discardparams;
 uniform sampler2D discardSamp;
+
+uniform vec4 macrovariantParams;
+uniform sampler2D macrovariantSamp;
+
 
 uniform samplerCube skyboxSamp00;
 
@@ -99,6 +104,7 @@ vec4 calculateLightContrib(vec3 vertexMaterialColour, vec3 vertexNormal, vec3 ve
 
 // two pass kernal, do horizontal then do vertical
 // This example is a kernel calculated at http://dev.theomader.com/gaussian-kernel-calculator/
+// Note: the weight is halved because it is run twice
 // sigma = 1.0
 // size = 7
 const int BLUR_KERNEL_SIZE = 7;
@@ -109,13 +115,13 @@ const int BLUR_KERNEL_SIZE = 7;
 // w: weight
 const vec4 BLUR_KERNEL[BLUR_KERNEL_SIZE] =
 {
-	vec4(-3.0, -3.0, 0.0, 0.00598),
-	vec4(-2.0, -2.0, 0.0, 0.060626),
-	vec4(-1.0, -2.0, 0.0, 0.241843),
-	vec4( 0.0,  0.0, 0.0, 0.383103),
-	vec4( 1.0,  2.0, 0.0, 0.241843),
-	vec4( 2.0,  2.0, 0.0, 0.060626),
-	vec4( 3.0,  3.0, 0.0, 0.00598),
+	vec4(-3.0, -3.0, 0.0, 0.00598  * 0.5),
+	vec4(-2.0, -2.0, 0.0, 0.060626 * 0.5),
+	vec4(-1.0, -2.0, 0.0, 0.241843 * 0.5),
+	vec4( 0.0,  0.0, 0.0, 0.383103 * 0.5),
+	vec4( 1.0,  2.0, 0.0, 0.241843 * 0.5),
+	vec4( 2.0,  2.0, 0.0, 0.060626 * 0.5),
+	vec4( 3.0,  3.0, 0.0, 0.00598  * 0.5),
 };
 
 void main()  
@@ -123,24 +129,18 @@ void main()
 	if (passCount == 2)
 	{
 		vec3 ambience = ambientColour.rgb;
-		// Night vision?
-		if (secondPassParams00.y != 0)
-		{
-			ambience = vec3(0.1, 3.0, 0.1);
-		}
 
 		// Blur?
 		if (secondPassParams00.x != 0.0)
 		{
 			// loops get unwrapped by compiler
-			for (int horizontal = 1; horizontal > 0; --horizontal)
+			for (int horizontal = 1; horizontal >= 0; --horizontal)
 			{
 				for (int i = 0; i < BLUR_KERNEL_SIZE; ++i)
 				{
 					float s = (gl_FragCoord.x + (horizontal != 0 ? BLUR_KERNEL[i].x : 0)) / 1920.0;
 					float t = (gl_FragCoord.y + (horizontal != 0 ? 0 : BLUR_KERNEL[i].y)) / 1080.0;
-					if (s > 1920.0 || s < 0 || t > 1080.0 || t < 0)
-						continue;
+
 					vec2 st = vec2(s, t);
 
 					vec4 vertexColour = texture(secondPassColourSamp, st);
@@ -148,11 +148,7 @@ void main()
 					vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
 					vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
 
-					if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
-					{
-						colourBuffer.rgb += vertexColour.rgb * BLUR_KERNEL[i].w;
-					}
-					else
+					if (vertexWorldNormal.w != VERTEX_IS_NOT_LIT)
 					{
 						vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
 						if (length(lightContribution.xyz) < length(ambience))
@@ -161,9 +157,12 @@ void main()
 						}
 						else
 						{
-
 							colourBuffer.rgb += vertexColour.rgb * lightContribution.rgb * BLUR_KERNEL[i].w;
 						}
+					}
+					else
+					{
+						colourBuffer.rgb += vertexColour.rgb * BLUR_KERNEL[i].w;
 					}
 				}
 			}
@@ -179,11 +178,26 @@ void main()
 			vec4 vertexWorldPosition = texture(secondPassWorldVertexPositionSamp, st);
 			vec4 vertexSpecular = texture(secondPassSpecularSamp, st);
 
-			if (vertexWorldNormal.w == VERTEX_IS_NOT_LIT) // compare to 0
+			// Edge detection derived from https://computergraphics.stackexchange.com/questions/2450/opengl-detection-of-edges?noredirect=1&lq=1
+			float colourDot = dot(vertexColour.rgb, vec3(0.2, 0.2, 0.2));
+			float colourGrad = fwidth(colourDot);
+
+			float normDot = dot(vertexWorldNormal.rgb, vec3(0.0, 1.0, 0.0));
+			float normGrad = fwidth(normDot);
+
+			bool isEdge = sqrt(normGrad * normGrad + colourGrad * colourGrad) > 0.3;
+			if (isEdge)
 			{
-				colourBuffer.rgb = vertexColour.rgb;
+				colourBuffer = vec4(1.0, 1.0f, 1.0f, 1.0);
+				return;
 			}
 			else
+			{
+				colourBuffer = vec4(0.0, 0.0f, 0.0f, 1.0);
+				return;
+			}
+
+			if (vertexWorldNormal.w != VERTEX_IS_NOT_LIT)
 			{
 				vec4 lightContribution = calculateLightContrib(vec3(1.0, 1.0, 1.0), vertexWorldNormal.xyz, vertexWorldPosition.xyz, vertexSpecular);
 				if (length(lightContribution.xyz) < length(ambience))
@@ -192,11 +206,19 @@ void main()
 				}
 				else
 				{
-
 					colourBuffer.rgb = vertexColour.rgb * lightContribution.rgb;
 				}
-
 			}
+			else
+			{
+				colourBuffer.rgb = vertexColour.rgb;
+			}
+		}
+
+		// Night vision
+		if (secondPassParams00.y != 0)
+		{
+			colourBuffer.rgb = vec3(0.1, 1.0f, 0.1f) * (length(colourBuffer.rgb) * (colourBuffer.g * 0.5 + 0.5));
 		}
 
 		// don't blur overlay
@@ -206,20 +228,17 @@ void main()
 		colourBuffer.rgb *= texture(fullScreenOverlaySamp, st).g;
 		colourBuffer.a = 1.0f;
 		return;
-		
 	}
 
 	worldNormalBuffer.xyz = fNormal.xyz;
 	worldNormalBuffer.w = params1.z;
-	worldVertexPositionBuffer.xyz = fVertWorldLocation.xyz;
-	worldVertexPositionBuffer.w = VERTEX_IS_NOT_LIT;
+	worldVertexPositionBuffer.xyz = fVertWorldLocation.xyz; 
+	worldVertexPositionBuffer.w = 0.0; // w nothing for now
 	specularBuffer = specularColour;
-
 
 	if (params2.x != 0.0) // Skybox
 	{
-		vec3 skyboxColor = texture(skyboxSamp00, -fNormal.xyz).rgb;
-		colourBuffer.rgb = skyboxColor;
+		colourBuffer.rgb = texture(skyboxSamp00, -fNormal.xyz).rgb;
 		colourBuffer.a = 1.0;
 		return;
 	}
@@ -236,10 +255,6 @@ void main()
 		colourBuffer = diffuseColour;
 		colourBuffer.a = 1.0;
 		return;
-	}
-	else
-	{
-		worldVertexPositionBuffer.w = VERTEX_IS_LIT;
 	}
 
 	vec3 color = diffuseColour.rgb;
@@ -289,8 +304,22 @@ void main()
 				}
 			}
 		}
+
 		colourBuffer.rgb = textured.rgb;
 		colourBuffer.a = diffuseColour.a;
+
+		if (macrovariantParams.w != 0)
+		{
+			// just sample red value, arbitrary choice
+			float v = texture(macrovariantSamp, fUVx2.st * macrovariantParams.w + macrovariantParams.xy).r; 
+
+			// 1.0 +- z
+			v *= macrovariantParams.z * 2;
+			v += 1.0;
+
+			// Modulate into final colour
+			colourBuffer.rgb *= v;
+		}
 	}
 	else
 	{

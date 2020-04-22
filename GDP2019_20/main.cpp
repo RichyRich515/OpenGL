@@ -482,7 +482,7 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// timing
 	float tt;
@@ -588,11 +588,11 @@ int main()
 
 	cParticleEmitter* emitter1 = new cParticleEmitter();
 	emitter1->init(glm::vec3(-40.0f, 8.0f, -4.5f), glm::vec3(0.0f),
-		glm::vec3(-0.25f, 4.0f, -0.25f), glm::vec3(0.25f, 4.5f, 0.25f),
+		glm::vec3(-0.33f, 4.0f, -0.33f), glm::vec3(0.33f, 4.5f, 0.33f),
 		glm::vec3(0.0f), glm::vec3(0.0f),
-		3.0f, 3.5f, 
-		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.75f, 0.75f, 0.75f, 1.0f),
-		0.0f, 2.0f, 
+		3.5f, 3.7f, 
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.1f), glm::vec4(1.0f, 1.0f, 1.0f, -0.1f),
+		0.2f, 4.0f, 
 		0, 2, 1000);
 
 	emitter1->parentObject = world->getGameObjectByName("train");
@@ -755,7 +755,7 @@ int main()
 		// draw Skybox
 		{
 			// Tie texture
-			GLuint texture_ul = pTextureManager->getTextureIDFromName("nighttime");
+			GLuint texture_ul = pTextureManager->getTextureIDFromName(night_vision_second_pass ? "nighttime" : "daytime");
 			if (texture_ul)
 			{
 				glActiveTexture(GL_TEXTURE10);
@@ -768,7 +768,7 @@ int main()
 			glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(matWorld))));
 			glUniform4f(pShader->getUniformLocID("diffuseColour"), 0.0f, 0.0f, 0.0f, 1.0f);
 			glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 1.0f);
-			glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 1.0f, 0.0f);
+			glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 0.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("params2"), 1.0f, 0.0f, 0.0f, 0.0f);
 			glUniform4f(pShader->getUniformLocID("heightparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 			glDisable(GL_CULL_FACE);
@@ -823,7 +823,6 @@ int main()
 				world->vecGameObjects[i]->render(dt, tt);
 			}
 
-			emitter1->render(dt, tt);
 		}
 
 		// render fbo to tri
@@ -831,6 +830,7 @@ int main()
 			glUseProgram(program);
 
 			glDisable(GL_CULL_FACE);
+			glDisable(GL_DEPTH_TEST);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 			// whole scene is drawn to buffer
@@ -884,6 +884,22 @@ int main()
 				glDrawElements(GL_TRIANGLES, drawInfo.numberOfIndices, GL_UNSIGNED_INT, 0);
 				glBindVertexArray(0);
 			}
+		}
+		
+		// Render transparents
+		{
+			// Copy the deffered depth buffer into the forward rendering's depth buffer
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->ID);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+
+			glUniform1f(pShader->getUniformLocID("passCount"), 1);
+			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_DEPTH_WRITEMASK);
+
+			emitter1->render(dt, tt);
+			glEnable(GL_DEPTH_WRITEMASK);
 		}
 
 		// draw debug

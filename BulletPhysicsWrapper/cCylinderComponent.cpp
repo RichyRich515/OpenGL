@@ -23,6 +23,9 @@ nPhysics::cCylinderComponent::cCylinderComponent(sCylinderDef def)
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 	rbInfo.m_restitution = def.Elasticity;
 	this->body = new btRigidBody(rbInfo);
+	this->body->setFriction(0.4f);
+	this->body->setRollingFriction(0.4f);
+	this->body->setSpinningFriction(0.4f);
 	this->body->setUserPointer(this);
 }
 

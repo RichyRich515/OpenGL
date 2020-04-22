@@ -146,6 +146,24 @@ void cGraphicsComponent::render(float dt, float tt)
 			glUniform4f(pShader->getUniformLocID("discardparams"), 0.0f, 0.0f, 0.0f, 0.0f);
 		}
 
+		// macrovariation
+		texture_ul = pTextureManager->getTextureIDFromName(this->macrovariant.fileName);
+		if (texture_ul)
+		{
+			glActiveTexture(GL_TEXTURE0 + 31);
+			glBindTexture(GL_TEXTURE_2D, texture_ul);
+			glUniform1i(pShader->getUniformLocID("macrovariantSamp"), 31);
+			glUniform4f(pShader->getUniformLocID("macrovariantParams"),
+				this->macrovariant.xOffset,
+				this->macrovariant.yOffset,
+				this->macrovariant.blend,
+				this->macrovariant.tiling);
+		}
+		else
+		{
+			glUniform4f(pShader->getUniformLocID("macrovariantParams"), 0.0f, 0.0f, 0.0f, 0.0f);
+		}
+
 	}
 
 	glUniform4f(pShader->getUniformLocID("diffuseColour"), this->color.r, this->color.g, this->color.b, this->color.a);
@@ -201,6 +219,14 @@ void cGraphicsComponent::instatiateBaseVariables(const Json::Value& obj)
 			discardmap.tiling = obj["texture"]["discardmap"]["tiling"] ? obj["texture"]["discardmap"]["tiling"].asFloat() : 1.0f;
 			discardmap.xOffset = obj["texture"]["discardmap"]["xOffset"] ? obj["texture"]["discardmap"]["xOffset"].asFloat() : 0.0f;
 			discardmap.yOffset = obj["texture"]["discardmap"]["yOffset"] ? obj["texture"]["discardmap"]["yOffset"].asFloat() : 0.0f;
+		}
+		if (obj["texture"]["macrovariant"])
+		{
+			macrovariant.fileName = obj["texture"]["macrovariant"]["name"] ? obj["texture"]["macrovariant"]["name"].asString() : "";
+			macrovariant.blend = obj["texture"]["macrovariant"]["blend"] ? obj["texture"]["macrovariant"]["blend"].asFloat() : 1.0f;
+			macrovariant.tiling = obj["texture"]["macrovariant"]["tiling"] ? obj["texture"]["macrovariant"]["tiling"].asFloat() : 1.0f;
+			macrovariant.xOffset = obj["texture"]["macrovariant"]["xOffset"] ? obj["texture"]["macrovariant"]["xOffset"].asFloat() : 0.0f;
+			macrovariant.yOffset = obj["texture"]["macrovariant"]["yOffset"] ? obj["texture"]["macrovariant"]["yOffset"].asFloat() : 0.0f;
 		}
 	}
 	dt = 0;

@@ -40,38 +40,25 @@ bool cFBO_deferred::init(int width, int height, std::string& error)
 	// Create the colour buffer (texture)
 	glGenTextures(1, &(this->colourBuffer_0_ID));
 	glBindTexture(GL_TEXTURE_2D, this->colourBuffer_0_ID);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, this->width, this->height);
 
 	// Create the worldNormal buffer (texture)
 	glGenTextures(1, &(this->worldNormalBuffer_1_ID));
 	glBindTexture(GL_TEXTURE_2D, this->worldNormalBuffer_1_ID);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, this->width, this->height);
 
 	// Create the worldVertexPosition buffer (texture)
 	glGenTextures(1, &(this->worldVertexPositionBuffer_2_ID));
 	glBindTexture(GL_TEXTURE_2D, this->worldVertexPositionBuffer_2_ID);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, this->width, this->height);
 
 	// Create the specular buffer (texture)
 	glGenTextures(1, &(this->specularBuffer_3_ID));
 	glBindTexture(GL_TEXTURE_2D, this->specularBuffer_3_ID);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, this->width, this->height);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, this->width, this->height);
 
 	// Create the depth buffer (texture)
-	glGenTextures(1, &(this->depthTexture_ID));			//g_FBO_depthTexture
+	glGenTextures(1, &(this->depthTexture_ID));
 	glBindTexture(GL_TEXTURE_2D, this->depthTexture_ID);
 
 	//glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, ]

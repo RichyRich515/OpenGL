@@ -30,7 +30,7 @@ nPhysics::cSlidingBoxComponent::cSlidingBoxComponent(sSlidingBoxDef def)
 	t1.setRotation(btQuaternion(0.0f, 1.0f, 0.0f, 1.0f));
 
 	this->constraint = new btSliderConstraint(*this->body, t1, false);
-	this->constraint->setLowerLinLimit(-25.0f + def.Extents.z * 0.5f);
+	this->constraint->setLowerLinLimit(-275.0f + def.Extents.z * 0.5f);
 	this->constraint->setUpperLinLimit(25.0f - def.Extents.z * 0.5f);
 }
 

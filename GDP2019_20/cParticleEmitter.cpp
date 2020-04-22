@@ -62,7 +62,7 @@ void cParticleEmitter::update(float dt, float tt)
 
 	if (spawnNew)
 	{
-		for (std::size_t count = randInRange(this->newPerUpdateMin, this->newPerUpdateMax); count > 0; --count)
+		for (int count = randInRange(this->newPerUpdateMin, this->newPerUpdateMax); count > 0; --count)
 		{
 			if (!this->createNewParticle())
 				break; // No more open slots in pool

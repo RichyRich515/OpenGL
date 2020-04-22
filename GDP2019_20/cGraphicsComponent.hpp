@@ -47,6 +47,7 @@ public:
 	cTexture textures[MAX_TEXTURES];
 	cTexture heightmap;
 	cTexture discardmap;
+	cTexture macrovariant;
 
 	cShaderManager::cShaderProgram* pShader;
 };

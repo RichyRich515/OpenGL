@@ -9,9 +9,21 @@
 			"file_up": "SpaceBox_bottom4_negY.bmp",
 			"file_front": "SpaceBox_front5_posZ.bmp",
 			"file_back": "SpaceBox_back6_negZ.bmp"
+		},
+		{
+			"name": "daytime",
+			"file_left": "sh_lf.bmp",
+			"file_right": "sh_rt.bmp",
+			"file_down": "sh_dn.bmp",
+			"file_up": "sh_up.bmp",
+			"file_front": "sh_ft.bmp",
+			"file_back": "sh_bk.bmp"
 		}
 	],
 	"textures": [
+		"noise1.bmp",
+		"noise2.bmp",
+		"noise3.bmp",
 		"crosshair.bmp",
 		"terrain_texture.bmp",
 		"barrel_blue.bmp",

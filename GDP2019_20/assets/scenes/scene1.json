@@ -626,7 +626,12 @@
 							"name": "container.bmp",
 							"tiling": 1.0
 						}
-					]
+					],
+					"macrovariant": {
+						"blend": 0.3,
+						"name": "noise2.bmp",
+						"tiling": 1.0
+					}
 				}
 			},
 			"mesh": {
@@ -663,7 +668,7 @@
 		},
 		{
 			"type": "physics",
-			"name": "rails",
+			"name": "rails1",
 			"graphics": {
 				"lighting": true,
 				"color": [ 0.8, 0.8, 0.8, 1.0 ]
@@ -678,6 +683,101 @@
 				"extents": [ 5.0, 0.5, 50.0 ],
 				"mass": 0.0,
 				"position": [ -40.0, 0.5, 0.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "rails2",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.8, 0.8, 0.8, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "rails",
+				"scale": 50.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.5,
+				"extents": [ 5.0, 0.5, 50.0 ],
+				"mass": 0.0,
+				"position": [ -40.0, 0.5, -50.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "rails3",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.8, 0.8, 0.8, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "rails",
+				"scale": 50.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.5,
+				"extents": [ 5.0, 0.5, 50.0 ],
+				"mass": 0.0,
+				"position": [ -40.0, 0.5, -100.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "rails4",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.8, 0.8, 0.8, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "rails",
+				"scale": 50.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.5,
+				"extents": [ 5.0, 0.5, 50.0 ],
+				"mass": 0.0,
+				"position": [ -40.0, 0.5, -150.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "rails5",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.8, 0.8, 0.8, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "rails",
+				"scale": 50.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.5,
+				"extents": [ 5.0, 0.5, 50.0 ],
+				"mass": 0.0,
+				"position": [ -40.0, 0.5, -200.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "rails6",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.8, 0.8, 0.8, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "rails",
+				"scale": 50.0
+			},
+			"physics": {
+				"type": "box",
+				"elasticity": 0.5,
+				"extents": [ 5.0, 0.5, 50.0 ],
+				"mass": 0.0,
+				"position": [ -40.0, 0.5, -250.0 ]
 			}
 		},
 
@@ -1016,14 +1116,19 @@
 						{
 							"blend": 1.0,
 							"name": "terrain_texture.bmp",
-							"tiling": 4.0
+							"tiling": 100.0
 						}
-					]
+					],
+					"macrovariant": {
+						"blend": 0.5,
+						"name": "noise3.bmp",
+						"tiling": 10.0
+					}
 				}
 			},
 			"mesh": {
 				"meshName": "plane",
-				"scale": 0.5
+				"scale": 5.0
 			},
 			"physics": {
 				"type": "plane",
@@ -1040,7 +1145,7 @@
 			"physics": {
 				"type": "plane",
 				"normal": [ -1.0, 0.0, 0.0 ],
-				"point": [ 64.0, 0.0, 0.0 ]
+				"point": [ 640.0, 0.0, 0.0 ]
 			}
 		},
 		{
@@ -1052,7 +1157,7 @@
 			"physics": {
 				"type": "plane",
 				"normal": [ 1.0, 0.0, 0.0 ],
-				"point": [ -64.0, 0.0, 0.0 ]
+				"point": [ -640.0, 0.0, 0.0 ]
 			}
 		},
 		{
@@ -1064,7 +1169,7 @@
 			"physics": {
 				"type": "plane",
 				"normal": [ 0.0, 0.0, -1.0 ],
-				"point": [ 0.0, 0.0, 64.0 ]
+				"point": [ 0.0, 0.0, 640.0 ]
 			}
 		},
 		{
@@ -1076,7 +1181,7 @@
 			"physics": {
 				"type": "plane",
 				"normal": [ 0.0, 0.0, 1.0 ],
-				"point": [ 0.0, 0.0, -64.0 ]
+				"point": [ 0.0, 0.0, -640.0 ]
 			}
 		}
 	],
@@ -1172,9 +1277,9 @@
 	],
 	"world": {
 		"ambience": [
-			0.25,
-			0.25,
-			0.25,
+			0.4,
+			0.4,
+			0.4,
 			1.0
 		],
 		"factoryType": "Basic",
