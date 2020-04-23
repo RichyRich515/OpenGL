@@ -27,4 +27,5 @@ public:
 	nPhysics::iCharacterComponent* physics;
 
 	float action_timer = 0.0f;
+	bool falling;
 };

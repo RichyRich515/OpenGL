@@ -537,14 +537,47 @@ int main()
 	def.Height = 7.5f;
 	def.Radius = 2.0f;
 	def.Mass = 20.0f;
-	def.Position = glm::vec3(0, 10, -60);
+	def.Position = glm::vec3(0, 20.0f, -64);
 	def.JumpSpeed = 20.0f;
 	nPhysics::iCharacterComponent* physicscharacter = pPhysicsFactory->CreateCharacter(def);
 	pPhysicsManager->getWorld()->AddComponent(physicscharacter);
 
 	cAnimatedGameObject* character = new cAnimatedGameObject();
-	character->physics = physicscharacter;
-	world->addGameObject(character);
+	{
+		character->skinmesh.skinmesh.LoadMeshFromFile("RPGCharacter", "./assets/models/RPG-Character.fbx");
+		character->skinmesh.skinmesh.LoadMeshAnimation("Idle", "./assets/models/Idle.fbx", 0);
+		character->skinmesh.skinmesh.LoadMeshAnimation("Walk", "./assets/models/Walk.fbx", 0);
+		character->skinmesh.skinmesh.LoadMeshAnimation("Walk Back", "./assets/models/Walk Backwards.fbx", 0);
+		character->skinmesh.skinmesh.LoadMeshAnimation("Strafe Left", "./assets/models/Strafe Left.fbx", 0);
+		character->skinmesh.skinmesh.LoadMeshAnimation("Strafe Right", "./assets/models/Strafe Right.fbx", 0);
+		character->skinmesh.skinmesh.LoadMeshAnimation("Dance", "./assets/models/Dance.fbx", 0);
+		character->skinmesh.skinmesh.LoadMeshAnimation("Fall", "./assets/models/Falling.fbx", 0);
+
+		character->graphics.pShader = pShader;
+		character->graphics.color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+		character->graphics.visible = true;
+		character->graphics.wireFrame = false;
+		character->graphics.lighting = true;
+		character->graphics.specular = glm::vec4(1.0f);
+
+		character->mesh.meshName = "RPGCharacter";
+		character->mesh.scale = 0.05f;
+
+		character->transform.setPosition(glm::vec3(0.0f, 20.0f, -64.0f));
+		character->transform.setOrientation(glm::quatLookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+		character->transform.updateMatricis();
+
+		character->skinmesh.queueAnimation("Idle", true);
+		character->physics = physicscharacter;
+		world->addGameObject(character);
+
+		// Get the draw info, to load into the VAO
+		cMesh* pMesh = character->skinmesh.skinmesh.CreateMeshObjectFromCurrentModel();
+		if (pMesh)
+			pVAOManager->LoadModelIntoVAO("RPGCharacter", pMesh, program);
+	}
+
+	camera->position = glm::vec3(character->transform.matWorld[3]) + glm::vec3(0.0, 12.0f, 0.0);
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
 	lastcursorX = cursorX;
@@ -594,6 +627,7 @@ int main()
 	bool blur_second_pass = false;
 	bool night_vision_second_pass = false;
 	float edge_detection_second_pass_threshhold = 0.0f;
+	bool third_person = true;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -662,14 +696,22 @@ int main()
 			if (pKeyboardManager->keyPressed(GLFW_KEY_GRAVE_ACCENT))
 				cWorld::debugMode = !cWorld::debugMode;
 
-			int xmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
+			int xmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
 			int ymov = 0;
-			int zmov = pKeyboardManager->keyDown(GLFW_KEY_D) - pKeyboardManager->keyDown(GLFW_KEY_A);
+			int zmov = pKeyboardManager->keyDown(GLFW_KEY_W) - pKeyboardManager->keyDown(GLFW_KEY_S);
 
-			if (xmov || ymov || zmov)
+			if (zmov || ymov || xmov)
 			{
 				// Move player character when pressing directions
-				physicscharacter->Move((glm::normalize(glm::cross(camera->up, camera->right)) * (float)xmov + camera->right * (float)zmov) * 0.3f, dt);
+				if (xmov < 0)
+				{
+					// if moving backwards move "slowly"
+					physicscharacter->Move((glm::normalize(glm::cross(camera->up, camera->right)) * (float)zmov * 0.5f + camera->right * (float)xmov) * 0.3f, dt);
+				}
+				else
+				{
+					physicscharacter->Move((glm::normalize(glm::cross(camera->up, camera->right)) * (float)zmov + camera->right * (float)xmov) * 0.3f, dt);
+				}
 			}
 			else
 			{
@@ -708,6 +750,11 @@ int main()
 			if (pKeyboardManager->keyPressed('N'))
 			{
 				night_vision_second_pass = !night_vision_second_pass;
+			}
+			if (pKeyboardManager->keyPressed('C'))
+			{
+				third_person = !third_person;
+				character->graphics.visible = third_person;
 			}
 
 
@@ -817,11 +864,18 @@ int main()
 		glm::mat4 t;
 		physicscharacter->GetTransform(t);
 		character->transform.position.x = glm::mix(character->transform.matWorld[3][0], t[3][0], dt * 5.0f);
-		character->transform.position.y = glm::mix(character->transform.matWorld[3][1], t[3][1], dt * 10.0f);
+		character->transform.position.y = glm::mix(character->transform.matWorld[3][1], t[3][1] - 5.75f, dt * 10.0f); // hack subtract some because physics object uses center
 		character->transform.position.z = glm::mix(character->transform.matWorld[3][2], t[3][2], dt * 5.0f);
-		character->transform.orientation = glm::cross(camera->right, camera->up);
+		character->transform.orientation = glm::quatLookAt(glm::cross(camera->right, camera->up), camera->up);
 		character->transform.updateMatricis();
-		camera->position = glm::vec3(character->transform.matWorld[3]) + glm::vec3(0.0, 7.0f, 0.0);
+		if (third_person)
+		{
+			camera->position = glm::vec3(character->transform.matWorld[3]) + (glm::quatLookAt(-camera->forward, camera->up) * glm::vec3(0.0, 0.0f, -20.0) + glm::vec3(0.0f, 12.0f, 0.0f));
+		}
+		else
+		{
+			camera->position = glm::vec3(character->transform.matWorld[3]) + glm::vec3(0.0, 12.0f, 0.0);
+		}
 
 		// Render
 		{

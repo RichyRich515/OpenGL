@@ -99,6 +99,8 @@ void cParticleEmitter::render(float dt, float tt)
 
 	glUniform4f(pShader->getUniformLocID("specularColour"), 0.0f, 0.0f, 0.0f, 0.0f);// TODO: figure out specular?
 	glUniform4f(pShader->getUniformLocID("params1"), dt, tt, 1.0f, 0.0f);
+	glUniform4f(pShader->getUniformLocID("params2"), 0.0f, 0.0f, 0.0f, 0.0f);
+	glUniform4f(pShader->getUniformLocID("textparams00"), 0.0f, 0.0f, 0.0f, 0.0f);
 
 	glBindVertexArray(info.VAO_ID);
 
