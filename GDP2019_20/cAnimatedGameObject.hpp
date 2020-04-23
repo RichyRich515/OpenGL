@@ -2,14 +2,13 @@
 
 #include "cGameObject.hpp"
 #include "cSkinMeshComponent.hpp"
+#include <iCharacterComponent.h>
 
 class cAnimatedGameObject : public iGameObject
 {
 public:
 	cAnimatedGameObject();
-	cAnimatedGameObject(std::string name);
-	cAnimatedGameObject(Json::Value& obj);
-	cAnimatedGameObject(Json::Value& obj, std::map<std::string, cMesh*>& mapMeshes);
+	virtual ~cAnimatedGameObject();
 
 	virtual eComponentType getType() override;
 
@@ -25,25 +24,7 @@ public:
 	cMeshComponent mesh;
 	cGraphicsComponent graphics;
 	cTransformComponent transform;
-
-	glm::vec3 velocity;
-	glm::quat forward;
+	nPhysics::iCharacterComponent* physics;
 
 	float action_timer = 0.0f;
-
-	bool active = false;
-	bool jumping = false;
-	bool falling = false;
-	bool punching = false;
-
-	bool alive = true;
-
-	float jump_timer;
-	float jump_start_y;
-	float jump_speed;
-
-	int dir = -1;
-
-	std::vector<std::vector<int>>* level;
-	std::vector<iGameObject*> robots;
 };

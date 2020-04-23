@@ -46,5 +46,13 @@
 	{
 		"name": "pipe",
 		"location": "assets/models/pipe.ply"
+	},
+	{
+		"name": "tree",
+		"location": "assets/models/tree.fbx"
+	},
+	{
+		"name": "low_poly_tree",
+		"location": "assets/models/low_tree.ply"
 	}
 ]

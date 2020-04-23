@@ -21,6 +21,11 @@ public:
 
 	cMesh* mesh; // not necessary??
 	std::string meshName;
-
 	float scale;
+
+	// LOD
+	bool useLOD; // set from game object's update?
+	std::string lodMeshName;
+	float lodScale;
+	float lodDistance;
 };

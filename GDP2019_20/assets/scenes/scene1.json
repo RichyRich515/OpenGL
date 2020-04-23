@@ -628,7 +628,7 @@
 						}
 					],
 					"macrovariant": {
-						"blend": 0.3,
+						"blend": 0.6,
 						"name": "noise2.bmp",
 						"tiling": 1.0
 					}
@@ -1108,6 +1108,248 @@
 
 		{
 			"type": "physics",
+			"name": "tree",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 200.0, 0.0, -10.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree2",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 250.0, 0.0, -10.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree3",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 300.0, 0.0, -10.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree4",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 350.0, 0.0, -10.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree5",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 400.0, 0.0, -10.0 ]
+			}
+		},
+
+		{
+			"type": "physics",
+			"name": "tree6",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 225.0, 0.0, 50.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree7",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 275.0, 0.0, 50.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree8",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 325.0, 0.0, 50.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree9",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 375.0, 0.0, 50.0 ]
+			}
+		},
+		{
+			"type": "physics",
+			"name": "tree10",
+			"graphics": {
+				"lighting": true,
+				"color": [ 0.1, 0.4, 0.1, 1.0 ]
+			},
+			"mesh": {
+				"meshName": "tree",
+				"scale": 40.0,
+				"LOD": {
+					"meshName": "low_poly_tree",
+					"scale": 60.0,
+					"distance": 200.0
+				}
+			},
+			"physics": {
+				"type": "cylinder",
+				"elasticity": 0.5,
+				"extents": [ 3.6, 160.0, 3.6 ],
+				"mass": 0.0,
+				"position": [ 425.0, 0.0, 50.0 ]
+			}
+		},
+
+		{
+			"type": "physics",
 			"name": "ground",
 			"graphics": {
 				"lighting": true,
@@ -1120,9 +1362,9 @@
 						}
 					],
 					"macrovariant": {
-						"blend": 0.5,
+						"blend": 0.4,
 						"name": "noise3.bmp",
-						"tiling": 10.0
+						"tiling": 6.0
 					}
 				}
 			},
@@ -1265,6 +1507,50 @@
 				0.0,
 				200.0,
 				0.0,
+				0.0
+			],
+			"specular": [
+				1.0,
+				1.0,
+				1.0,
+				100.0
+			]
+		},
+		{
+			"atten": [
+				0.0,
+				0.02,
+				0.0,
+				300.0
+			],
+			"diffuse": [
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"direction": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"param1": [
+				0.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"param2": [
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			],
+			"position": [
+				300.0,
+				10.0,
+				20.0,
 				0.0
 			],
 			"specular": [

@@ -49,6 +49,7 @@
 #include "iGameObject.hpp"
 #include "cGameObject.hpp"
 #include "cPhysicsGameObject.hpp"
+#include "cAnimatedGameObject.hpp"
 #include "cBulletGameObject.hpp"
 #include "cLight.hpp"
 #include "cParticleEmitter.hpp"
@@ -330,7 +331,8 @@ int main()
 	cVAOManager* pVAOManager = new cVAOManager();
 	cVAOManager::setCurrentVAOManager(pVAOManager);
 	cShaderManager* pShaderManager = new cShaderManager();
-	camera = new cCamera();
+	cWorld::camera = new cCamera();
+	camera = cWorld::camera;
 	GLuint view_loc = 0;
 	GLuint projection_loc = 0;
 	GLuint eyeLocation_loc = 0;
@@ -538,17 +540,10 @@ int main()
 	def.Position = glm::vec3(0, 10, -60);
 	def.JumpSpeed = 20.0f;
 	nPhysics::iCharacterComponent* physicscharacter = pPhysicsFactory->CreateCharacter(def);
-
 	pPhysicsManager->getWorld()->AddComponent(physicscharacter);
 
-	cGameObject* character = new cGameObject();
-	character->graphics.visible = true;
-	character->graphics.lighting = true;
-	character->graphics.color = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-
-	character->mesh.meshName = "sphere";
-	character->mesh.scale = 4.0f;
-
+	cAnimatedGameObject* character = new cAnimatedGameObject();
+	character->physics = physicscharacter;
 	world->addGameObject(character);
 
 	glfwGetCursorPos(window, &cursorX, &cursorY);
@@ -851,7 +846,7 @@ int main()
 			// 2. clear actual screen buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// 3. use the FBO colour buffer as the texture on the tri
+			// 3. bind the FBO buffers to the texture samplers
 			glActiveTexture(GL_TEXTURE0 + 50);
 			glBindTexture(GL_TEXTURE_2D, fbo->colourBuffer_0_ID);
 			glUniform1i(pShader->getUniformLocID("secondPassColourSamp"), 50);
@@ -897,7 +892,7 @@ int main()
 			}
 		}
 		
-		// Render transparents
+		// Render transparents, need to be done after deferred
 		{
 			// Copy the deffered depth buffer into the forward rendering's depth buffer
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->ID);

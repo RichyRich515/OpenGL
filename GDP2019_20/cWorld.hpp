@@ -8,6 +8,7 @@
 #include "cGameObject.hpp"
 #include "DebugRenderer/cDebugRenderer.h"
 #include "cLight.hpp"
+#include "cCamera.hpp"
 
 // Singleton world object
 class cWorld : iMessageable
@@ -34,6 +35,8 @@ public:
 
 	static cDebugRenderer* pDebugRenderer;
 	static bool debugMode;
+
+	static cCamera* camera;
 
 private:
 	cWorld();

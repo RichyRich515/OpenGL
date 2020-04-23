@@ -7,6 +7,8 @@ cWorld cWorld::_world;
 bool cWorld::debugMode;
 cDebugRenderer* cWorld::pDebugRenderer;
 
+cCamera* cWorld::camera;
+
 sMessage cWorld::message(sMessage const& msg)
 {
 	return sMessage();

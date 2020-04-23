@@ -11,6 +11,7 @@
 #include <iPhysicsComponent.h>
 #include "cGraphicsComponent.hpp"
 #include "cMeshComponent.hpp"
+#include "cCamera.hpp"
 
 class cPhysicsGameObject : public iGameObject
 {

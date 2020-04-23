@@ -319,7 +319,7 @@ void main()
 
 			// 1.0 +- z
 			v *= macrovariantParams.z * 2;
-			v += 1.0;
+			v += 1.0 - macrovariantParams.z;
 
 			// Modulate into final colour
 			colourBuffer.rgb *= v;

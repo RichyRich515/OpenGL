@@ -6,6 +6,7 @@
 #include "cPhysicsManager.hpp"
 #include "JsonHelper.hpp"
 #include "cClothMeshComponent.hpp"
+#include "cWorld.hpp"
 
 cPhysicsGameObject::cPhysicsGameObject()
 {
@@ -229,7 +230,7 @@ void cPhysicsGameObject::render(float dt, float tt)
 
 	glm::mat4 m(1.0f);
 	this->physics->GetTransform(m);
-	m *= glm::scale(glm::mat4(1.0), glm::vec3(mesh->scale));
+	m *= glm::scale(glm::mat4(1.0), glm::vec3(this->mesh->useLOD ? this->mesh->lodScale : this->mesh->scale));
 	cShaderManager::cShaderProgram* pShader = cShaderManager::getCurrentShader();
 	glUniformMatrix4fv(pShader->getUniformLocID("matModel"), 1, GL_FALSE, glm::value_ptr(m));
 	glUniformMatrix4fv(pShader->getUniformLocID("matModelInverseTranspose"), 1, GL_FALSE, glm::value_ptr(glm::inverse(glm::transpose(m))));
@@ -243,6 +244,10 @@ void cPhysicsGameObject::update(float dt, float tt)
 {
 	this->graphics.update(dt, tt);
 	this->mesh->update(dt, tt);
+	if (!this->mesh->lodMeshName.empty())
+	{
+		this->mesh->useLOD = glm::distance(cWorld::camera->position, this->getPosition()) > this->mesh->lodDistance;
+	}
 }
 
 sMessage cPhysicsGameObject::message(sMessage const& msg)
