@@ -15,6 +15,12 @@ Texture "macrovariantions"
 Edge Detection
 	A combination of color change detection and frag's world normal to eye vector
 
+Full screen blur
+	using a 7 length kernel, two pass blur is applied to entire output (horizontal then vertical)
+
+Night vision
+	Makes everything tinted green and brightens dark areas.. really nothing too special
+
 Deferred Rendering
 	using a 2.5 pass system
 		1st pass: render all opaque objects to the color, normal, world position and depth buffers
@@ -30,6 +36,10 @@ Uber Shader
 LOD/Level of Detail
 	Swap the model to a lower resolution version on the fly to reduce load on GPU when high poly object is far away
 
+Multiple Animations
+	different animations play based on input and status of player
+		Walking, strafing, backwalking, falling
+
 Controls:
 
 	WASD
@@ -41,8 +51,11 @@ Controls:
 	Left Click
 		Shoot
 
+	C
+		Toggle between first and second person
+
 	V
-		Toggle edge detection (use '<' or '>' to change the threshhold)
+		Toggle edge detection (use '<' or '>' to change the threshold)
 
 	B
 		Toggle blur mode
@@ -51,5 +64,5 @@ Controls:
 		Toggle night vision mode
 
 	G (hold)
-		Speed up the game's DT by a factor of 10
+		Speed up the game's DT by a factor of 10 (BUGGY!!)
 	
