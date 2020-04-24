@@ -62,50 +62,61 @@ void cAnimatedGameObject::render(float dt, float tt)
 
 void cAnimatedGameObject::update(float dt, float tt)
 {
+	this->falling_timer -= dt;
 	this->action_timer -= dt;
-	this->graphics.update(dt, tt);
-	this->skinmesh.update(dt, tt);
-	this->mesh.update(dt, tt);
 
 	if (!this->physics->CanJump())
 	{
-		if (!falling && action_timer <= 0.0f)
+		if (!falling && falling_timer <= 0.0f)
 		{
-			action_timer = 0.25f;
+			falling_timer = 0.25f;
+			action_timer = 0.0f;
 			falling = true;
 		}
-		else if (action_timer <= 0.0f)
+		else if (falling_timer <= 0.0f)
 		{
 			this->skinmesh.forceAnimation("Fall", true);
 		}
 	}
 	else
 	{
-		action_timer = 0.0f;
+		falling_timer = 0.0f;
 		falling = false;
 	}
 
 	if (!falling)
 	{
-		if (cKeyboardManager::keyDown('W'))
+		if (cKeyboardManager::keyPressed('E'))
 		{
-			this->skinmesh.forceAnimation("Walk", true);
+			this->skinmesh.forceAnimation("Dance", false, true);
+			this->action_timer = this->skinmesh.skinmesh.GetDuration();
 		}
-		else if (cKeyboardManager::keyDown('A'))
+		if (action_timer <= 0.0f)
 		{
-			this->skinmesh.forceAnimation("Strafe Left", true);
-		}
-		else if (cKeyboardManager::keyDown('D'))
-		{
-			this->skinmesh.forceAnimation("Strafe Right", true);
-		}
-		else if (cKeyboardManager::keyDown('S'))
-		{
-			this->skinmesh.forceAnimation("Walk Back", true);
-		}
-		else
-		{
-			this->skinmesh.forceAnimation("Idle", true);
+			if (cKeyboardManager::keyDown('W'))
+			{
+				this->skinmesh.forceAnimation("Walk", true);
+			}
+			else if (cKeyboardManager::keyDown('A'))
+			{
+				this->skinmesh.forceAnimation("Strafe Left", true);
+			}
+			else if (cKeyboardManager::keyDown('D'))
+			{
+				this->skinmesh.forceAnimation("Strafe Right", true);
+			}
+			else if (cKeyboardManager::keyDown('S'))
+			{
+				this->skinmesh.forceAnimation("Walk Back", true);
+			}
+			else
+			{
+				this->skinmesh.forceAnimation("Idle", true);
+			}
 		}
 	}
+
+	this->graphics.update(dt, tt);
+	this->skinmesh.update(dt, tt);
+	this->mesh.update(dt, tt);
 }

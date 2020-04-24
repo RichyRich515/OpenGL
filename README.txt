@@ -38,7 +38,7 @@ LOD/Level of Detail
 
 Multiple Animations
 	different animations play based on input and status of player
-		Walking, strafing, backwalking, falling
+		Walking, strafing, backwalking, falling, dancing
 
 Controls:
 
@@ -51,8 +51,11 @@ Controls:
 	Left Click
 		Shoot
 
+	E
+		Dance (When in third person)
+		
 	C
-		Toggle between first and second person
+		Toggle between first and third person
 
 	V
 		Toggle edge detection (use '<' or '>' to change the threshold)
@@ -65,4 +68,7 @@ Controls:
 
 	G (hold)
 		Speed up the game's DT by a factor of 10 (BUGGY!!)
+		
+	~
+		Debug information
 	

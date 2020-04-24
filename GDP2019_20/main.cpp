@@ -616,9 +616,9 @@ int main()
 	emitter1->init(glm::vec3(-40.0f, 8.0f, -4.5f), glm::vec3(0.0f),
 		glm::vec3(-0.33f, 4.0f, -0.33f), glm::vec3(0.33f, 4.5f, 0.33f),
 		glm::vec3(0.0f), glm::vec3(0.0f),
-		3.5f, 3.7f, 
+		3.5f, 3.7f,
 		glm::vec4(0.0f, 0.0f, 0.0f, 1.1f), glm::vec4(1.0f, 1.0f, 1.0f, -0.1f),
-		0.2f, 4.0f, 
+		0.2f, 4.0f,
 		0, 2, 1000);
 
 	emitter1->parentObject = world->getGameObjectByName("train");
@@ -945,7 +945,7 @@ int main()
 				glBindVertexArray(0);
 			}
 		}
-		
+
 		// Render transparents, need to be done after deferred
 		{
 			// Copy the deffered depth buffer into the forward rendering's depth buffer
