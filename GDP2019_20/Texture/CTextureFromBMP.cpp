@@ -344,6 +344,7 @@ bool CTextureFromBMP::CreateTextureFromBMPFile(std::string textureName, std::str
 
 	this->m_fileNameFullPath = fileNameFullPath;
 	this->m_textureName = textureName;
+	return true;
 }
 
 bool CTextureFromBMP::LoadToGPU(bool generateMipMap)
